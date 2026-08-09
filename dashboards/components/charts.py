@@ -1,25 +1,29 @@
 """
-Reusable chart components.
+Reusable chart components for the Enterprise Predictive Analytics Engine.
 
-This module provides the centralized visualization layer for the
-Enterprise Predictive Analytics Engine dashboard.
+This module is the centralized visualization layer for the dashboard.
 
 Responsibilities
 ----------------
 - Create reusable Plotly visualizations.
 - Apply consistent dashboard styling.
 - Keep chart configuration out of individual pages.
-- Provide safe handling for empty datasets.
+- Handle empty and invalid datasets safely.
+- Prevent large datasets from overwhelming the browser.
+- Use SVG-based charts for maximum browser compatibility.
 - Standardize titles, spacing, grids, hover behavior, and legends.
 
-The chart layer does NOT:
-- load data
-- calculate business metrics
-- perform machine learning
-- modify source DataFrames
-- inject global CSS
+Architecture
+------------
+Pages
+    ↓
+Transformation layer
+    ↓
+Chart components
+    ↓
+Plotly / Streamlit
 
-Pages and transformation modules remain responsible for those concerns.
+Business logic and data loading do not belong in this module.
 """
 
 from __future__ import annotations
@@ -36,9 +40,6 @@ import streamlit as st
 # DESIGN TOKENS
 # ============================================================================
 
-# These values intentionally remain local to the chart system.
-# Global application colors can later be centralized in styles/colors.py.
-
 PRIMARY_COLOR = "#2563EB"
 SECONDARY_COLOR = "#7C3AED"
 SUCCESS_COLOR = "#059669"
@@ -50,37 +51,36 @@ GRID_COLOR = "#E5E7EB"
 TEXT_COLOR = "#0F172A"
 MUTED_TEXT_COLOR = "#64748B"
 
+WHITE = "#FFFFFF"
 TRANSPARENT = "rgba(0,0,0,0)"
 
 
 # ============================================================================
-# COMMON CHART CONFIGURATION
+# CHART DEFAULTS
 # ============================================================================
 
 DEFAULT_CHART_HEIGHT = 380
 
 DEFAULT_MARGIN = {
-    "l": 10,
+    "l": 55,
     "r": 25,
     "t": 55,
-    "b": 15,
+    "b": 50,
 }
+
+# Maximum number of customer observations rendered in scatter plots.
+MAX_SCATTER_POINTS = 6000
 
 
 # ============================================================================
-# INTERNAL HELPERS
+# VALIDATION HELPERS
 # ============================================================================
 
 def _validate_dataframe(
     dataframe: pd.DataFrame,
 ) -> bool:
     """
-    Validate that a chart received a usable DataFrame.
-
-    Returns
-    -------
-    bool
-        True when the DataFrame contains usable rows.
+    Check whether the supplied dataframe is usable for visualization.
     """
 
     if dataframe is None:
@@ -100,12 +100,7 @@ def _validate_columns(
     columns: Iterable[str],
 ) -> None:
     """
-    Validate that required chart columns exist.
-
-    Raises
-    ------
-    ValueError
-        When one or more required columns are missing.
+    Validate that all required columns exist in the dataframe.
     """
 
     missing_columns = [
@@ -115,7 +110,6 @@ def _validate_columns(
     ]
 
     if missing_columns:
-
         raise ValueError(
             "Chart data is missing required columns: "
             + ", ".join(missing_columns)
@@ -126,7 +120,7 @@ def _render_empty_state(
     message: str,
 ) -> None:
     """
-    Render a consistent empty-state message when chart data is unavailable.
+    Render a consistent empty-state message.
     """
 
     st.info(
@@ -135,15 +129,229 @@ def _render_empty_state(
     )
 
 
+# ============================================================================
+# SCATTER DATA PREPARATION
+# ============================================================================
+
+def _prepare_scatter_data(
+    dataframe: pd.DataFrame,
+    x: str,
+    y: str,
+    color: Optional[str] = None,
+    max_points: int = MAX_SCATTER_POINTS,
+) -> pd.DataFrame:
+    """
+    Prepare customer-level data for browser-safe scatter rendering.
+
+    Large customer datasets are sampled deterministically so that the
+    browser does not have to render tens of thousands of points.
+    """
+
+    columns_to_keep = [x, y]
+
+    if color:
+        columns_to_keep.append(color)
+
+    prepared = dataframe[columns_to_keep].copy()
+
+    # Remove observations that cannot be plotted.
+    prepared = prepared.dropna(
+        subset=[x, y]
+    )
+
+    if prepared.empty:
+        return prepared
+
+    # No sampling is necessary for reasonably small datasets.
+    if len(prepared) <= max_points:
+        return prepared.reset_index(drop=True)
+
+    # ------------------------------------------------------------------------
+    # Preserve high-value / extreme observations.
+    # ------------------------------------------------------------------------
+
+    extreme_count = min(
+        500,
+        max_points // 5,
+    )
+
+    extreme_indices: set[int] = set()
+
+    try:
+        x_numeric = pd.to_numeric(
+            prepared[x],
+            errors="coerce",
+        )
+
+        y_numeric = pd.to_numeric(
+            prepared[y],
+            errors="coerce",
+        )
+
+        extreme_x = (
+            x_numeric
+            .nlargest(extreme_count)
+            .index
+        )
+
+        extreme_y = (
+            y_numeric
+            .nlargest(extreme_count)
+            .index
+        )
+
+        extreme_indices.update(
+            extreme_x.tolist()
+        )
+
+        extreme_indices.update(
+            extreme_y.tolist()
+        )
+
+    except Exception:
+        extreme_indices = set()
+
+    extreme_indices = set(
+        list(extreme_indices)[: max_points // 4]
+    )
+
+    remaining = prepared.drop(
+        index=list(extreme_indices),
+        errors="ignore",
+    )
+
+    remaining_slots = max_points - len(
+        extreme_indices
+    )
+
+    # ------------------------------------------------------------------------
+    # Category-aware sampling.
+    # ------------------------------------------------------------------------
+
+    sampled_parts = []
+
+    if color and color in remaining.columns:
+
+        category_count = remaining[color].nunique(
+            dropna=True
+        )
+
+        if category_count > 0:
+
+            per_category = max(
+                1,
+                remaining_slots // category_count,
+            )
+
+            for _, group in remaining.groupby(
+                color,
+                dropna=False,
+            ):
+
+                sample_size = min(
+                    len(group),
+                    per_category,
+                )
+
+                if sample_size > 0:
+
+                    sampled_parts.append(
+                        group.sample(
+                            n=sample_size,
+                            random_state=42,
+                        )
+                    )
+
+    if sampled_parts:
+
+        sampled = pd.concat(
+            sampled_parts,
+            ignore_index=False,
+        )
+
+    else:
+
+        sampled = remaining.sample(
+            n=min(
+                remaining_slots,
+                len(remaining),
+            ),
+            random_state=42,
+        )
+
+    # Fill remaining space if category-aware sampling did not
+    # reach the target size.
+    if len(sampled) < remaining_slots:
+
+        sampled_indices = set(
+            sampled.index
+        )
+
+        additional = remaining.drop(
+            index=list(sampled_indices),
+            errors="ignore",
+        )
+
+        additional_count = min(
+            remaining_slots - len(sampled),
+            len(additional),
+        )
+
+        if additional_count > 0:
+
+            sampled = pd.concat(
+                [
+                    sampled,
+                    additional.sample(
+                        n=additional_count,
+                        random_state=42,
+                    ),
+                ]
+            )
+
+    # ------------------------------------------------------------------------
+    # Combine extreme observations and sampled observations.
+    # ------------------------------------------------------------------------
+
+    if extreme_indices:
+
+        extreme_rows = prepared.loc[
+            prepared.index.intersection(
+                extreme_indices
+            )
+        ]
+
+        sampled = pd.concat(
+            [
+                extreme_rows,
+                sampled,
+            ]
+        )
+
+    sampled = (
+        sampled
+        .loc[
+            ~sampled.index.duplicated(
+                keep="first"
+            )
+        ]
+        .head(max_points)
+        .reset_index(drop=True)
+    )
+
+    return sampled
+
+
+# ============================================================================
+# COMMON LAYOUT
+# ============================================================================
+
 def _base_layout(
     title: Optional[str] = None,
     height: int = DEFAULT_CHART_HEIGHT,
 ) -> dict:
     """
-    Return the shared Plotly layout configuration.
-
-    Keeping this configuration centralized prevents each dashboard
-    page from developing its own visual language.
+    Return the shared dashboard Plotly layout.
     """
 
     title_config = None
@@ -154,6 +362,8 @@ def _base_layout(
             "text": title,
             "x": 0,
             "xanchor": "left",
+            "y": 0.98,
+            "yanchor": "top",
             "font": {
                 "size": 16,
                 "color": TEXT_COLOR,
@@ -164,27 +374,43 @@ def _base_layout(
         "title": title_config,
         "height": height,
         "margin": DEFAULT_MARGIN.copy(),
+
         "paper_bgcolor": TRANSPARENT,
         "plot_bgcolor": TRANSPARENT,
+
         "font": {
             "family": (
                 "Inter, -apple-system, BlinkMacSystemFont, "
                 "Segoe UI, sans-serif"
             ),
             "color": MUTED_TEXT_COLOR,
+            "size": 12,
         },
+
         "hoverlabel": {
+            "bgcolor": WHITE,
+            "bordercolor": GRID_COLOR,
             "font": {
                 "size": 12,
+                "color": TEXT_COLOR,
             },
         },
+
         "legend": {
             "font": {
                 "size": 11,
+                "color": MUTED_TEXT_COLOR,
             },
+            "bgcolor": TRANSPARENT,
         },
+
+        "hovermode": "closest",
     }
 
+
+# ============================================================================
+# AXIS STYLING
+# ============================================================================
 
 def _apply_axis_style(
     figure: go.Figure,
@@ -201,6 +427,7 @@ def _apply_axis_style(
         title=x_title,
         showgrid=show_x_grid,
         gridcolor=GRID_COLOR,
+        gridwidth=1,
         zeroline=False,
         showline=False,
         title_font={
@@ -211,12 +438,14 @@ def _apply_axis_style(
             "size": 11,
             "color": MUTED_TEXT_COLOR,
         },
+        automargin=True,
     )
 
     figure.update_yaxes(
         title=y_title,
         showgrid=show_y_grid,
         gridcolor=GRID_COLOR,
+        gridwidth=1,
         zeroline=False,
         showline=False,
         title_font={
@@ -227,14 +456,23 @@ def _apply_axis_style(
             "size": 11,
             "color": MUTED_TEXT_COLOR,
         },
+        automargin=True,
     )
 
+
+# ============================================================================
+# FIGURE RENDERING
+# ============================================================================
 
 def _render_figure(
     figure: go.Figure,
 ) -> None:
     """
-    Render a Plotly figure using dashboard-standard Streamlit settings.
+    Render a Plotly figure using SVG-compatible rendering.
+
+    SVG is deliberately used instead of WebGL because the dashboard
+    should work reliably across browsers, remote desktops and machines
+    where WebGL support is unavailable.
     """
 
     st.plotly_chart(
@@ -263,36 +501,7 @@ def line_chart(
     color: Optional[str] = None,
 ) -> None:
     """
-    Render a reusable line chart.
-
-    Parameters
-    ----------
-    dataframe:
-        Source DataFrame.
-
-    x:
-        Column used for the x-axis.
-
-    y:
-        Column or columns used for the y-axis.
-
-    title:
-        Optional chart title.
-
-    x_title:
-        Optional x-axis title.
-
-    y_title:
-        Optional y-axis title.
-
-    height:
-        Chart height in pixels.
-
-    markers:
-        Whether data-point markers should be displayed.
-
-    color:
-        Optional Plotly color column for multi-category lines.
+    Render a reusable SVG-based line chart.
     """
 
     if not _validate_dataframe(dataframe):
@@ -328,6 +537,7 @@ def line_chart(
         y=y_columns,
         color=color,
         markers=markers,
+        render_mode="svg",
     )
 
     figure.update_layout(
@@ -396,19 +606,19 @@ def bar_chart(
         text=y if text else None,
     )
 
-    figure.update_traces(
-        marker_color=(
-            PRIMARY_COLOR
-            if color is None
-            else None
-        ),
-    )
+    if color is None:
+
+        figure.update_traces(
+            marker_color=PRIMARY_COLOR,
+            marker_line_width=0,
+        )
 
     if text:
 
         figure.update_traces(
             texttemplate="%{text}",
             textposition="outside",
+            cliponaxis=False,
         )
 
     figure.update_layout(
@@ -422,6 +632,7 @@ def bar_chart(
         figure,
         x_title=x_title,
         y_title=y_title,
+        show_y_grid=True,
     )
 
     _render_figure(
@@ -444,9 +655,7 @@ def horizontal_bar_chart(
     text: bool = False,
 ) -> None:
     """
-    Render a reusable horizontal bar chart.
-
-    Particularly useful for rankings and segment comparisons.
+    Render a reusable horizontal ranking chart.
     """
 
     if not _validate_dataframe(dataframe):
@@ -475,6 +684,7 @@ def horizontal_bar_chart(
 
     figure.update_traces(
         marker_color=PRIMARY_COLOR,
+        marker_line_width=0,
     )
 
     if text:
@@ -482,6 +692,7 @@ def horizontal_bar_chart(
         figure.update_traces(
             texttemplate="%{text}",
             textposition="outside",
+            cliponaxis=False,
         )
 
     figure.update_layout(
@@ -518,7 +729,7 @@ def area_chart(
     height: int = DEFAULT_CHART_HEIGHT,
 ) -> None:
     """
-    Render a reusable area chart for volume and trend analysis.
+    Render a reusable area chart.
     """
 
     if not _validate_dataframe(dataframe):
@@ -541,12 +752,15 @@ def area_chart(
         dataframe,
         x=x,
         y=y,
+        render_mode="svg",
     )
 
     figure.update_traces(
         line={
             "color": PRIMARY_COLOR,
+            "width": 2,
         },
+        fillcolor="rgba(37,99,235,0.10)",
     )
 
     figure.update_layout(
@@ -581,9 +795,6 @@ def donut_chart(
 ) -> None:
     """
     Render a reusable donut chart.
-
-    Best suited to small part-to-whole comparisons such as
-    customer segment composition.
     """
 
     if not _validate_dataframe(dataframe):
@@ -612,6 +823,12 @@ def donut_chart(
     figure.update_traces(
         textposition="inside",
         textinfo="percent",
+        marker={
+            "line": {
+                "color": WHITE,
+                "width": 2,
+            }
+        },
         hovertemplate=(
             "<b>%{label}</b><br>"
             "Value: %{value:,}<br>"
@@ -632,8 +849,10 @@ def donut_chart(
             "orientation": "v",
             "font": {
                 "size": 11,
+                "color": MUTED_TEXT_COLOR,
             },
-        },
+            "bgcolor": TRANSPARENT,
+        }
     )
 
     _render_figure(
@@ -655,16 +874,21 @@ def scatter_chart(
     color: Optional[str] = None,
     size: Optional[str] = None,
     height: int = DEFAULT_CHART_HEIGHT,
-    opacity: float = 0.7,
+    opacity: float = 0.65,
 ) -> None:
     """
-    Render a reusable scatter chart.
+    Render a browser-safe SVG scatter chart.
 
-    Useful for relationship analysis such as:
+    Important
+    ---------
+    This function intentionally uses graph_objects.Scatter instead
+    of Plotly Express scatter.
 
-    - Frequency vs monetary value
-    - Sales vs profit
-    - Risk probability vs customer value
+    That removes the WebGL dependency that was causing:
+
+        "WebGL is not supported by your browser"
+
+    The chart remains SVG-based even for customer-level data.
     """
 
     if not _validate_dataframe(dataframe):
@@ -691,14 +915,148 @@ def scatter_chart(
         required_columns,
     )
 
-    figure = px.scatter(
-        dataframe,
+    plot_dataframe = _prepare_scatter_data(
+        dataframe=dataframe,
         x=x,
         y=y,
         color=color,
-        size=size,
-        opacity=opacity,
+        max_points=MAX_SCATTER_POINTS,
     )
+
+    if plot_dataframe.empty:
+
+        _render_empty_state(
+            "No valid observations are available for this chart."
+        )
+
+        return
+
+    figure = go.Figure()
+
+    # ------------------------------------------------------------------------
+    # SINGLE-CATEGORY SCATTER
+    # ------------------------------------------------------------------------
+
+    if not color:
+
+        marker_size = 7
+
+        if size:
+
+            numeric_size = pd.to_numeric(
+                plot_dataframe[size],
+                errors="coerce",
+            )
+
+            if numeric_size.notna().any():
+
+                normalized_size = (
+                    numeric_size
+                    .fillna(numeric_size.median())
+                    .clip(lower=0)
+                )
+
+                max_size = normalized_size.max()
+
+                if max_size > 0:
+
+                    marker_size = (
+                        5
+                        + (
+                            normalized_size
+                            / max_size
+                        ) * 12
+                    )
+
+        figure.add_trace(
+            go.Scatter(
+                x=plot_dataframe[x],
+                y=plot_dataframe[y],
+                mode="markers",
+                marker={
+                    "size": marker_size,
+                    "color": PRIMARY_COLOR,
+                    "opacity": opacity,
+                    "line": {
+                        "width": 0.5,
+                        "color": WHITE,
+                    },
+                },
+                name="Customers",
+                hovertemplate=(
+                    f"<b>{x}</b>: "
+                    "%{x}<br>"
+                    f"<b>{y}</b>: "
+                    "%{y}"
+                    "<extra></extra>"
+                ),
+            )
+        )
+
+    # ------------------------------------------------------------------------
+    # CATEGORY-BASED SCATTER
+    # ------------------------------------------------------------------------
+
+    else:
+
+        categories = (
+            plot_dataframe[color]
+            .dropna()
+            .unique()
+            .tolist()
+        )
+
+        category_palette = [
+            PRIMARY_COLOR,
+            SECONDARY_COLOR,
+            SUCCESS_COLOR,
+            WARNING_COLOR,
+            DANGER_COLOR,
+            "#0891B2",
+            "#DB2777",
+            "#4F46E5",
+        ]
+
+        for index, category in enumerate(categories):
+
+            category_df = plot_dataframe[
+                plot_dataframe[color] == category
+            ]
+
+            figure.add_trace(
+                go.Scatter(
+                    x=category_df[x],
+                    y=category_df[y],
+                    mode="markers",
+                    name=str(category),
+                    marker={
+                        "size": 7,
+                        "color": category_palette[
+                            index % len(category_palette)
+                        ],
+                        "opacity": opacity,
+                        "line": {
+                            "width": 0.5,
+                            "color": WHITE,
+                        },
+                    },
+                    hovertemplate=(
+                        f"<b>{color}</b>: "
+                        f"{category}"
+                        "<br>"
+                        f"<b>{x}</b>: "
+                        "%{x}"
+                        "<br>"
+                        f"<b>{y}</b>: "
+                        "%{y}"
+                        "<extra></extra>"
+                    ),
+                )
+            )
+
+    # ------------------------------------------------------------------------
+    # Layout
+    # ------------------------------------------------------------------------
 
     figure.update_layout(
         **_base_layout(
@@ -712,6 +1070,23 @@ def scatter_chart(
         x_title=x_title,
         y_title=y_title,
     )
+
+    if color:
+
+        figure.update_layout(
+            legend={
+                "orientation": "h",
+                "yanchor": "bottom",
+                "y": 1.02,
+                "xanchor": "left",
+                "x": 0,
+                "font": {
+                    "size": 11,
+                    "color": MUTED_TEXT_COLOR,
+                },
+                "bgcolor": TRANSPARENT,
+            }
+        )
 
     _render_figure(
         figure
@@ -733,7 +1108,7 @@ def histogram(
     color: str = PRIMARY_COLOR,
 ) -> None:
     """
-    Render a reusable histogram for distribution analysis.
+    Render a reusable histogram.
     """
 
     if not _validate_dataframe(dataframe):
@@ -759,6 +1134,7 @@ def histogram(
 
     figure.update_traces(
         marker_color=color,
+        marker_line_width=0,
         hovertemplate=(
             "%{x}<br>"
             "Count: %{y:,}"
@@ -803,39 +1179,7 @@ def forecast_chart(
     """
     Render a professional actual-vs-forecast chart.
 
-    Parameters
-    ----------
-    dataframe:
-        Forecast dataset.
-
-    date_column:
-        Time-axis column.
-
-    actual_column:
-        Historical/actual values.
-
-    forecast_column:
-        Forecast values.
-
-    lower_column:
-        Optional lower confidence bound.
-
-    upper_column:
-        Optional upper confidence bound.
-
-    title:
-        Chart title.
-
-    x_title:
-        X-axis title.
-
-    y_title:
-        Y-axis title.
-
-    Notes
-    -----
-    Confidence intervals are rendered as a translucent area behind
-    the forecast line.
+    Confidence intervals are rendered behind the forecast line.
     """
 
     if not _validate_dataframe(dataframe):
@@ -874,12 +1218,23 @@ def forecast_chart(
         errors="coerce",
     )
 
+    df = df.dropna(
+        subset=[date_column]
+    )
+
     df = df.sort_values(
         date_column
     )
 
-    figure = go.Figure()
+    if df.empty:
 
+        _render_empty_state(
+            "No valid forecast observations are available."
+        )
+
+        return
+
+    figure = go.Figure()
 
     # ------------------------------------------------------------------------
     # Confidence interval
@@ -917,7 +1272,6 @@ def forecast_chart(
             )
         )
 
-
     # ------------------------------------------------------------------------
     # Actual values
     # ------------------------------------------------------------------------
@@ -935,9 +1289,14 @@ def forecast_chart(
             marker={
                 "size": 6,
             },
+            hovertemplate=(
+                "<b>Actual</b><br>"
+                "%{x|%b %Y}<br>"
+                "%{y:,.0f}"
+                "<extra></extra>"
+            ),
         )
     )
-
 
     # ------------------------------------------------------------------------
     # Forecast values
@@ -956,9 +1315,14 @@ def forecast_chart(
             marker={
                 "size": 6,
             },
+            hovertemplate=(
+                "<b>Forecast</b><br>"
+                "%{x|%b %Y}<br>"
+                "%{y:,.0f}"
+                "<extra></extra>"
+            ),
         )
     )
-
 
     # ------------------------------------------------------------------------
     # Layout
@@ -984,6 +1348,11 @@ def forecast_chart(
             "y": 1.02,
             "xanchor": "left",
             "x": 0,
+            "font": {
+                "size": 11,
+                "color": MUTED_TEXT_COLOR,
+            },
+            "bgcolor": TRANSPARENT,
         }
     )
 

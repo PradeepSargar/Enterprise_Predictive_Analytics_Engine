@@ -1,31 +1,27 @@
 """
-Enterprise Predictive Analytics Engine
----------------------------------------
-
 Main Streamlit application entry point.
 
-This file is responsible for:
+Responsibilities
+----------------
+1. Configure the Streamlit application.
+2. Load the global design system.
+3. Render the application shell.
+4. Define centralized dashboard navigation.
+5. Run the selected dashboard page.
 
-1. Configuring the Streamlit application.
-2. Loading the global design system.
-3. Defining the dashboard navigation.
-4. Running the selected dashboard page.
-
-Page-specific analytics should remain inside the individual
-files under dashboards/pages/.
+Page-specific analytics remain inside dashboards/pages/.
 """
 
 import streamlit as st
 
 from dashboards.styles.theme import inject_global_styles
+from dashboards.utils.html import render_html
 
 
-# =====================================================================
+# ============================================================================
 # APPLICATION CONFIGURATION
-# =====================================================================
+# ============================================================================
 
-# Configure the application before rendering any dashboard content.
-# Wide mode gives analytics visualizations enough horizontal space.
 st.set_page_config(
     page_title="Enterprise Predictive Analytics Engine",
     page_icon="◈",
@@ -34,29 +30,28 @@ st.set_page_config(
 )
 
 
-# =====================================================================
+# ============================================================================
 # GLOBAL DESIGN SYSTEM
-# =====================================================================
+# ============================================================================
 
-# Apply the centralized CSS theme to the entire application.
+# Load the centralized CSS design system before rendering the application.
 inject_global_styles()
 
 
-# =====================================================================
+# ============================================================================
 # APPLICATION NAVIGATION
-# =====================================================================
+# ============================================================================
 
-# Each page is explicitly registered here.
+# Navigation is organized according to the business purpose of each page.
 #
-# This gives us complete control over:
-#   - Page order
-#   - Navigation labels
-#   - Icons
-#   - Navigation groups
-#
-# The actual analytical logic stays inside each page file.
+# Only pages that currently exist are registered here.
 
 pages = {
+
+    # ------------------------------------------------------------------------
+    # OVERVIEW
+    # ------------------------------------------------------------------------
+
     "Overview": [
         st.Page(
             "dashboards/pages/01_Executive_Overview.py",
@@ -65,6 +60,10 @@ pages = {
             default=True,
         ),
     ],
+
+    # ------------------------------------------------------------------------
+    # CUSTOMER INTELLIGENCE
+    # ------------------------------------------------------------------------
 
     "Customer Intelligence": [
         st.Page(
@@ -77,7 +76,16 @@ pages = {
             title="Customer Risk",
             icon=":material/security:",
         ),
+        st.Page(
+            "dashboards/pages/07_Customer_Segmentation.py",
+            title="Customer Segmentation",
+            icon=":material/account_tree:",
+        ),
     ],
+
+    # ------------------------------------------------------------------------
+    # PREDICTIVE INTELLIGENCE
+    # ------------------------------------------------------------------------
 
     "Predictive Intelligence": [
         st.Page(
@@ -92,7 +100,11 @@ pages = {
         ),
     ],
 
-    "Data": [
+    # ------------------------------------------------------------------------
+    # DATA & INSIGHTS
+    # ------------------------------------------------------------------------
+
+    "Data & Insights": [
         st.Page(
             "dashboards/pages/06_Data_Explorer.py",
             title="Data Explorer",
@@ -102,15 +114,79 @@ pages = {
 }
 
 
-# =====================================================================
-# RUN THE SELECTED PAGE
-# =====================================================================
+# ============================================================================
+# STREAMLIT NAVIGATION
+# ============================================================================
 
-# st.navigation() creates the application's sidebar navigation.
-# The selected page is then executed with page.run().
+# Streamlit renders the registered pages inside the sidebar.
+
 page = st.navigation(
     pages,
     position="sidebar",
 )
+
+
+# ============================================================================
+# SIDEBAR BRANDING
+# ============================================================================
+
+# Render the application identity using the centralized HTML renderer.
+#
+# The visual appearance of these elements is controlled by theme.py.
+
+with st.sidebar:
+    render_html(
+        """
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-mark">
+                ◈
+            </div>
+
+            <div class="sidebar-brand-title">
+                ENTERPRISE ANALYTICS
+            </div>
+
+            <div class="sidebar-brand-subtitle">
+                Predictive Intelligence Engine
+            </div>
+        </div>
+        """
+    )
+
+
+# ============================================================================
+# SIDEBAR FOOTER
+# ============================================================================
+
+# Display the application status and version information.
+
+with st.sidebar:
+    render_html(
+        """
+        <div class="sidebar-footer">
+
+            <div class="sidebar-footer-status">
+                <span class="sidebar-status-dot"></span>
+                LIVE ANALYTICS
+            </div>
+
+            <div class="sidebar-footer-product">
+                Enterprise Predictive Analytics Engine
+            </div>
+
+            <div class="sidebar-footer-version">
+                Dashboard v2.0
+            </div>
+
+        </div>
+        """
+    )
+
+
+# ============================================================================
+# RUN SELECTED PAGE
+# ============================================================================
+
+# Execute the page selected by the user.
 
 page.run()

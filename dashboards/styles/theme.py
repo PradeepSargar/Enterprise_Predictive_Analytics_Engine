@@ -188,6 +188,85 @@ def inject_global_styles() -> None:
         }}
 
 
+                /* =========================================================
+           SIDEBAR NAVIGATION
+           ========================================================= */
+
+        /* Give the Streamlit navigation its own visual hierarchy. */
+        section[data-testid="stSidebar"] [data-testid="stSidebarNav"] {{
+            padding: 0.25rem 0.65rem 1rem 0.65rem;
+        }}
+
+        /* Navigation groups such as:
+           Overview
+           Customer Intelligence
+           Predictive Intelligence
+           Data
+        */
+        section[data-testid="stSidebar"] [data-testid="stSidebarNav"] ul {{
+            gap: 0.2rem;
+        }}
+
+        /* Individual navigation items. */
+        section[data-testid="stSidebar"] [data-testid="stSidebarNav"] a {{
+            min-height: 42px;
+
+            padding: 0.55rem 0.75rem;
+
+            border-radius: 10px;
+
+            color: {COLORS["sidebar_text"]} !important;
+
+            font-size: 13px;
+            font-weight: 550;
+
+            transition:
+                background 150ms ease,
+                color 150ms ease,
+                transform 150ms ease;
+        }}
+
+        /* Navigation hover state. */
+        section[data-testid="stSidebar"] [data-testid="stSidebarNav"] a:hover {{
+            background: rgba(255,255,255,0.055);
+
+            color: #FFFFFF !important;
+
+            transform: translateX(2px);
+        }}
+
+        /* Currently selected page. */
+        section[data-testid="stSidebar"] [data-testid="stSidebarNav"] a[aria-current="page"] {{
+            background: rgba(37, 99, 235, 0.18);
+
+            color: #FFFFFF !important;
+
+            font-weight: 650;
+
+            box-shadow:
+                inset 3px 0 0 {COLORS["primary"]},
+                0 4px 14px rgba(0,0,0,0.10);
+        }}
+
+        /* Keep navigation icons aligned with their labels. */
+        section[data-testid="stSidebar"] [data-testid="stSidebarNav"] a svg {{
+            width: 18px;
+            height: 18px;
+
+            margin-right: 0.55rem;
+        }}
+
+        /* Navigation group labels. */
+        section[data-testid="stSidebar"] [data-testid="stSidebarNav"] li > div {{
+            color: {COLORS["sidebar_muted"]};
+        }}
+
+        /* Prevent excessive whitespace between navigation groups. */
+        section[data-testid="stSidebar"] [data-testid="stSidebarNav"] > ul {{
+            padding-top: 0.35rem;
+        }}
+
+
         /* =========================================================
            PAGE HEADER
            ========================================================= */
@@ -296,6 +375,7 @@ def inject_global_styles() -> None:
         .kpi-neutral {{
             color: {COLORS["text_muted"]};
         }}
+        
 
 
         /* =========================================================

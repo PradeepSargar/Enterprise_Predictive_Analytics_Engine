@@ -1,424 +1,321 @@
 """
-Reusable table components for the dashboard.
+Reusable professional data-table components.
 
-This module provides the centralized table-rendering layer for the
-Enterprise Predictive Analytics Engine.
+This module provides presentation-only tables for the
+Enterprise Predictive Analytics Engine dashboard.
 
-Responsibilities
-----------------
-- Render consistent analytical tables.
-- Provide safe handling of empty datasets.
-- Standardize table height and width.
-- Support ranking-oriented tables.
-- Support model/comparison tables.
-- Keep table presentation logic out of dashboard pages.
-
-This module intentionally uses Streamlit's native dataframe rendering
-instead of custom HTML tables. This provides better stability,
-sorting, resizing, and compatibility with the Streamlit runtime.
+The table uses Streamlit's native dataframe renderer rather than
+custom HTML. This keeps rendering reliable across Streamlit versions
+and avoids raw HTML appearing as visible text.
 """
 
 from __future__ import annotations
-
-from typing import Iterable, Optional
 
 import pandas as pd
 import streamlit as st
 
 
 # ============================================================================
-# DEFAULT CONFIGURATION
+# CUSTOMER SEGMENT PERFORMANCE TABLE
 # ============================================================================
 
-DEFAULT_TABLE_HEIGHT = 420
-
-DEFAULT_RANKED_HEIGHT = 380
-
-DEFAULT_COMPARISON_HEIGHT = 360
-
-
-# ============================================================================
-# INTERNAL HELPERS
-# ============================================================================
-
-def _validate_dataframe(
-    dataframe: pd.DataFrame | None,
-) -> bool:
-    """
-    Check whether the supplied object is a usable DataFrame.
-
-    Returns
-    -------
-    bool
-        True when the object is a non-empty DataFrame.
-    """
-
-    return (
-        dataframe is not None
-        and isinstance(dataframe, pd.DataFrame)
-        and not dataframe.empty
-    )
-
-
-def _render_empty_state(
-    message: str,
-) -> None:
-    """
-    Render a consistent message when table data is unavailable.
-    """
-
-    st.info(
-        message,
-        icon="ℹ️",
-    )
-
-
-def _validate_columns(
+def render_segment_performance_table(
     dataframe: pd.DataFrame,
-    columns: Iterable[str],
 ) -> None:
     """
-    Validate that requested columns exist.
+    Render the customer segment performance table.
 
-    Raises
-    ------
-    ValueError
-        If one or more requested columns are missing.
+    Parameters
+    ----------
+    dataframe:
+        Segment-level performance dataframe containing:
+
+        - segment
+        - customers
+        - customer_share
+        - avg_recency
+        - avg_frequency
+        - avg_monetary
+        - total_monetary
     """
 
-    missing_columns = [
-        column
-        for column in columns
-        if column not in dataframe.columns
-    ]
+    # ------------------------------------------------------------------------
+    # Validate dataframe
+    # ------------------------------------------------------------------------
+
+    if dataframe is None or dataframe.empty:
+
+        st.info(
+            "No segment performance data is available."
+        )
+
+        return
+
+
+    # ------------------------------------------------------------------------
+    # Work on a copy
+    # ------------------------------------------------------------------------
+
+    df = dataframe.copy()
+
+
+    # ------------------------------------------------------------------------
+    # Validate required columns
+    # ------------------------------------------------------------------------
+
+    required_columns = {
+        "segment",
+        "customers",
+        "customer_share",
+        "avg_recency",
+        "avg_frequency",
+        "avg_monetary",
+        "total_monetary",
+    }
+
+
+    missing_columns = (
+        required_columns
+        - set(df.columns)
+    )
+
 
     if missing_columns:
-        raise ValueError(
-            "Table data is missing required columns: "
-            + ", ".join(missing_columns)
-        )
 
-
-# ============================================================================
-# GENERAL DATA TABLE
-# ============================================================================
-
-def render_data_table(
-    dataframe: pd.DataFrame,
-    columns: Optional[list[str]] = None,
-    height: int = DEFAULT_TABLE_HEIGHT,
-    hide_index: bool = True,
-    use_container_width: bool = True,
-    title: Optional[str] = None,
-) -> None:
-    """
-    Render a general-purpose analytical table.
-
-    Parameters
-    ----------
-    dataframe:
-        DataFrame containing the table data.
-
-    columns:
-        Optional list of columns to display. When omitted, all
-        columns are displayed.
-
-    height:
-        Table height in pixels.
-
-    hide_index:
-        Whether the pandas index should be hidden.
-
-    use_container_width:
-        Whether the table should occupy the available page width.
-
-    title:
-        Optional table title.
-
-    Notes
-    -----
-    The function does not modify the original DataFrame.
-    """
-
-    if not _validate_dataframe(dataframe):
-
-        _render_empty_state(
-            "No data is available for this table."
+        st.error(
+            "Segment performance table is missing required columns: "
+            + ", ".join(sorted(missing_columns))
         )
 
         return
 
 
     # ------------------------------------------------------------------------
-    # Select columns
+    # Convert numeric values safely
     # ------------------------------------------------------------------------
 
-    table_df = dataframe.copy()
-
-    if columns is not None:
-
-        _validate_columns(
-            table_df,
-            columns,
-        )
-
-        table_df = table_df.loc[
-            :,
-            columns,
-        ]
+    numeric_columns = [
+        "customers",
+        "customer_share",
+        "avg_recency",
+        "avg_frequency",
+        "avg_monetary",
+        "total_monetary",
+    ]
 
 
-    # ------------------------------------------------------------------------
-    # Optional title
-    # ------------------------------------------------------------------------
+    for column in numeric_columns:
 
-    if title:
-
-        st.markdown(
-            f"**{title}**"
+        df[column] = pd.to_numeric(
+            df[column],
+            errors="coerce",
         )
 
 
-    # ------------------------------------------------------------------------
-    # Render table
-    # ------------------------------------------------------------------------
+    # =========================================================================
+    # CREATE DISPLAY DATAFRAME
+    # =========================================================================
 
-    st.dataframe(
-        table_df,
-        use_container_width=use_container_width,
-        height=height,
-        hide_index=hide_index,
+    display_df = pd.DataFrame(
+        {
+            "Customer Segment": (
+                df["segment"]
+                .astype(str)
+            ),
+
+            "Customers": (
+                df["customers"]
+                .fillna(0)
+                .astype(int)
+            ),
+
+            "Customer Share": (
+                df["customer_share"]
+                .fillna(0)
+                * 100
+            ),
+
+            "Avg Recency": (
+                df["avg_recency"]
+            ),
+
+            "Avg Frequency": (
+                df["avg_frequency"]
+            ),
+
+            "Avg Monetary Value": (
+                df["avg_monetary"]
+            ),
+
+            "Total Monetary Value": (
+                df["total_monetary"]
+            ),
+        }
     )
 
 
-# ============================================================================
-# RANKED TABLE
-# ============================================================================
+    # =========================================================================
+    # FORMAT TABLE VALUES
+    # =========================================================================
 
-def render_ranked_table(
-    dataframe: pd.DataFrame,
-    category_column: str,
-    value_column: str,
-    descending: bool = True,
-    limit: int = 10,
-    height: int = DEFAULT_RANKED_HEIGHT,
-    title: Optional[str] = None,
-) -> None:
-    """
-    Render a ranked analytical table.
+    styled_df = (
+        display_df.style
 
-    This component is intended for use cases such as:
+        # ---------------------------------------------------------------
+        # Customer count
+        # ---------------------------------------------------------------
 
-    - Top customers by revenue
-    - Highest-risk customers
-    - Best-performing segments
-    - Lowest-performing categories
-
-    Parameters
-    ----------
-    dataframe:
-        Source DataFrame.
-
-    category_column:
-        Column identifying the ranked entity.
-
-    value_column:
-        Numeric column used for ranking.
-
-    descending:
-        Whether larger values should appear first.
-
-    limit:
-        Maximum number of rows to display.
-
-    height:
-        Table height in pixels.
-
-    title:
-        Optional table title.
-    """
-
-    if not _validate_dataframe(dataframe):
-
-        _render_empty_state(
-            "No ranking data is available."
+        .format(
+            {
+                "Customers": "{:,.0f}",
+                "Customer Share": "{:.1f}%",
+                "Avg Recency": "{:,.1f} days",
+                "Avg Frequency": "{:.2f}",
+                "Avg Monetary Value": "₹{:,.2f}",
+                "Total Monetary Value": "₹{:,.2f}",
+            }
         )
 
-        return
+        # ---------------------------------------------------------------
+        # Header styling
+        # ---------------------------------------------------------------
 
-
-    # ------------------------------------------------------------------------
-    # Validate columns
-    # ------------------------------------------------------------------------
-
-    _validate_columns(
-        dataframe,
-        [
-            category_column,
-            value_column,
-        ],
-    )
-
-
-    # ------------------------------------------------------------------------
-    # Validate limit
-    # ------------------------------------------------------------------------
-
-    if limit <= 0:
-
-        raise ValueError(
-            "The ranking limit must be greater than zero."
-        )
-
-
-    # ------------------------------------------------------------------------
-    # Build ranking
-    # ------------------------------------------------------------------------
-
-    ranked_df = (
-        dataframe[
+        .set_table_styles(
             [
-                category_column,
-                value_column,
+                {
+                    "selector": "th",
+                    "props": [
+                        (
+                            "background-color",
+                            "#171A22",
+                        ),
+                        (
+                            "color",
+                            "#CBD5E1",
+                        ),
+                        (
+                            "font-weight",
+                            "600",
+                        ),
+                        (
+                            "font-size",
+                            "12px",
+                        ),
+                        (
+                            "text-align",
+                            "left",
+                        ),
+                        (
+                            "padding",
+                            "12px 14px",
+                        ),
+                        (
+                            "border-bottom",
+                            "1px solid #334155",
+                        ),
+                    ],
+                },
+
+                {
+                    "selector": "td",
+                    "props": [
+                        (
+                            "padding",
+                            "12px 14px",
+                        ),
+                        (
+                            "font-size",
+                            "13px",
+                        ),
+                        (
+                            "border-bottom",
+                            "1px solid #1E293B",
+                        ),
+                    ],
+                },
+
+                {
+                    "selector": "tbody tr:hover",
+                    "props": [
+                        (
+                            "background-color",
+                            "#172033",
+                        ),
+                    ],
+                },
             ]
-        ]
-        .copy()
-        .sort_values(
-            by=value_column,
-            ascending=not descending,
         )
-        .head(limit)
-        .reset_index(drop=True)
+
+        # ---------------------------------------------------------------
+        # Alignment
+        # ---------------------------------------------------------------
+
+        .set_properties(
+            subset=[
+                "Customers",
+                "Customer Share",
+                "Avg Recency",
+                "Avg Frequency",
+                "Avg Monetary Value",
+                "Total Monetary Value",
+            ],
+            **{
+                "text-align": "right",
+                "font-variant-numeric": "tabular-nums",
+            },
+        )
+
+        .set_properties(
+            subset=[
+                "Customer Segment",
+            ],
+            **{
+                "font-weight": "600",
+            },
+        )
     )
 
 
-    # ------------------------------------------------------------------------
-    # Add ranking position
-    # ------------------------------------------------------------------------
+    # =========================================================================
+    # TABLE CONTAINER
+    # =========================================================================
 
-    ranked_df.insert(
-        0,
-        "Rank",
-        range(
-            1,
-            len(ranked_df) + 1,
-        ),
+    st.markdown(
+        """
+        <div
+            style="
+                border: 1px solid #E2E8F0;
+                border-radius: 12px;
+                overflow: hidden;
+                margin-top: 8px;
+                margin-bottom: 12px;
+                background: #FFFFFF;
+            "
+        >
+        """,
+        unsafe_allow_html=True,
     )
 
 
-    # ------------------------------------------------------------------------
-    # Optional title
-    # ------------------------------------------------------------------------
-
-    if title:
-
-        st.markdown(
-            f"**{title}**"
-        )
-
-
-    # ------------------------------------------------------------------------
-    # Render ranking
-    # ------------------------------------------------------------------------
+    # =========================================================================
+    # RENDER TABLE
+    # =========================================================================
 
     st.dataframe(
-        ranked_df,
+        styled_df,
         use_container_width=True,
-        height=height,
         hide_index=True,
+        height=245,
     )
 
 
-# ============================================================================
-# COMPARISON TABLE
-# ============================================================================
+    # =========================================================================
+    # CLOSE CONTAINER
+    # =========================================================================
 
-def render_comparison_table(
-    dataframe: pd.DataFrame,
-    label_column: str,
-    metric_columns: list[str],
-    height: int = DEFAULT_COMPARISON_HEIGHT,
-    title: Optional[str] = None,
-) -> None:
-    """
-    Render a structured comparison table.
-
-    This is primarily intended for model-performance comparisons,
-    but can also be used for comparing customer segments or
-    business categories.
-
-    Parameters
-    ----------
-    dataframe:
-        Source comparison DataFrame.
-
-    label_column:
-        Column containing the entity/model name.
-
-    metric_columns:
-        Columns containing the metrics to compare.
-
-    height:
-        Table height in pixels.
-
-    title:
-        Optional table title.
-    """
-
-    if not _validate_dataframe(dataframe):
-
-        _render_empty_state(
-            "No comparison data is available."
-        )
-
-        return
-
-
-    # ------------------------------------------------------------------------
-    # Validate columns
-    # ------------------------------------------------------------------------
-
-    _validate_columns(
-        dataframe,
-        [
-            label_column,
-            *metric_columns,
-        ],
-    )
-
-
-    # ------------------------------------------------------------------------
-    # Select comparison columns
-    # ------------------------------------------------------------------------
-
-    comparison_df = dataframe[
-        [
-            label_column,
-            *metric_columns,
-        ]
-    ].copy()
-
-
-    # ------------------------------------------------------------------------
-    # Optional title
-    # ------------------------------------------------------------------------
-
-    if title:
-
-        st.markdown(
-            f"**{title}**"
-        )
-
-
-    # ------------------------------------------------------------------------
-    # Render comparison table
-    # ------------------------------------------------------------------------
-
-    st.dataframe(
-        comparison_df,
-        use_container_width=True,
-        height=height,
-        hide_index=True,
+    st.markdown(
+        "</div>",
+        unsafe_allow_html=True,
     )
 
 
@@ -427,7 +324,5 @@ def render_comparison_table(
 # ============================================================================
 
 __all__ = [
-    "render_data_table",
-    "render_ranked_table",
-    "render_comparison_table",
+    "render_segment_performance_table",
 ]

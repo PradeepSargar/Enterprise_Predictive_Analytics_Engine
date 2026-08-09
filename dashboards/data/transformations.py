@@ -35,6 +35,7 @@ import pandas as pd
 # ORDER-LEVEL DATA
 # ============================================================================
 
+
 def build_order_level_data(
     master_df: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -64,9 +65,7 @@ def build_order_level_data(
     """
 
     if master_df is None:
-        raise ValueError(
-            "master_df cannot be None."
-        )
+        raise ValueError("master_df cannot be None.")
 
     if master_df.empty:
         return master_df.copy()
@@ -91,9 +90,7 @@ def build_order_level_data(
     df = master_df.copy()
 
     # Sort by order ID to make deduplication deterministic.
-    df = df.sort_values(
-        "order_id"
-    )
+    df = df.sort_values("order_id")
 
     # Keep one representative row per order.
     order_df = (
@@ -111,6 +108,7 @@ def build_order_level_data(
 # EXECUTIVE KPIs
 # ============================================================================
 
+
 def calculate_executive_kpis(
     master_df: pd.DataFrame,
 ) -> dict:
@@ -123,9 +121,7 @@ def calculate_executive_kpis(
         Business-level KPI values.
     """
 
-    order_df = build_order_level_data(
-        master_df
-    )
+    order_df = build_order_level_data(master_df)
 
     if order_df.empty:
         return {
@@ -231,9 +227,7 @@ def calculate_executive_kpis(
     if valid_reviews.empty:
         low_review_rate = 0.0
     else:
-        low_review_rate = (
-            valid_reviews.le(2).mean()
-        )
+        low_review_rate = valid_reviews.le(2).mean()
 
     return {
         "total_revenue": float(total_revenue),
@@ -254,6 +248,7 @@ def calculate_executive_kpis(
 # MONTHLY BUSINESS PERFORMANCE
 # ============================================================================
 
+
 def calculate_monthly_business_performance(
     master_df: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -271,9 +266,7 @@ def calculate_monthly_business_performance(
         - average_order_value
     """
 
-    order_df = build_order_level_data(
-        master_df
-    )
+    order_df = build_order_level_data(master_df)
 
     if order_df.empty:
         return pd.DataFrame(
@@ -310,9 +303,7 @@ def calculate_monthly_business_performance(
 
     # Remove records without a valid purchase date.
     order_df = order_df.dropna(
-        subset=[
-            "order_purchase_timestamp"
-        ]
+        subset=["order_purchase_timestamp"]
     )
 
     if order_df.empty:
@@ -374,6 +365,7 @@ def calculate_monthly_business_performance(
 # CUSTOMER SEGMENT SUMMARY
 # ============================================================================
 
+
 def calculate_customer_segment_summary(
     customer_segments_df: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -423,14 +415,16 @@ def calculate_customer_segment_summary(
         .reset_index(name="customers")
     )
 
-    summary = summary.sort_values(
-        "customers",
-        ascending=False,
-    ).reset_index(drop=True)
-
-    total_customers = (
-        summary["customers"].sum()
+    summary = (
+        summary
+        .sort_values(
+            "customers",
+            ascending=False,
+        )
+        .reset_index(drop=True)
     )
+
+    total_customers = summary["customers"].sum()
 
     if total_customers > 0:
         summary["percentage"] = (
@@ -444,8 +438,290 @@ def calculate_customer_segment_summary(
 
 
 # ============================================================================
+# CUSTOMER SEGMENT PERFORMANCE
+# ============================================================================
+
+
+def calculate_segment_performance(
+    customer_segments_df: pd.DataFrame,
+) -> pd.DataFrame:
+    """
+    Calculate business performance metrics for each customer segment.
+
+    Parameters
+    ----------
+    customer_segments_df:
+        Customer-level RFM segmentation dataset.
+
+    Returns
+    -------
+    pandas.DataFrame
+        One row per segment containing:
+
+        - segment
+        - customers
+        - customer_share
+        - avg_recency
+        - avg_frequency
+        - avg_monetary
+        - total_monetary
+
+    Notes
+    -----
+    This function performs only business aggregation.
+
+    It does not modify the original customer segmentation dataset.
+    """
+
+    if customer_segments_df is None:
+        raise ValueError(
+            "customer_segments_df cannot be None."
+        )
+
+    if customer_segments_df.empty:
+        return pd.DataFrame(
+            columns=[
+                "segment",
+                "customers",
+                "customer_share",
+                "avg_recency",
+                "avg_frequency",
+                "avg_monetary",
+                "total_monetary",
+            ]
+        )
+
+    required_columns = {
+        "segment",
+        "recency",
+        "frequency",
+        "monetary",
+    }
+
+    missing_columns = (
+        required_columns
+        - set(customer_segments_df.columns)
+    )
+
+    if missing_columns:
+        raise ValueError(
+            "Customer segmentation dataset is missing "
+            "required columns: "
+            + ", ".join(sorted(missing_columns))
+        )
+
+    # Work on a copy to protect the source dataframe.
+    df = customer_segments_df.copy()
+
+    # Convert RFM measures to numeric values safely.
+    numeric_columns = [
+        "recency",
+        "frequency",
+        "monetary",
+    ]
+
+    for column in numeric_columns:
+        df[column] = pd.to_numeric(
+            df[column],
+            errors="coerce",
+        )
+
+    # Remove records without a segment.
+    df = df.dropna(
+        subset=["segment"]
+    )
+
+    if df.empty:
+        return pd.DataFrame(
+            columns=[
+                "segment",
+                "customers",
+                "customer_share",
+                "avg_recency",
+                "avg_frequency",
+                "avg_monetary",
+                "total_monetary",
+            ]
+        )
+
+    # ------------------------------------------------------------------------
+    # Aggregate segment-level business metrics.
+    # ------------------------------------------------------------------------
+
+    performance = (
+        df
+        .groupby("segment", as_index=False)
+        .agg(
+            customers=(
+                "segment",
+                "size",
+            ),
+            avg_recency=(
+                "recency",
+                "mean",
+            ),
+            avg_frequency=(
+                "frequency",
+                "mean",
+            ),
+            avg_monetary=(
+                "monetary",
+                "mean",
+            ),
+            total_monetary=(
+                "monetary",
+                "sum",
+            ),
+        )
+    )
+
+    # ------------------------------------------------------------------------
+    # Calculate percentage of the total customer base.
+    # ------------------------------------------------------------------------
+
+    total_customers = performance["customers"].sum()
+
+    if total_customers > 0:
+        performance["customer_share"] = (
+            performance["customers"]
+            / total_customers
+        )
+    else:
+        performance["customer_share"] = 0.0
+
+    # Keep the most important business segments first.
+    performance = (
+        performance
+        .sort_values(
+            "customers",
+            ascending=False,
+        )
+        .reset_index(drop=True)
+    )
+
+    # Reorder columns into a dashboard-friendly structure.
+    performance = performance[
+        [
+            "segment",
+            "customers",
+            "customer_share",
+            "avg_recency",
+            "avg_frequency",
+            "avg_monetary",
+            "total_monetary",
+        ]
+    ]
+
+    return performance
+
+
+# ============================================================================
+# RFM SUMMARY
+# ============================================================================
+
+
+def calculate_rfm_summary(
+    customer_segments_df: pd.DataFrame,
+) -> dict:
+    """
+    Calculate overall RFM summary statistics.
+
+    Parameters
+    ----------
+    customer_segments_df:
+        Customer-level RFM segmentation dataset.
+
+    Returns
+    -------
+    dict
+        Median values for:
+
+        - recency
+        - frequency
+        - monetary
+
+    Notes
+    -----
+    Median values are used instead of means because customer
+    monetary and frequency distributions can be highly skewed.
+    """
+
+    if customer_segments_df is None:
+        raise ValueError(
+            "customer_segments_df cannot be None."
+        )
+
+    if customer_segments_df.empty:
+        return {
+            "recency_median": 0.0,
+            "frequency_median": 0.0,
+            "monetary_median": 0.0,
+        }
+
+    required_columns = {
+        "recency",
+        "frequency",
+        "monetary",
+    }
+
+    missing_columns = (
+        required_columns
+        - set(customer_segments_df.columns)
+    )
+
+    if missing_columns:
+        raise ValueError(
+            "Customer segmentation dataset is missing "
+            "required RFM columns: "
+            + ", ".join(sorted(missing_columns))
+        )
+
+    # Convert values safely to numeric.
+    recency = pd.to_numeric(
+        customer_segments_df["recency"],
+        errors="coerce",
+    )
+
+    frequency = pd.to_numeric(
+        customer_segments_df["frequency"],
+        errors="coerce",
+    )
+
+    monetary = pd.to_numeric(
+        customer_segments_df["monetary"],
+        errors="coerce",
+    )
+
+    # Calculate medians while ignoring invalid/missing values.
+    recency_median = recency.median()
+    frequency_median = frequency.median()
+    monetary_median = monetary.median()
+
+    # Replace NaN results with zero so the dashboard never
+    # receives an invalid numerical value.
+    return {
+        "recency_median": float(
+            0.0
+            if pd.isna(recency_median)
+            else recency_median
+        ),
+        "frequency_median": float(
+            0.0
+            if pd.isna(frequency_median)
+            else frequency_median
+        ),
+        "monetary_median": float(
+            0.0
+            if pd.isna(monetary_median)
+            else monetary_median
+        ),
+    }
+
+
+# ============================================================================
 # FORECAST DATA PREPARATION
 # ============================================================================
+
 
 def prepare_revenue_forecast(
     forecast_df: pd.DataFrame,
@@ -455,11 +731,11 @@ def prepare_revenue_forecast(
 
     Expected columns
     ----------------
-    month
-    predicted_revenue
-    lower_bound
-    upper_bound
-    actual_revenue
+    - month
+    - predicted_revenue
+    - lower_bound
+    - upper_bound
+    - actual_revenue
 
     Returns
     -------
@@ -511,7 +787,6 @@ def prepare_revenue_forecast(
     ]
 
     for column in numeric_columns:
-
         df[column] = pd.to_numeric(
             df[column],
             errors="coerce",
@@ -519,7 +794,8 @@ def prepare_revenue_forecast(
 
     # Remove invalid dates.
     df = (
-        df.dropna(
+        df
+        .dropna(
             subset=["month"]
         )
         .sort_values("month")
@@ -538,5 +814,7 @@ __all__ = [
     "calculate_executive_kpis",
     "calculate_monthly_business_performance",
     "calculate_customer_segment_summary",
+    "calculate_segment_performance",
+    "calculate_rfm_summary",
     "prepare_revenue_forecast",
 ]
