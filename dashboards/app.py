@@ -4,17 +4,50 @@ Main Streamlit application entry point.
 Responsibilities
 ----------------
 - Configure the Streamlit application.
-- Load the centralized dashboard theme.
-- Register dashboard pages.
+- Load the centralized dashboard design system.
+- Register all dashboard pages.
+- Provide a professional custom sidebar.
 - Organize navigation into business sections.
-- Run the selected page.
+- Run the selected dashboard page.
 
 Page-level business logic does not belong here.
 """
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
 import streamlit as st
+
+
+# ============================================================================
+# PROJECT PATH CONFIGURATION
+# ============================================================================
+
+# app.py is located at:
+#
+#     2.0/
+#     └── dashboards/
+#         └── app.py
+#
+# Therefore, the project root is two levels above this file.
+#
+# Adding the project root to sys.path makes package imports such as:
+#
+#     from dashboards.styles.theme import inject_global_styles
+#
+# reliable when Streamlit starts the application.
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+
+# ============================================================================
+# PROJECT IMPORTS
+# ============================================================================
 
 from dashboards.styles.theme import inject_global_styles
 
@@ -35,107 +68,295 @@ st.set_page_config(
 # GLOBAL DESIGN SYSTEM
 # ============================================================================
 
-# Load the centralized visual system before rendering any dashboard page.
+# Load the centralized visual system before rendering the application.
+#
+# This controls:
+# - Application background
+# - Typography
+# - Sidebar
+# - Navigation
+# - KPI cards
+# - Section headers
+# - Charts
+# - Tables
+# - Buttons
+# - Responsive behavior
+
 inject_global_styles()
 
 
 # ============================================================================
-# APPLICATION NAVIGATION
+# PAGE DEFINITIONS
 # ============================================================================
 
-# app.py is located inside the dashboards directory.
-# Therefore, page paths are relative to dashboards/app.py.
+# ---------------------------------------------------------------------------
+# Overview
+# ---------------------------------------------------------------------------
 
-pages = {
-
-    # ------------------------------------------------------------------------
-    # Overview
-    # ------------------------------------------------------------------------
-    "Overview": [
-        st.Page(
-            "pages/01_Executive_Overview.py",
-            title="Executive Overview",
-            icon="📊",
-        ),
-    ],
-
-    # ------------------------------------------------------------------------
-    # Customer Intelligence
-    # ------------------------------------------------------------------------
-    "Customer Intelligence": [
-        st.Page(
-            "pages/02_Customer_Analytics.py",
-            title="Customer Analytics",
-            icon="👥",
-        ),
-
-        st.Page(
-            "pages/03_Customer_Risk.py",
-            title="Customer Risk",
-            icon="⚠️",
-        ),
-
-        st.Page(
-            "pages/07_Customer_Segmentation.py",
-            title="Customer Segmentation",
-            icon="🎯",
-        ),
-    ],
-
-    # ------------------------------------------------------------------------
-    # Predictive Intelligence
-    # ------------------------------------------------------------------------
-    "Predictive Intelligence": [
-        st.Page(
-            "pages/04_Revenue_Forecast.py",
-            title="Revenue Forecast",
-            icon="📈",
-        ),
-
-        st.Page(
-            "pages/05_Model_Performance.py",
-            title="Model Performance",
-            icon="🤖",
-        ),
-    ],
-
-    # ------------------------------------------------------------------------
-    # Data & Insights
-    # ------------------------------------------------------------------------
-    "Data & Insights": [
-        st.Page(
-            "pages/06_Data_Explorer.py",
-            title="Data Explorer",
-            icon="🔎",
-        ),
-    ],
-
-    # ------------------------------------------------------------------------
-    # Application
-    # ------------------------------------------------------------------------
-    "Application": [
-        st.Page(
-            "pages/08_About.py",
-            title="About",
-            icon="ℹ️",
-        ),
-    ],
-}
-
-
-# ============================================================================
-# NAVIGATION
-# ============================================================================
-
-# Render the grouped navigation in the Streamlit sidebar.
-page = st.navigation(
-    pages,
-    position="sidebar",
+executive_page = st.Page(
+    "pages/01_Executive_Overview.py",
+    title="Executive Overview",
+    icon="📊",
 )
+
+
+# ---------------------------------------------------------------------------
+# Customer Intelligence
+# ---------------------------------------------------------------------------
+
+customer_analytics_page = st.Page(
+    "pages/02_Customer_Analytics.py",
+    title="Customer Analytics",
+    icon="👥",
+)
+
+customer_risk_page = st.Page(
+    "pages/03_Customer_Risk.py",
+    title="Customer Risk",
+    icon="⚠️",
+)
+
+customer_segmentation_page = st.Page(
+    "pages/07_Customer_Segmentation.py",
+    title="Customer Segmentation",
+    icon="🎯",
+)
+
+
+# ---------------------------------------------------------------------------
+# Predictive Intelligence
+# ---------------------------------------------------------------------------
+
+revenue_forecast_page = st.Page(
+    "pages/04_Revenue_Forecast.py",
+    title="Revenue Forecast",
+    icon="📈",
+)
+
+model_performance_page = st.Page(
+    "pages/05_Model_Performance.py",
+    title="Model Performance",
+    icon="🤖",
+)
+
+
+# ---------------------------------------------------------------------------
+# Data & Insights
+# ---------------------------------------------------------------------------
+
+data_explorer_page = st.Page(
+    "pages/06_Data_Explorer.py",
+    title="Data Explorer",
+    icon="🔎",
+)
+
+
+# ---------------------------------------------------------------------------
+# Application
+# ---------------------------------------------------------------------------
+
+about_page = st.Page(
+    "pages/08_About.py",
+    title="About",
+    icon="ℹ️",
+)
+
+
+# ============================================================================
+# STREAMLIT NAVIGATION
+# ============================================================================
+
+# Streamlit's default navigation is hidden because we provide a custom
+# professional sidebar below.
+#
+# The Page objects remain the single source of truth for routing.
+
+navigation = st.navigation(
+    {
+        "Overview": [
+            executive_page,
+        ],
+
+        "Customer Intelligence": [
+            customer_analytics_page,
+            customer_risk_page,
+            customer_segmentation_page,
+        ],
+
+        "Predictive Intelligence": [
+            revenue_forecast_page,
+            model_performance_page,
+        ],
+
+        "Data & Insights": [
+            data_explorer_page,
+        ],
+
+        "Application": [
+            about_page,
+        ],
+    },
+    position="hidden",
+)
+
+
+# ============================================================================
+# CUSTOM SIDEBAR
+# ============================================================================
+
+with st.sidebar:
+
+    # ========================================================================
+    # BRAND
+    # ========================================================================
+
+    # Keep the HTML on one line.
+    #
+    # This prevents Streamlit Markdown from interpreting the markup
+    # as a code block because of indentation.
+
+    st.markdown(
+        '<div class="custom-sidebar-brand">'
+        '<div class="sidebar-brand-mark">◈</div>'
+        '<div class="sidebar-brand-text">'
+        '<div class="sidebar-brand-title">ENTERPRISE</div>'
+        '<div class="sidebar-brand-subtitle">'
+        'PREDICTIVE ANALYTICS'
+        '</div>'
+        '</div>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+
+
+    # ========================================================================
+    # DIVIDER
+    # ========================================================================
+
+    st.markdown(
+        '<div class="sidebar-divider"></div>',
+        unsafe_allow_html=True,
+    )
+
+
+    # ========================================================================
+    # OVERVIEW
+    # ========================================================================
+
+    st.markdown(
+        '<div class="sidebar-section-label">Overview</div>',
+        unsafe_allow_html=True,
+    )
+
+    st.page_link(
+        executive_page,
+        label="Executive Overview",
+        icon="📊",
+    )
+
+
+    # ========================================================================
+    # CUSTOMER INTELLIGENCE
+    # ========================================================================
+
+    st.markdown(
+        '<div class="sidebar-section-label">Customer Intelligence</div>',
+        unsafe_allow_html=True,
+    )
+
+    st.page_link(
+        customer_analytics_page,
+        label="Customer Analytics",
+        icon="👥",
+    )
+
+    st.page_link(
+        customer_risk_page,
+        label="Customer Risk",
+        icon="⚠️",
+    )
+
+    st.page_link(
+        customer_segmentation_page,
+        label="Customer Segmentation",
+        icon="🎯",
+    )
+
+
+    # ========================================================================
+    # PREDICTIVE INTELLIGENCE
+    # ========================================================================
+
+    st.markdown(
+        '<div class="sidebar-section-label">Predictive Intelligence</div>',
+        unsafe_allow_html=True,
+    )
+
+    st.page_link(
+        revenue_forecast_page,
+        label="Revenue Forecast",
+        icon="📈",
+    )
+
+    st.page_link(
+        model_performance_page,
+        label="Model Performance",
+        icon="🤖",
+    )
+
+
+    # ========================================================================
+    # DATA & INSIGHTS
+    # ========================================================================
+
+    st.markdown(
+        '<div class="sidebar-section-label">Data & Insights</div>',
+        unsafe_allow_html=True,
+    )
+
+    st.page_link(
+        data_explorer_page,
+        label="Data Explorer",
+        icon="🔎",
+    )
+
+
+    # ========================================================================
+    # APPLICATION
+    # ========================================================================
+
+    st.markdown(
+        '<div class="sidebar-section-label">Application</div>',
+        unsafe_allow_html=True,
+    )
+
+    st.page_link(
+        about_page,
+        label="About",
+        icon="ℹ️",
+    )
+
+
+    # ========================================================================
+    # SIDEBAR FOOTER
+    # ========================================================================
+
+    st.markdown(
+        '<div class="sidebar-footer">'
+        '<div class="sidebar-footer-status">'
+        '<span class="sidebar-status-dot"></span>'
+        'ANALYTICS ENGINE'
+        '</div>'
+        '<div class="sidebar-footer-text">'
+        'Enterprise Predictive Analytics'
+        '</div>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
 
 
 # ============================================================================
 # RUN SELECTED PAGE
 # ============================================================================
 
-page.run()
+navigation.run()

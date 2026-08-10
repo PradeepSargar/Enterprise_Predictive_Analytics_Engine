@@ -4,11 +4,12 @@ Enterprise Dashboard Design System
 
 Centralized visual system for the Enterprise Predictive Analytics Engine.
 
-This module is responsible for:
+This module controls:
 
 - Global application styling
 - Typography
 - Sidebar navigation
+- Custom page-link navigation
 - KPI cards
 - Section headers
 - Charts
@@ -16,43 +17,11 @@ This module is responsible for:
 - Buttons
 - Tabs
 - Alerts
-- Responsive layout behavior
-- Accessibility-focused visual states
+- Responsive behavior
+- Accessibility states
 
-Design philosophy
------------------
-The dashboard uses a modern enterprise analytics aesthetic:
-
-- Light analytical canvas
-- Dark navigation sidebar
-- White elevated surfaces
-- Blue primary accent
-- Violet secondary accent
-- Subtle borders
-- Minimal shadows
-- Strong typography hierarchy
-- Consistent spacing
-- Data-first visual hierarchy
-
-Architecture
-------------
-Pages and reusable components should not contain large blocks of CSS.
-
-Instead:
-
-    dashboards/
-        styles/
-            theme.py
-
-provides the centralized visual system.
-
-Usage
------
-Call ``inject_global_styles()`` once from the application entry point:
-
-    from dashboards.styles.theme import inject_global_styles
-
-    inject_global_styles()
+The application uses a light analytical canvas with a dark,
+professional navigation sidebar.
 """
 
 from __future__ import annotations
@@ -65,81 +34,68 @@ import streamlit as st
 # ============================================================================
 
 COLORS = {
-    # ------------------------------------------------------------------------
     # Application
-    # ------------------------------------------------------------------------
     "background": "#F4F7FB",
     "background_top": "#F8FAFC",
     "surface": "#FFFFFF",
     "surface_alt": "#F8FAFC",
     "surface_soft": "#F1F5F9",
 
-    # ------------------------------------------------------------------------
     # Sidebar
-    # ------------------------------------------------------------------------
     "sidebar": "#0B1220",
     "sidebar_surface": "#111827",
     "sidebar_hover": "#172033",
     "sidebar_active": "#172B4D",
 
-    # ------------------------------------------------------------------------
-    # Primary brand
-    # ------------------------------------------------------------------------
+    # Primary
     "primary": "#2563EB",
     "primary_dark": "#1D4ED8",
     "primary_light": "#DBEAFE",
     "primary_soft": "#EFF6FF",
 
-    # ------------------------------------------------------------------------
-    # Secondary brand
-    # ------------------------------------------------------------------------
+    # Secondary
     "secondary": "#7C3AED",
     "secondary_dark": "#6D28D9",
     "secondary_light": "#EDE9FE",
     "secondary_soft": "#F5F3FF",
 
-    # ------------------------------------------------------------------------
-    # Semantic
-    # ------------------------------------------------------------------------
+    # Success
     "success": "#059669",
     "success_dark": "#047857",
     "success_light": "#D1FAE5",
     "success_soft": "#ECFDF5",
 
+    # Warning
     "warning": "#D97706",
     "warning_dark": "#B45309",
     "warning_light": "#FEF3C7",
     "warning_soft": "#FFFBEB",
 
+    # Danger
     "danger": "#DC2626",
     "danger_dark": "#B91C1C",
     "danger_light": "#FEE2E2",
     "danger_soft": "#FEF2F2",
 
+    # Information
     "info": "#0891B2",
     "info_dark": "#0E7490",
     "info_light": "#CFFAFE",
     "info_soft": "#ECFEFF",
 
-    # ------------------------------------------------------------------------
     # Text
-    # ------------------------------------------------------------------------
     "text": "#0F172A",
     "text_secondary": "#334155",
     "text_muted": "#64748B",
     "text_light": "#94A3B8",
     "text_inverse": "#FFFFFF",
 
-    # ------------------------------------------------------------------------
     # Borders
-    # ------------------------------------------------------------------------
     "border": "#E2E8F0",
     "border_light": "#EEF2F7",
     "border_strong": "#CBD5E1",
 
-    # ------------------------------------------------------------------------
     # Charts
-    # ------------------------------------------------------------------------
     "chart_blue": "#2563EB",
     "chart_purple": "#7C3AED",
     "chart_green": "#059669",
@@ -151,9 +107,7 @@ COLORS = {
     "chart_teal": "#0F766E",
     "chart_violet": "#9333EA",
 
-    # ------------------------------------------------------------------------
     # Miscellaneous
-    # ------------------------------------------------------------------------
     "white": "#FFFFFF",
     "black": "#000000",
     "transparent": "rgba(0,0,0,0)",
@@ -182,26 +136,11 @@ FONT_FAMILY = (
 
 SHADOWS = {
     "none": "none",
-
-    "sm": (
-        "0 1px 2px rgba(15, 23, 42, 0.04)"
-    ),
-
-    "card": (
-        "0 2px 8px rgba(15, 23, 42, 0.04)"
-    ),
-
-    "card_hover": (
-        "0 8px 24px rgba(15, 23, 42, 0.08)"
-    ),
-
-    "md": (
-        "0 8px 24px rgba(15, 23, 42, 0.08)"
-    ),
-
-    "lg": (
-        "0 16px 40px rgba(15, 23, 42, 0.12)"
-    ),
+    "sm": "0 1px 2px rgba(15, 23, 42, 0.04)",
+    "card": "0 2px 8px rgba(15, 23, 42, 0.04)",
+    "card_hover": "0 8px 24px rgba(15, 23, 42, 0.08)",
+    "md": "0 8px 24px rgba(15, 23, 42, 0.08)",
+    "lg": "0 16px 40px rgba(15, 23, 42, 0.12)",
 }
 
 
@@ -259,8 +198,7 @@ def inject_global_styles() -> None:
     """
     Inject the centralized dashboard design system.
 
-    This function should be called once from ``dashboards/app.py``
-    before rendering the selected dashboard page.
+    Call this once from dashboards/app.py before rendering pages.
     """
 
     st.markdown(
@@ -280,7 +218,8 @@ def inject_global_styles() -> None:
         html,
         body,
         [class*="css"] {{
-            font-family: {FONT_FAMILY};
+            font-family:
+                {FONT_FAMILY};
         }}
 
         .stApp {{
@@ -292,16 +231,13 @@ def inject_global_styles() -> None:
                     #F1F5F9 100%
                 ) !important;
 
-            color: {COLORS["text"]};
+            color:
+                {COLORS["text"]};
         }}
 
 
         /* ==================================================================
            MAIN CONTENT CANVAS
-           
-           Streamlit can inherit a dark application theme depending on the
-           browser and Streamlit configuration. These explicit overrides
-           guarantee that the analytical canvas remains light.
            ================================================================== */
 
         [data-testid="stAppViewContainer"] {{
@@ -320,27 +256,38 @@ def inject_global_styles() -> None:
         }}
 
         [data-testid="stMainBlockContainer"] {{
-            background: transparent !important;
+            background:
+                transparent !important;
         }}
 
         [data-testid="block-container"] {{
-            max-width: 1520px;
+            max-width:
+                1520px;
 
-            background: transparent !important;
+            background:
+                transparent !important;
 
-            padding-top: 2rem;
-            padding-right: 2.25rem;
-            padding-bottom: 3rem;
-            padding-left: 2.25rem;
+            padding-top:
+                2rem;
+
+            padding-right:
+                2.25rem;
+
+            padding-bottom:
+                3rem;
+
+            padding-left:
+                2.25rem;
         }}
 
 
         /* ==================================================================
-           MAIN CONTENT TEXT
+           MAIN CONTENT TYPOGRAPHY
            ================================================================== */
 
         .stApp p {{
-            color: {COLORS["text_secondary"]};
+            color:
+                {COLORS["text_secondary"]};
         }}
 
         .stApp h1,
@@ -349,7 +296,8 @@ def inject_global_styles() -> None:
         .stApp h4,
         .stApp h5,
         .stApp h6 {{
-            color: {COLORS["text"]};
+            color:
+                {COLORS["text"]};
         }}
 
 
@@ -358,6 +306,12 @@ def inject_global_styles() -> None:
            ================================================================== */
 
         [data-testid="stSidebar"] {{
+            min-width:
+                265px !important;
+
+            max-width:
+                265px !important;
+
             background:
                 linear-gradient(
                     180deg,
@@ -370,51 +324,68 @@ def inject_global_styles() -> None:
         }}
 
         [data-testid="stSidebar"] > div:first-child {{
-            background: transparent !important;
+            background:
+                transparent !important;
         }}
 
         [data-testid="stSidebar"] * {{
-            box-sizing: border-box;
+            box-sizing:
+                border-box;
         }}
 
         [data-testid="stSidebar"] .stMarkdown {{
-            color: #CBD5E1;
+            color:
+                #CBD5E1;
         }}
 
         [data-testid="stSidebar"] p {{
-            color: #94A3B8;
+            color:
+                #94A3B8;
         }}
 
 
         /* ==================================================================
-           SIDEBAR BRAND
+           CUSTOM SIDEBAR BRAND
            ================================================================== */
 
-        .sidebar-brand {{
+        .custom-sidebar-brand {{
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                0.75rem;
+
             padding:
                 0.35rem
-                0.25rem
-                1.5rem
-                0.25rem;
-        }}
-
-        .sidebar-brand-row {{
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
+                0.2rem
+                1rem
+                0.2rem;
         }}
 
         .sidebar-brand-mark {{
-            width: 42px;
-            height: 42px;
+            width:
+                40px;
 
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            height:
+                40px;
 
-            flex-shrink: 0;
+            flex-shrink:
+                0;
 
-            border-radius: 12px;
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            border-radius:
+                11px;
 
             background:
                 linear-gradient(
@@ -423,63 +394,420 @@ def inject_global_styles() -> None:
                     {COLORS["secondary"]}
                 );
 
-            color: #FFFFFF;
+            color:
+                #FFFFFF;
 
-            font-size: 13px;
-            font-weight: 800;
+            font-size:
+                15px;
 
-            letter-spacing: 0.04em;
+            font-weight:
+                800;
 
             box-shadow:
-                0 8px 20px rgba(37, 99, 235, 0.25);
+                0 7px 18px
+                rgba(37, 99, 235, 0.24);
+        }}
+
+        .sidebar-brand-text {{
+            min-width:
+                0;
         }}
 
         .sidebar-brand-title {{
-            color: #F8FAFC;
+            color:
+                #F8FAFC;
 
-            font-size: 11px;
-            font-weight: 800;
+            font-size:
+                10px;
 
-            letter-spacing: 0.08em;
+            font-weight:
+                850;
 
-            line-height: 1.3;
+            letter-spacing:
+                0.08em;
+
+            line-height:
+                1.3;
         }}
 
         .sidebar-brand-subtitle {{
-            margin-top: 2px;
+            margin-top:
+                3px;
 
-            color: #64748B;
+            color:
+                #64748B;
 
-            font-size: 9px;
-            font-weight: 500;
+            font-size:
+                7.5px;
 
-            line-height: 1.4;
+            font-weight:
+                600;
+
+            letter-spacing:
+                0.055em;
+
+            line-height:
+                1.35;
         }}
 
 
         /* ==================================================================
-           SIDEBAR NAVIGATION
+           SIDEBAR DIVIDER
            ================================================================== */
 
+        .sidebar-divider {{
+            height:
+                1px;
+
+            margin:
+                0.35rem
+                0.2rem
+                1rem;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(255, 255, 255, 0.10),
+                    rgba(255, 255, 255, 0.02)
+                );
+        }}
+
+
+        /* ==================================================================
+           SIDEBAR SECTION LABELS
+           ================================================================== */
+
+        .sidebar-section-label {{
+            margin:
+                1.05rem
+                0.2rem
+                0.35rem;
+
+            color:
+                #64748B;
+
+            font-size:
+                7.5px;
+
+            font-weight:
+                800;
+
+            letter-spacing:
+                0.105em;
+
+            line-height:
+                1.3;
+
+            text-transform:
+                uppercase;
+        }}
+
+        .sidebar-section-label:first-of-type {{
+            margin-top:
+                0.2rem;
+        }}
+
+
+        /* ==================================================================
+           CUSTOM PAGE-LINK NAVIGATION
+           ================================================================== */
+
+        /*
+         * app.py uses:
+         *
+         *     st.navigation(..., position="hidden")
+         *
+         * and:
+         *
+         *     st.page_link(...)
+         *
+         * Therefore this section styles the custom navigation rather
+         * than Streamlit's default navigation component.
+         */
+
+        [data-testid="stSidebar"] .stPageLink {{
+            width:
+                100% !important;
+
+            margin:
+                0 !important;
+
+            padding:
+                0 !important;
+        }}
+
+        [data-testid="stSidebar"] .stPageLink > div {{
+            width:
+                100% !important;
+        }}
+
+        [data-testid="stSidebar"] .stPageLink a {{
+            display:
+                flex !important;
+
+            align-items:
+                center !important;
+
+            width:
+                100% !important;
+
+            min-height:
+                40px !important;
+
+            margin:
+                0.12rem 0 !important;
+
+            padding:
+                0.5rem 0.75rem !important;
+
+            border-radius:
+                9px !important;
+
+            background:
+                transparent !important;
+
+            color:
+                #94A3B8 !important;
+
+            font-size:
+                10.5px !important;
+
+            font-weight:
+                600 !important;
+
+            line-height:
+                1.3 !important;
+
+            text-decoration:
+                none !important;
+
+            transition:
+                background 0.16s ease,
+                color 0.16s ease,
+                transform 0.16s ease,
+                box-shadow 0.16s ease !important;
+        }}
+
+        [data-testid="stSidebar"] .stPageLink a:hover {{
+            background:
+                rgba(255, 255, 255, 0.055) !important;
+
+            color:
+                #F8FAFC !important;
+
+            transform:
+                translateX(2px) !important;
+        }}
+
+        [data-testid="stSidebar"] .stPageLink a:focus-visible {{
+            outline:
+                2px solid {COLORS["primary"]} !important;
+
+            outline-offset:
+                2px !important;
+        }}
+
+        /*
+         * Active page.
+         *
+         * Streamlit marks the current page with:
+         *
+         *     aria-current="page"
+         */
+
+        [data-testid="stSidebar"] .stPageLink a[aria-current="page"] {{
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(37, 99, 235, 0.24),
+                    rgba(124, 58, 237, 0.16)
+                ) !important;
+
+            color:
+                #FFFFFF !important;
+
+            box-shadow:
+                inset 3px 0 0 {COLORS["primary"]},
+                0 4px 14px rgba(37, 99, 235, 0.08) !important;
+        }}
+
+        [data-testid="stSidebar"] .stPageLink a[aria-current="page"] span {{
+            color:
+                #FFFFFF !important;
+        }}
+
+        /*
+         * Keep all navigation icons aligned.
+         */
+
+        [data-testid="stSidebar"] .stPageLink a > span:first-child {{
+            width:
+                24px !important;
+
+            min-width:
+                24px !important;
+
+            display:
+                inline-flex !important;
+
+            align-items:
+                center !important;
+
+            justify-content:
+                center !important;
+
+            margin-right:
+                0.45rem !important;
+
+            font-size:
+                14px !important;
+        }}
+
+
+        /* ==================================================================
+           SIDEBAR FOOTER
+           ================================================================== */
+
+        .sidebar-footer {{
+            margin-top:
+                1.4rem;
+
+            padding:
+                0.8rem 0.75rem;
+
+            border:
+                1px solid rgba(255, 255, 255, 0.06);
+
+            border-radius:
+                10px;
+
+            background:
+                rgba(255, 255, 255, 0.025);
+        }}
+
+        .sidebar-footer-status {{
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                0.4rem;
+
+            color:
+                #CBD5E1;
+
+            font-size:
+                7.5px;
+
+            font-weight:
+                800;
+
+            letter-spacing:
+                0.07em;
+        }}
+
+        .sidebar-status-dot {{
+            width:
+                6px;
+
+            height:
+                6px;
+
+            flex-shrink:
+                0;
+
+            border-radius:
+                50%;
+
+            background:
+                {COLORS["success"]};
+
+            box-shadow:
+                0 0 0 3px
+                rgba(5, 150, 105, 0.12);
+        }}
+
+        .sidebar-footer-text {{
+            margin-top:
+                0.3rem;
+
+            color:
+                #64748B;
+
+            font-size:
+                7.5px;
+
+            line-height:
+                1.4;
+        }}
+
+
+        /* ==================================================================
+           SIDEBAR SCROLLBAR
+           ================================================================== */
+
+        [data-testid="stSidebar"] ::-webkit-scrollbar {{
+            width:
+                5px;
+        }}
+
+        [data-testid="stSidebar"] ::-webkit-scrollbar-track {{
+            background:
+                transparent;
+        }}
+
+        [data-testid="stSidebar"] ::-webkit-scrollbar-thumb {{
+            background:
+                rgba(148, 163, 184, 0.25);
+
+            border-radius:
+                999px;
+        }}
+
+        [data-testid="stSidebar"] ::-webkit-scrollbar-thumb:hover {{
+            background:
+                rgba(148, 163, 184, 0.40);
+        }}
+
+
+        /* ==================================================================
+           LEGACY STREAMLIT NAVIGATION
+           ================================================================== */
+
+        /*
+         * Kept for compatibility if another part of the application uses
+         * Streamlit's default navigation in the future.
+         */
+
         [data-testid="stSidebarNav"] {{
-            padding-top: 0.25rem;
+            padding-top:
+                0.25rem;
         }}
 
         [data-testid="stSidebarNav"] ul {{
-            gap: 0.2rem;
+            gap:
+                0.2rem;
         }}
 
         [data-testid="stSidebarNav"] li {{
-            margin-bottom: 0.15rem;
+            margin-bottom:
+                0.15rem;
         }}
 
         [data-testid="stSidebarNav"] a {{
-            border-radius: 9px;
+            border-radius:
+                9px;
 
-            color: #94A3B8 !important;
+            color:
+                #94A3B8 !important;
 
-            font-size: 11px;
-            font-weight: 600;
+            font-size:
+                11px;
+
+            font-weight:
+                600;
 
             transition:
                 background 0.15s ease,
@@ -491,7 +819,8 @@ def inject_global_styles() -> None:
             background:
                 rgba(255, 255, 255, 0.05) !important;
 
-            color: #F8FAFC !important;
+            color:
+                #F8FAFC !important;
         }}
 
         [data-testid="stSidebarNav"] a[aria-current="page"] {{
@@ -502,14 +831,16 @@ def inject_global_styles() -> None:
                     rgba(124, 58, 237, 0.12)
                 ) !important;
 
-            color: #FFFFFF !important;
+            color:
+                #FFFFFF !important;
 
             box-shadow:
                 inset 3px 0 0 {COLORS["primary"]};
         }}
 
         [data-testid="stSidebarNav"] a[aria-current="page"] span {{
-            color: #FFFFFF !important;
+            color:
+                #FFFFFF !important;
         }}
 
 
@@ -518,19 +849,26 @@ def inject_global_styles() -> None:
            ================================================================== */
 
         .page-header {{
-            position: relative;
+            position:
+                relative;
 
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
+            display:
+                flex;
 
-            gap: 1.5rem;
+            align-items:
+                flex-start;
 
-            margin-bottom: 2rem;
+            justify-content:
+                space-between;
+
+            gap:
+                1.5rem;
+
+            margin-bottom:
+                2rem;
 
             padding:
-                1.35rem
-                1.5rem;
+                1.35rem 1.5rem;
 
             background:
                 rgba(255, 255, 255, 0.88);
@@ -544,19 +882,28 @@ def inject_global_styles() -> None:
             box-shadow:
                 {SHADOWS["card"]};
 
-            overflow: hidden;
+            overflow:
+                hidden;
         }}
 
         .page-header::before {{
-            content: "";
+            content:
+                "";
 
-            position: absolute;
+            position:
+                absolute;
 
-            top: 0;
-            left: 0;
+            top:
+                0;
 
-            width: 100%;
-            height: 3px;
+            left:
+                0;
+
+            width:
+                100%;
+
+            height:
+                3px;
 
             background:
                 linear-gradient(
@@ -567,63 +914,87 @@ def inject_global_styles() -> None:
         }}
 
         .page-header-content {{
-            min-width: 0;
-            flex: 1;
+            min-width:
+                0;
+
+            flex:
+                1;
         }}
 
         .page-header-title {{
-            color: {COLORS["text"]};
+            color:
+                {COLORS["text"]};
 
-            font-size: 25px;
-            font-weight: 800;
+            font-size:
+                25px;
 
-            line-height: 1.2;
+            font-weight:
+                800;
 
-            letter-spacing: -0.025em;
+            line-height:
+                1.2;
+
+            letter-spacing:
+                -0.025em;
         }}
 
         .page-header-description {{
-            max-width: 820px;
+            max-width:
+                820px;
 
-            margin-top: 0.45rem;
+            margin-top:
+                0.45rem;
 
-            color: {COLORS["text_muted"]};
+            color:
+                {COLORS["text_muted"]};
 
-            font-size: 12px;
-            font-weight: 400;
+            font-size:
+                12px;
 
-            line-height: 1.65;
+            line-height:
+                1.65;
         }}
 
         .page-header-status {{
-            flex-shrink: 0;
+            flex-shrink:
+                0;
 
-            padding-top: 0.1rem;
+            padding-top:
+                0.1rem;
         }}
 
         .status-badge {{
-            display: inline-flex;
-            align-items: center;
+            display:
+                inline-flex;
 
-            gap: 0.35rem;
+            align-items:
+                center;
+
+            gap:
+                0.35rem;
 
             padding:
-                0.38rem
-                0.7rem;
+                0.38rem 0.7rem;
 
             border-radius:
                 {RADIUS["pill"]};
 
-            font-size: 9px;
-            font-weight: 800;
+            font-size:
+                9px;
 
-            letter-spacing: 0.05em;
+            font-weight:
+                800;
 
-            white-space: nowrap;
+            letter-spacing:
+                0.05em;
+
+            white-space:
+                nowrap;
         }}
 
         .status-live {{
-            color: {COLORS["success_dark"]};
+            color:
+                {COLORS["success_dark"]};
 
             background:
                 {COLORS["success_soft"]};
@@ -633,7 +1004,8 @@ def inject_global_styles() -> None:
         }}
 
         .status-warning {{
-            color: {COLORS["warning_dark"]};
+            color:
+                {COLORS["warning_dark"]};
 
             background:
                 {COLORS["warning_soft"]};
@@ -643,7 +1015,8 @@ def inject_global_styles() -> None:
         }}
 
         .status-danger {{
-            color: {COLORS["danger_dark"]};
+            color:
+                {COLORS["danger_dark"]};
 
             background:
                 {COLORS["danger_soft"]};
@@ -653,7 +1026,8 @@ def inject_global_styles() -> None:
         }}
 
         .status-info {{
-            color: {COLORS["info_dark"]};
+            color:
+                {COLORS["info_dark"]};
 
             background:
                 {COLORS["info_soft"]};
@@ -668,26 +1042,40 @@ def inject_global_styles() -> None:
            ================================================================== */
 
         .section-header {{
-            position: relative;
+            position:
+                relative;
 
-            margin-top: 1.75rem;
-            margin-bottom: 1rem;
+            margin-top:
+                1.75rem;
 
-            padding-left: 0.9rem;
+            margin-bottom:
+                1rem;
+
+            padding-left:
+                0.9rem;
         }}
 
         .section-header::before {{
-            content: "";
+            content:
+                "";
 
-            position: absolute;
+            position:
+                absolute;
 
-            top: 3px;
-            bottom: 3px;
-            left: 0;
+            top:
+                3px;
 
-            width: 3px;
+            bottom:
+                3px;
 
-            border-radius: 3px;
+            left:
+                0;
+
+            width:
+                3px;
+
+            border-radius:
+                3px;
 
             background:
                 linear-gradient(
@@ -698,24 +1086,34 @@ def inject_global_styles() -> None:
         }}
 
         .section-title {{
-            color: {COLORS["text"]};
+            color:
+                {COLORS["text"]};
 
-            font-size: 16px;
-            font-weight: 800;
+            font-size:
+                16px;
 
-            line-height: 1.35;
+            font-weight:
+                800;
 
-            letter-spacing: -0.01em;
+            line-height:
+                1.35;
+
+            letter-spacing:
+                -0.01em;
         }}
 
         .section-description {{
-            margin-top: 0.25rem;
+            margin-top:
+                0.25rem;
 
-            color: {COLORS["text_muted"]};
+            color:
+                {COLORS["text_muted"]};
 
-            font-size: 10px;
+            font-size:
+                10px;
 
-            line-height: 1.55;
+            line-height:
+                1.55;
         }}
 
 
@@ -724,27 +1122,39 @@ def inject_global_styles() -> None:
            ================================================================== */
 
         .subsection-header {{
-            margin-top: 1.25rem;
-            margin-bottom: 0.75rem;
+            margin-top:
+                1.25rem;
+
+            margin-bottom:
+                0.75rem;
         }}
 
         .subsection-title {{
-            color: {COLORS["text_secondary"]};
+            color:
+                {COLORS["text_secondary"]};
 
-            font-size: 12px;
-            font-weight: 750;
+            font-size:
+                12px;
 
-            line-height: 1.4;
+            font-weight:
+                750;
+
+            line-height:
+                1.4;
         }}
 
         .subsection-description {{
-            margin-top: 0.2rem;
+            margin-top:
+                0.2rem;
 
-            color: {COLORS["text_muted"]};
+            color:
+                {COLORS["text_muted"]};
 
-            font-size: 9px;
+            font-size:
+                9px;
 
-            line-height: 1.5;
+            line-height:
+                1.5;
         }}
 
 
@@ -753,13 +1163,14 @@ def inject_global_styles() -> None:
            ================================================================== */
 
         .kpi-card {{
-            position: relative;
+            position:
+                relative;
 
-            min-height: 132px;
+            min-height:
+                132px;
 
             padding:
-                1rem
-                1.1rem;
+                1rem 1.1rem;
 
             background:
                 {COLORS["surface"]};
@@ -773,7 +1184,8 @@ def inject_global_styles() -> None:
             box-shadow:
                 {SHADOWS["card"]};
 
-            overflow: hidden;
+            overflow:
+                hidden;
 
             transition:
                 transform 0.18s ease,
@@ -793,15 +1205,23 @@ def inject_global_styles() -> None:
         }}
 
         .kpi-card::after {{
-            content: "";
+            content:
+                "";
 
-            position: absolute;
+            position:
+                absolute;
 
-            left: 0;
-            right: 0;
-            bottom: 0;
+            left:
+                0;
 
-            height: 3px;
+            right:
+                0;
+
+            bottom:
+                0;
+
+            height:
+                3px;
 
             background:
                 {COLORS["primary"]};
@@ -833,102 +1253,148 @@ def inject_global_styles() -> None:
         }}
 
         .kpi-card-top {{
-            position: relative;
-            z-index: 1;
+            position:
+                relative;
 
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
+            z-index:
+                1;
 
-            gap: 0.75rem;
+            display:
+                flex;
+
+            align-items:
+                flex-start;
+
+            justify-content:
+                space-between;
+
+            gap:
+                0.75rem;
         }}
 
         .kpi-card-content {{
-            min-width: 0;
-            flex: 1;
+            min-width:
+                0;
+
+            flex:
+                1;
         }}
 
         .kpi-label {{
-            color: {COLORS["text_muted"]};
+            color:
+                {COLORS["text_muted"]};
 
-            font-size: 9px;
-            font-weight: 700;
+            font-size:
+                9px;
 
-            letter-spacing: 0.055em;
+            font-weight:
+                700;
 
-            text-transform: uppercase;
+            letter-spacing:
+                0.055em;
 
-            line-height: 1.35;
+            text-transform:
+                uppercase;
+
+            line-height:
+                1.35;
         }}
 
         .kpi-value {{
-            margin-top: 0.35rem;
+            margin-top:
+                0.35rem;
 
-            color: {COLORS["text"]};
+            color:
+                {COLORS["text"]};
 
-            font-size: 25px;
-            font-weight: 800;
+            font-size:
+                25px;
 
-            line-height: 1.15;
+            font-weight:
+                800;
 
-            letter-spacing: -0.03em;
+            line-height:
+                1.15;
 
-            word-break: break-word;
+            letter-spacing:
+                -0.03em;
+
+            word-break:
+                break-word;
         }}
 
         .kpi-footer {{
-            margin-top: 0.65rem;
+            margin-top:
+                0.65rem;
         }}
 
         .kpi-positive,
         .kpi-negative,
         .kpi-neutral {{
-            display: inline-flex;
-            align-items: center;
+            display:
+                inline-flex;
+
+            align-items:
+                center;
 
             padding:
-                0.25rem
-                0.5rem;
+                0.25rem 0.5rem;
 
             border-radius:
                 {RADIUS["pill"]};
 
-            font-size: 9px;
-            font-weight: 700;
+            font-size:
+                9px;
+
+            font-weight:
+                700;
         }}
 
         .kpi-positive {{
-            color: {COLORS["success_dark"]};
+            color:
+                {COLORS["success_dark"]};
 
             background:
                 {COLORS["success_soft"]};
         }}
 
         .kpi-negative {{
-            color: {COLORS["danger_dark"]};
+            color:
+                {COLORS["danger_dark"]};
 
             background:
                 {COLORS["danger_soft"]};
         }}
 
         .kpi-neutral {{
-            color: {COLORS["text_muted"]};
+            color:
+                {COLORS["text_muted"]};
 
             background:
                 {COLORS["surface_soft"]};
         }}
 
         .kpi-icon {{
-            width: 38px;
-            height: 38px;
+            width:
+                38px;
 
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+            height:
+                38px;
 
-            flex-shrink: 0;
+            display:
+                inline-flex;
 
-            border-radius: 11px;
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            flex-shrink:
+                0;
+
+            border-radius:
+                11px;
 
             background:
                 linear-gradient(
@@ -943,8 +1409,11 @@ def inject_global_styles() -> None:
             color:
                 {COLORS["primary"]};
 
-            font-size: 14px;
-            font-weight: 800;
+            font-size:
+                14px;
+
+            font-weight:
+                800;
 
             box-shadow:
                 0 4px 10px rgba(37, 99, 235, 0.10);
@@ -971,15 +1440,22 @@ def inject_global_styles() -> None:
             box-shadow:
                 {SHADOWS["card"]};
 
-            overflow: hidden;
+            overflow:
+                hidden;
         }}
 
         .chart-card-header {{
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            display:
+                flex;
 
-            gap: 1rem;
+            align-items:
+                center;
+
+            justify-content:
+                space-between;
+
+            gap:
+                1rem;
 
             padding:
                 0.8rem
@@ -988,20 +1464,28 @@ def inject_global_styles() -> None:
         }}
 
         .chart-card-title {{
-            color: {COLORS["text"]};
+            color:
+                {COLORS["text"]};
 
-            font-size: 12px;
-            font-weight: 750;
+            font-size:
+                12px;
+
+            font-weight:
+                750;
         }}
 
         .chart-card-description {{
-            margin-top: 0.15rem;
+            margin-top:
+                0.15rem;
 
-            color: {COLORS["text_muted"]};
+            color:
+                {COLORS["text_muted"]};
 
-            font-size: 9px;
+            font-size:
+                9px;
 
-            line-height: 1.45;
+            line-height:
+                1.45;
         }}
 
 
@@ -1010,9 +1494,11 @@ def inject_global_styles() -> None:
            ================================================================== */
 
         .data-table-wrapper {{
-            width: 100%;
+            width:
+                100%;
 
-            overflow-x: auto;
+            overflow-x:
+                auto;
 
             background:
                 {COLORS["surface"]};
@@ -1028,11 +1514,14 @@ def inject_global_styles() -> None:
         }}
 
         .data-table {{
-            width: 100%;
+            width:
+                100%;
 
-            border-collapse: collapse;
+            border-collapse:
+                collapse;
 
-            font-size: 10px;
+            font-size:
+                10px;
         }}
 
         .data-table thead {{
@@ -1042,20 +1531,25 @@ def inject_global_styles() -> None:
 
         .data-table th {{
             padding:
-                0.8rem
-                0.75rem;
+                0.8rem 0.75rem;
 
             color:
                 {COLORS["text_muted"]};
 
-            font-size: 9px;
-            font-weight: 800;
+            font-size:
+                9px;
 
-            letter-spacing: 0.04em;
+            font-weight:
+                800;
 
-            text-align: left;
+            letter-spacing:
+                0.04em;
 
-            text-transform: uppercase;
+            text-align:
+                left;
+
+            text-transform:
+                uppercase;
 
             border-bottom:
                 1px solid {COLORS["border"]};
@@ -1071,7 +1565,8 @@ def inject_global_styles() -> None:
             border-bottom:
                 1px solid {COLORS["border_light"]};
 
-            vertical-align: middle;
+            vertical-align:
+                middle;
         }}
 
         .data-table tbody tr {{
@@ -1085,14 +1580,16 @@ def inject_global_styles() -> None:
         }}
 
         .data-table tbody tr:last-child td {{
-            border-bottom: none;
+            border-bottom:
+                none;
         }}
 
         .segment-name {{
             color:
                 {COLORS["text"]};
 
-            font-weight: 700;
+            font-weight:
+                700;
         }}
 
         .table-number {{
@@ -1102,14 +1599,16 @@ def inject_global_styles() -> None:
             font-variant-numeric:
                 tabular-nums;
 
-            text-align: right;
+            text-align:
+                right;
         }}
 
         .total-value {{
             color:
                 {COLORS["primary"]};
 
-            font-weight: 750;
+            font-weight:
+                750;
         }}
 
         .monetary {{
@@ -1123,11 +1622,11 @@ def inject_global_styles() -> None:
            ================================================================== */
 
         .stButton > button {{
-            min-height: 38px;
+            min-height:
+                38px;
 
             padding:
-                0.5rem
-                1rem;
+                0.5rem 1rem;
 
             border:
                 1px solid {COLORS["border"]};
@@ -1141,8 +1640,11 @@ def inject_global_styles() -> None:
             color:
                 {COLORS["text_secondary"]};
 
-            font-size: 11px;
-            font-weight: 700;
+            font-size:
+                11px;
+
+            font-weight:
+                700;
 
             box-shadow:
                 {SHADOWS["sm"]};
@@ -1179,7 +1681,8 @@ def inject_global_styles() -> None:
            ================================================================== */
 
         [data-baseweb="select"] > div {{
-            min-height: 38px;
+            min-height:
+                38px;
 
             background:
                 {COLORS["surface"]} !important;
@@ -1198,7 +1701,8 @@ def inject_global_styles() -> None:
             color:
                 {COLORS["text_secondary"]} !important;
 
-            font-size: 11px;
+            font-size:
+                11px;
         }}
 
 
@@ -1221,7 +1725,8 @@ def inject_global_styles() -> None:
             color:
                 {COLORS["text"]} !important;
 
-            font-size: 11px;
+            font-size:
+                11px;
         }}
 
         .stTextInput input:focus,
@@ -1240,7 +1745,8 @@ def inject_global_styles() -> None:
            ================================================================== */
 
         .stTabs [data-baseweb="tab-list"] {{
-            gap: 0.25rem;
+            gap:
+                0.25rem;
 
             border-bottom:
                 1px solid {COLORS["border"]};
@@ -1248,14 +1754,16 @@ def inject_global_styles() -> None:
 
         .stTabs [data-baseweb="tab"] {{
             padding:
-                0.65rem
-                0.85rem;
+                0.65rem 0.85rem;
 
             color:
                 {COLORS["text_muted"]};
 
-            font-size: 10px;
-            font-weight: 700;
+            font-size:
+                10px;
+
+            font-weight:
+                700;
         }}
 
         .stTabs [aria-selected="true"] {{
@@ -1277,14 +1785,16 @@ def inject_global_styles() -> None:
             border-radius:
                 {RADIUS["md"]};
 
-            border-width: 1px;
+            border-width:
+                1px;
 
-            font-size: 11px;
+            font-size:
+                11px;
         }}
 
 
         /* ==================================================================
-           METRIC
+           STREAMLIT METRICS
            ================================================================== */
 
         [data-testid="stMetric"] {{
@@ -1308,15 +1818,19 @@ def inject_global_styles() -> None:
             color:
                 {COLORS["text_muted"]} !important;
 
-            font-size: 9px !important;
+            font-size:
+                9px !important;
         }}
 
         [data-testid="stMetricValue"] {{
             color:
                 {COLORS["text"]} !important;
 
-            font-size: 21px !important;
-            font-weight: 800 !important;
+            font-size:
+                21px !important;
+
+            font-weight:
+                800 !important;
         }}
 
 
@@ -1337,12 +1851,15 @@ def inject_global_styles() -> None:
 
 
         /* ==================================================================
-           SCROLLBAR
+           GLOBAL SCROLLBAR
            ================================================================== */
 
         ::-webkit-scrollbar {{
-            width: 7px;
-            height: 7px;
+            width:
+                7px;
+
+            height:
+                7px;
         }}
 
         ::-webkit-scrollbar-track {{
@@ -1381,15 +1898,19 @@ def inject_global_styles() -> None:
             box-shadow:
                 {SHADOWS["sm"]};
 
-            overflow: hidden;
+            overflow:
+                hidden;
         }}
 
         [data-testid="stExpander"] summary {{
             color:
                 {COLORS["text"]};
 
-            font-size: 11px;
-            font-weight: 700;
+            font-size:
+                11px;
+
+            font-weight:
+                700;
         }}
 
 
@@ -1404,7 +1925,8 @@ def inject_global_styles() -> None:
             border-radius:
                 {RADIUS["lg"]};
 
-            overflow: hidden;
+            overflow:
+                hidden;
 
             box-shadow:
                 {SHADOWS["card"]};
@@ -1449,7 +1971,8 @@ def inject_global_styles() -> None:
             color:
                 {COLORS["text_secondary"]};
 
-            font-size: 11px;
+            font-size:
+                11px;
         }}
 
 
@@ -1471,7 +1994,8 @@ def inject_global_styles() -> None:
             color:
                 {COLORS["text_muted"]} !important;
 
-            font-size: 9px !important;
+            font-size:
+                9px !important;
         }}
 
 
@@ -1492,8 +2016,11 @@ def inject_global_styles() -> None:
             color:
                 {COLORS["primary"]};
 
-            font-size: 10px;
-            font-weight: 700;
+            font-size:
+                10px;
+
+            font-weight:
+                700;
         }}
 
         .stLinkButton > a:hover {{
@@ -1512,21 +2039,34 @@ def inject_global_styles() -> None:
         @media (max-width: 1100px) {{
 
             [data-testid="block-container"] {{
-                padding-left: 1.25rem;
-                padding-right: 1.25rem;
+                padding-left:
+                    1.25rem;
+
+                padding-right:
+                    1.25rem;
             }}
 
             .page-header-title {{
-                font-size: 22px;
+                font-size:
+                    22px;
             }}
 
             .kpi-value {{
-                font-size: 22px;
+                font-size:
+                    22px;
             }}
         }}
 
 
         @media (max-width: 768px) {{
+
+            [data-testid="stSidebar"] {{
+                min-width:
+                    250px !important;
+
+                max-width:
+                    250px !important;
+            }}
 
             [data-testid="block-container"] {{
                 padding:
@@ -1536,33 +2076,39 @@ def inject_global_styles() -> None:
             }}
 
             .page-header {{
-                flex-direction: column;
+                flex-direction:
+                    column;
 
                 padding:
                     1rem;
             }}
 
             .page-header-status {{
-                padding-top: 0;
+                padding-top:
+                    0;
             }}
 
             .page-header-title {{
-                font-size: 20px;
+                font-size:
+                    20px;
             }}
 
             .section-title {{
-                font-size: 14px;
+                font-size:
+                    14px;
             }}
 
             .kpi-card {{
-                min-height: 115px;
+                min-height:
+                    115px;
 
                 padding:
                     0.85rem;
             }}
 
             .kpi-value {{
-                font-size: 20px;
+                font-size:
+                    20px;
             }}
         }}
 
@@ -1570,26 +2116,34 @@ def inject_global_styles() -> None:
         @media (max-width: 480px) {{
 
             .page-header-title {{
-                font-size: 18px;
+                font-size:
+                    18px;
             }}
 
             .page-header-description {{
-                font-size: 10px;
+                font-size:
+                    10px;
             }}
 
             .kpi-label {{
-                font-size: 8px;
+                font-size:
+                    8px;
             }}
 
             .kpi-value {{
-                font-size: 18px;
+                font-size:
+                    18px;
             }}
 
             .kpi-icon {{
-                width: 32px;
-                height: 32px;
+                width:
+                    32px;
 
-                border-radius: 9px;
+                height:
+                    32px;
+
+                border-radius:
+                    9px;
             }}
         }}
 
@@ -1611,7 +2165,8 @@ def inject_global_styles() -> None:
             *,
             *::before,
             *::after {{
-                scroll-behavior: auto !important;
+                scroll-behavior:
+                    auto !important;
 
                 transition:
                     none !important;
@@ -1639,4 +2194,4 @@ __all__ = [
     "RADIUS",
     "SPACING",
     "inject_global_styles",
-]   
+]

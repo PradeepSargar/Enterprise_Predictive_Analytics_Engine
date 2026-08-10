@@ -2,20 +2,21 @@
 About
 -----
 
-Professional project information page for the
+Professional overview page for the
 Enterprise Predictive Analytics Engine.
 
-This page provides:
+This page communicates:
 
-- Platform overview
-- Analytical capabilities
+- What the platform does
+- Why the platform exists
+- Core analytical capabilities
 - Dashboard modules
 - Analytical workflow
-- Technology stack
 - Application architecture
+- Technology stack
 - Engineering principles
 
-No business calculations or data processing are performed here.
+No business calculations or model training are performed here.
 """
 
 from __future__ import annotations
@@ -34,169 +35,164 @@ from dashboards.utils.html import render_html
 # ============================================================================
 
 page_header(
-    title="About the Analytics Platform",
+    title="Enterprise Predictive Analytics Engine",
     description=(
-        "Enterprise Predictive Analytics Engine is an integrated analytics "
-        "platform designed to transform transactional data into actionable "
-        "business intelligence, customer insights, and predictive analysis."
+        "A unified analytics platform for customer intelligence, "
+        "predictive modeling, forecasting, segmentation, and "
+        "decision-oriented business analysis."
     ),
-    status="ANALYTICS PLATFORM",
+    status="PLATFORM OVERVIEW",
 )
 
 
 # ============================================================================
-# PLATFORM OVERVIEW
+# HERO / VALUE PROPOSITION
 # ============================================================================
-
-section_header(
-    title="Platform Overview",
-    description=(
-        "A unified analytical environment combining descriptive, "
-        "diagnostic, predictive, and customer-focused analytics."
-    ),
-)
-
 
 render_html(
     """
-    <div class="chart-card">
-        <div style="padding: 1.35rem;">
+    <div style="
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(
+            135deg,
+            #0F172A 0%,
+            #172554 55%,
+            #1E3A8A 100%
+        );
+        border-radius: 16px;
+        padding: 1.8rem 2rem;
+        margin-bottom: 1.4rem;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+    ">
+
+        <div style="
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: rgba(59, 130, 246, 0.12);
+            top: -80px;
+            right: 80px;
+        "></div>
+
+        <div style="
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(124, 58, 237, 0.12);
+            bottom: -65px;
+            right: -20px;
+        "></div>
+
+        <div style="
+            position: relative;
+            z-index: 2;
+            max-width: 820px;
+        ">
 
             <div style="
-                color: #2563EB;
-                font-size: 9px;
+                display: inline-block;
+                padding: 0.3rem 0.65rem;
+                border-radius: 999px;
+                background: rgba(255,255,255,0.09);
+                border: 1px solid rgba(255,255,255,0.14);
+                color: #BFDBFE;
+                font-size: 8px;
                 font-weight: 800;
-                letter-spacing: 0.08em;
+                letter-spacing: 0.1em;
                 text-transform: uppercase;
-                margin-bottom: 0.45rem;
+                margin-bottom: 0.8rem;
             ">
-                ENTERPRISE ANALYTICS ENGINE
+                ANALYTICS PLATFORM
             </div>
 
             <div style="
-                color: #0F172A;
-                font-size: 20px;
-                font-weight: 800;
-                line-height: 1.3;
+                color: #FFFFFF;
+                font-size: 27px;
+                font-weight: 850;
+                line-height: 1.2;
                 margin-bottom: 0.65rem;
             ">
-                From transactional data to decision-ready intelligence
+                Turning data into
+                <span style="color: #93C5FD;">
+                    decision-ready intelligence
+                </span>
             </div>
 
             <div style="
-                color: #475569;
+                color: #CBD5E1;
                 font-size: 11px;
                 line-height: 1.75;
-                max-width: 950px;
+                max-width: 720px;
             ">
-                The platform brings multiple analytical workflows together
-                inside a single dashboard experience. It combines customer
-                analytics, segmentation, risk analysis, forecasting, model
-                evaluation, and data exploration so that business questions
-                can be investigated from multiple analytical perspectives.
+                The Enterprise Predictive Analytics Engine brings
+                descriptive, diagnostic, predictive, and customer-focused
+                analytics together in one structured dashboard experience.
             </div>
 
         </div>
+
     </div>
     """
 )
 
 
 # ============================================================================
-# ANALYTICAL CAPABILITIES
+# PLATFORM SNAPSHOT
 # ============================================================================
 
-section_header(
-    title="Analytical Capabilities",
-    description=(
-        "Core analytical areas available throughout the platform."
-    ),
-)
+snapshot_columns = st.columns(4, gap="medium")
 
-
-capability_columns = st.columns(3, gap="medium")
-
-
-capabilities = [
-    (
-        "👥",
-        "Customer Intelligence",
-        "Analyze customer behavior, purchasing patterns, "
-        "customer value, frequency, recency, and retention "
-        "characteristics.",
-        "#2563EB",
-        "#EFF6FF",
-        "#DBEAFE",
-    ),
-    (
-        "📈",
-        "Predictive Analytics",
-        "Apply predictive modeling and forecasting workflows "
-        "to identify patterns, estimate future outcomes, and "
-        "support forward-looking decisions.",
-        "#7C3AED",
-        "#F5F3FF",
-        "#EDE9FE",
-    ),
-    (
-        "🎯",
-        "Decision Intelligence",
-        "Convert analytical outputs into interpretable business "
-        "insights through dashboards, comparisons, segmentation, "
-        "and decision-oriented reporting.",
-        "#059669",
-        "#ECFDF5",
-        "#D1FAE5",
-    ),
+snapshot_items = [
+    ("07", "Analytics Modules", "Integrated dashboard views", "#2563EB"),
+    ("04", "Analytical Layers", "From data to decisions", "#7C3AED"),
+    ("01", "Unified Platform", "Single dashboard experience", "#059669"),
+    ("∞", "Reusable Components", "Scalable UI architecture", "#D97706"),
 ]
 
 
 for column, (
-    icon,
-    title,
+    value,
+    label,
     description,
     accent,
-    background,
-    border,
-) in zip(capability_columns, capabilities):
+) in zip(snapshot_columns, snapshot_items):
 
     with column:
 
         render_html(
             f"""
-            <div class="chart-card" style="height: 100%;">
+            <div class="chart-card">
 
-                <div style="padding: 1.15rem;">
+                <div style="
+                    padding: 1rem 1.05rem;
+                    border-top: 3px solid {accent};
+                ">
 
                     <div style="
-                        width: 38px;
-                        height: 38px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        border-radius: 10px;
-                        background: {background};
-                        border: 1px solid {border};
                         color: {accent};
-                        font-size: 17px;
-                        margin-bottom: 0.85rem;
+                        font-size: 22px;
+                        font-weight: 850;
+                        line-height: 1;
+                        margin-bottom: 0.4rem;
                     ">
-                        {icon}
+                        {value}
                     </div>
 
                     <div style="
                         color: #0F172A;
-                        font-size: 13px;
+                        font-size: 10px;
                         font-weight: 800;
-                        margin-bottom: 0.4rem;
+                        margin-bottom: 0.2rem;
                     ">
-                        {title}
+                        {label}
                     </div>
 
                     <div style="
                         color: #64748B;
-                        font-size: 10px;
-                        line-height: 1.65;
+                        font-size: 8px;
                     ">
                         {description}
                     </div>
@@ -209,127 +205,130 @@ for column, (
 
 
 # ============================================================================
-# PLATFORM MODULES
+# WHAT THE PLATFORM DOES
 # ============================================================================
 
 section_header(
-    title="Platform Modules",
+    title="What the Platform Does",
     description=(
-        "The dashboard is organized around distinct analytical workflows."
+        "The application connects multiple analytical perspectives "
+        "into one decision-support environment."
     ),
 )
 
 
-modules = [
+capability_columns = st.columns(3, gap="medium")
+
+capabilities = [
     (
         "01",
-        "Executive Overview",
-        "High-level business KPIs and an executive view of overall performance.",
+        "Understand",
+        "Descriptive Analytics",
+        "Explore customers, transactions, revenue, trends, "
+        "and business performance.",
+        "🔍",
         "#2563EB",
+        "#EFF6FF",
     ),
     (
         "02",
-        "Customer Analytics",
-        "Customer-level behavioral and value-oriented analysis.",
+        "Predict",
+        "Predictive Analytics",
+        "Use forecasting and machine learning workflows "
+        "to estimate future outcomes and risk.",
+        "🧠",
         "#7C3AED",
+        "#F5F3FF",
     ),
     (
         "03",
-        "Customer Risk",
-        "Customer risk analysis and predictive risk-oriented insights.",
-        "#DC2626",
-    ),
-    (
-        "04",
-        "Revenue Forecast",
-        "Forward-looking revenue analysis and forecasting.",
+        "Act",
+        "Decision Intelligence",
+        "Translate analytical results into interpretable "
+        "insights and business-oriented actions.",
+        "🎯",
         "#059669",
-    ),
-    (
-        "05",
-        "Model Performance",
-        "Comparison and evaluation of predictive model performance.",
-        "#D97706",
-    ),
-    (
-        "06",
-        "Data Explorer",
-        "Interactive exploration of underlying analytical data.",
-        "#0891B2",
-    ),
-    (
-        "07",
-        "Customer Segmentation",
-        "Behavioral segmentation for identifying distinct customer groups.",
-        "#9333EA",
+        "#ECFDF5",
     ),
 ]
 
 
-module_columns = st.columns(2, gap="medium")
-
-
-for index, (
+for column, (
     number,
     title,
+    subtitle,
     description,
+    icon,
     accent,
-) in enumerate(modules):
+    background,
+) in zip(capability_columns, capabilities):
 
-    with module_columns[index % 2]:
+    with column:
 
         render_html(
             f"""
-            <div class="chart-card" style="margin-bottom: 0.8rem;">
+            <div class="chart-card" style="height: 100%;">
 
                 <div style="
-                    display: flex;
-                    align-items: flex-start;
-                    gap: 0.9rem;
-                    padding: 1rem 1.05rem;
+                    padding: 1.2rem;
                 ">
 
                     <div style="
-                        min-width: 34px;
-                        width: 34px;
-                        height: 34px;
-
                         display: flex;
+                        justify-content: space-between;
                         align-items: center;
-                        justify-content: center;
-
-                        border-radius: 9px;
-
-                        background: {accent}12;
-                        color: {accent};
-
-                        font-size: 9px;
-                        font-weight: 800;
-
-                        border: 1px solid {accent}25;
+                        margin-bottom: 0.85rem;
                     ">
-                        {number}
+
+                        <div style="
+                            width: 40px;
+                            height: 40px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            border-radius: 11px;
+                            background: {background};
+                            font-size: 18px;
+                        ">
+                            {icon}
+                        </div>
+
+                        <div style="
+                            color: #CBD5E1;
+                            font-size: 9px;
+                            font-weight: 800;
+                        ">
+                            {number}
+                        </div>
+
                     </div>
 
-                    <div style="flex: 1;">
+                    <div style="
+                        color: {accent};
+                        font-size: 8px;
+                        font-weight: 800;
+                        letter-spacing: 0.08em;
+                        text-transform: uppercase;
+                        margin-bottom: 0.3rem;
+                    ">
+                        {subtitle}
+                    </div>
 
-                        <div style="
-                            color: #0F172A;
-                            font-size: 11px;
-                            font-weight: 800;
-                            margin-bottom: 0.25rem;
-                        ">
-                            {title}
-                        </div>
+                    <div style="
+                        color: #0F172A;
+                        font-size: 15px;
+                        font-weight: 850;
+                        margin-bottom: 0.45rem;
+                    ">
+                        {title}
+                    </div>
 
-                        <div style="
-                            color: #64748B;
-                            font-size: 9px;
-                            line-height: 1.55;
-                        ">
-                            {description}
-                        </div>
-
+                    <div style="
+                        color: #64748B;
+                        font-size: 9px;
+                        line-height: 1.65;
+                    ">
+                        {description}
                     </div>
 
                 </div>
@@ -344,73 +343,106 @@ for index, (
 # ============================================================================
 
 section_header(
-    title="Analytical Workflow",
+    title="From Data to Decisions",
     description=(
-        "The platform follows a structured progression from raw data "
-        "to analytical interpretation."
+        "A structured analytical workflow connects raw information "
+        "with business interpretation."
     ),
 )
 
 
-workflow_columns = st.columns(4, gap="small")
-
-
-workflow_steps = [
-    ("01", "Data", "Load and inspect source data.", "📥"),
-    ("02", "Transform", "Prepare analytical features and datasets.", "⚙️"),
-    ("03", "Analyze", "Apply statistical and predictive techniques.", "📊"),
-    ("04", "Decide", "Present insights through business-focused dashboards.", "🎯"),
+workflow = [
+    (
+        "01",
+        "DATA",
+        "Collect & Inspect",
+        "Understand source structure, quality, and available fields.",
+        "📥",
+    ),
+    (
+        "02",
+        "PREPARE",
+        "Transform",
+        "Clean, transform, and prepare analytical datasets.",
+        "⚙️",
+    ),
+    (
+        "03",
+        "ANALYZE",
+        "Model & Explore",
+        "Apply analytics, segmentation, forecasting, and predictive models.",
+        "📊",
+    ),
+    (
+        "04",
+        "DECIDE",
+        "Interpret",
+        "Present results through decision-oriented dashboards and insights.",
+        "🎯",
+    ),
 ]
 
 
-for column, (
-    number,
-    title,
-    description,
-    icon,
-) in zip(workflow_columns, workflow_steps):
+for index, step in enumerate(workflow):
+
+    number, label, title, description, icon = step
+
+    column = st.columns([1, 0.08, 1, 0.08, 1, 0.08, 1])[index * 2]
 
     with column:
 
         render_html(
             f"""
             <div class="chart-card" style="
-                min-height: 150px;
-                text-align: center;
+                min-height: 175px;
             ">
 
-                <div style="padding: 1rem 0.75rem;">
+                <div style="padding: 1rem;">
 
                     <div style="
-                        font-size: 20px;
-                        margin-bottom: 0.45rem;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 0.65rem;
                     ">
-                        {icon}
+
+                        <div style="font-size: 21px;">
+                            {icon}
+                        </div>
+
+                        <div style="
+                            color: #94A3B8;
+                            font-size: 8px;
+                            font-weight: 800;
+                        ">
+                            {number}
+                        </div>
+
                     </div>
 
                     <div style="
                         color: #2563EB;
                         font-size: 8px;
                         font-weight: 800;
-                        letter-spacing: 0.06em;
+                        letter-spacing: 0.08em;
                         margin-bottom: 0.25rem;
                     ">
-                        STEP {number}
+                        {label}
                     </div>
 
                     <div style="
                         color: #0F172A;
-                        font-size: 11px;
+                        font-size: 12px;
                         font-weight: 800;
-                        margin-bottom: 0.3rem;
+                        margin-bottom: 0.35rem;
                     ">
                         {title}
                     </div>
 
                     <div style="
                         color: #64748B;
-                        font-size: 9px;
-                        line-height: 1.5;
+                        font-size: 8.5px;
+                        line-height: 1.6;
                     ">
                         {description}
                     </div>
@@ -423,80 +455,168 @@ for column, (
 
 
 # ============================================================================
-# TECHNOLOGY STACK
+# DASHBOARD MODULES
 # ============================================================================
 
 section_header(
-    title="Technology Stack",
+    title="Dashboard Modules",
     description=(
-        "Core technologies used across the analytics and dashboard layers."
+        "Each module addresses a specific analytical or business question."
     ),
 )
 
 
-technology_columns = st.columns(4, gap="medium")
-
-
-technologies = [
+modules = [
     (
-        "🐍",
-        "Python",
-        "Core programming language for analytics and application logic.",
+        "01",
+        "Executive Overview",
+        "Business Performance",
+        "High-level KPIs, trends, and executive-level performance indicators.",
+        "📊",
+        "#2563EB",
     ),
     (
-        "📦",
-        "Pandas",
-        "Data manipulation, transformation, and analytical preparation.",
+        "02",
+        "Customer Analytics",
+        "Customer Intelligence",
+        "Customer behavior, value, frequency, and purchasing analysis.",
+        "👥",
+        "#7C3AED",
     ),
     (
-        "🧠",
-        "Scikit-learn",
-        "Machine learning workflows and predictive modeling.",
+        "03",
+        "Customer Risk",
+        "Risk Intelligence",
+        "Risk-oriented customer analysis and predictive insights.",
+        "⚠️",
+        "#DC2626",
     ),
     (
-        "⚡",
-        "Streamlit",
-        "Interactive dashboard and application interface.",
+        "04",
+        "Revenue Forecast",
+        "Forecasting",
+        "Forward-looking revenue trends and forecast analysis.",
+        "📈",
+        "#059669",
+    ),
+    (
+        "05",
+        "Model Performance",
+        "Model Evaluation",
+        "Compare and evaluate predictive model performance.",
+        "🤖",
+        "#D97706",
+    ),
+    (
+        "06",
+        "Data Explorer",
+        "Data Intelligence",
+        "Explore the underlying dataset and analytical dimensions.",
+        "🔎",
+        "#0891B2",
+    ),
+    (
+        "07",
+        "Customer Segmentation",
+        "Segmentation",
+        "Identify and understand distinct customer groups.",
+        "🎯",
+        "#9333EA",
     ),
 ]
 
 
-for column, (
-    icon,
-    title,
-    description,
-) in zip(technology_columns, technologies):
+module_columns = st.columns(2, gap="medium")
 
-    with column:
+for index, (
+    number,
+    title,
+    category,
+    description,
+    icon,
+    accent,
+) in enumerate(modules):
+
+    with module_columns[index % 2]:
 
         render_html(
             f"""
-            <div class="chart-card" style="min-height: 145px;">
+            <div class="chart-card" style="
+                margin-bottom: 0.8rem;
+            ">
 
-                <div style="padding: 1rem;">
+                <div style="
+                    display: flex;
+                    align-items: center;
+                    gap: 0.85rem;
+                    padding: 0.95rem 1rem;
+                ">
 
                     <div style="
-                        font-size: 20px;
-                        margin-bottom: 0.55rem;
+                        min-width: 40px;
+                        width: 40px;
+                        height: 40px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        border-radius: 10px;
+                        background: {accent}12;
+                        border: 1px solid {accent}25;
+                        font-size: 17px;
                     ">
                         {icon}
                     </div>
 
                     <div style="
-                        color: #0F172A;
-                        font-size: 11px;
-                        font-weight: 800;
-                        margin-bottom: 0.3rem;
+                        flex: 1;
+                        min-width: 0;
                     ">
-                        {title}
-                    </div>
 
-                    <div style="
-                        color: #64748B;
-                        font-size: 9px;
-                        line-height: 1.55;
-                    ">
-                        {description}
+                        <div style="
+                            display: flex;
+                            align-items: center;
+                            gap: 0.45rem;
+                            margin-bottom: 0.18rem;
+                        ">
+
+                            <div style="
+                                color: #0F172A;
+                                font-size: 11px;
+                                font-weight: 850;
+                            ">
+                                {title}
+                            </div>
+
+                            <div style="
+                                color: {accent};
+                                font-size: 7px;
+                                font-weight: 800;
+                                text-transform: uppercase;
+                                letter-spacing: 0.05em;
+                            ">
+                                {number}
+                            </div>
+
+                        </div>
+
+                        <div style="
+                            color: {accent};
+                            font-size: 7.5px;
+                            font-weight: 800;
+                            text-transform: uppercase;
+                            margin-bottom: 0.2rem;
+                        ">
+                            {category}
+                        </div>
+
+                        <div style="
+                            color: #64748B;
+                            font-size: 8.5px;
+                            line-height: 1.5;
+                        ">
+                            {description}
+                        </div>
+
                     </div>
 
                 </div>
@@ -513,203 +633,175 @@ for column, (
 section_header(
     title="Application Architecture",
     description=(
-        "The dashboard separates presentation, reusable components, "
-        "data transformations, state, and styling."
+        "The platform separates presentation, reusable UI, data logic, "
+        "state management, and styling."
     ),
 )
 
 
-render_html(
-    """
-    <div class="chart-card">
+architecture_layers = [
+    (
+        "PRESENTATION",
+        "Dashboard Pages",
+        "Business-facing analytical views",
+        "#2563EB",
+    ),
+    (
+        "COMPONENTS",
+        "Reusable UI",
+        "KPI cards, headers, charts, exports",
+        "#7C3AED",
+    ),
+    (
+        "DATA",
+        "Transformations",
+        "Prepared datasets and analytical helpers",
+        "#059669",
+    ),
+    (
+        "STATE",
+        "Session & Filters",
+        "Shared filter and session management",
+        "#D97706",
+    ),
+    (
+        "STYLES",
+        "Design System",
+        "Centralized visual language and theme",
+        "#DC2626",
+    ),
+]
 
+
+for index, (
+    layer,
+    title,
+    description,
+    accent,
+) in enumerate(architecture_layers):
+
+    render_html(
+        f"""
         <div style="
-            padding: 1.15rem 1.25rem;
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.55rem;
         ">
 
             <div style="
-                display: grid;
-                grid-template-columns:
-                    repeat(5, minmax(0, 1fr));
-                gap: 0.65rem;
+                width: 115px;
+                padding: 0.65rem 0.75rem;
+                border-radius: 8px 0 0 8px;
+                background: {accent};
+                color: white;
+                font-size: 8px;
+                font-weight: 850;
+                letter-spacing: 0.06em;
+            ">
+                {layer}
+            </div>
+
+            <div style="
+                flex: 1;
+                padding: 0.65rem 0.85rem;
+                background: #F8FAFC;
+                border: 1px solid #E2E8F0;
+                border-left: none;
+                border-radius: 0 8px 8px 0;
             ">
 
-                <div style="
-                    padding: 0.85rem;
-                    background: #F8FAFC;
-                    border: 1px solid #E2E8F0;
-                    border-radius: 10px;
+                <span style="
+                    color: #0F172A;
+                    font-size: 9px;
+                    font-weight: 800;
                 ">
-                    <div style="
-                        color: #2563EB;
-                        font-size: 8px;
-                        font-weight: 800;
-                        letter-spacing: 0.05em;
-                    ">
-                        PRESENTATION
-                    </div>
+                    {title}
+                </span>
 
-                    <div style="
-                        color: #0F172A;
-                        font-size: 10px;
-                        font-weight: 750;
-                        margin-top: 0.3rem;
-                    ">
-                        Pages
-                    </div>
-
-                    <div style="
-                        color: #64748B;
-                        font-size: 8px;
-                        margin-top: 0.25rem;
-                    ">
-                        Dashboard views
-                    </div>
-                </div>
-
-
-                <div style="
-                    padding: 0.85rem;
-                    background: #F8FAFC;
-                    border: 1px solid #E2E8F0;
-                    border-radius: 10px;
+                <span style="
+                    color: #94A3B8;
+                    font-size: 8px;
+                    margin-left: 0.5rem;
                 ">
-                    <div style="
-                        color: #7C3AED;
-                        font-size: 8px;
-                        font-weight: 800;
-                        letter-spacing: 0.05em;
-                    ">
-                        COMPONENTS
-                    </div>
-
-                    <div style="
-                        color: #0F172A;
-                        font-size: 10px;
-                        font-weight: 750;
-                        margin-top: 0.3rem;
-                    ">
-                        UI Layer
-                    </div>
-
-                    <div style="
-                        color: #64748B;
-                        font-size: 8px;
-                        margin-top: 0.25rem;
-                    ">
-                        Reusable visuals
-                    </div>
-                </div>
-
-
-                <div style="
-                    padding: 0.85rem;
-                    background: #F8FAFC;
-                    border: 1px solid #E2E8F0;
-                    border-radius: 10px;
-                ">
-                    <div style="
-                        color: #059669;
-                        font-size: 8px;
-                        font-weight: 800;
-                        letter-spacing: 0.05em;
-                    ">
-                        DATA
-                    </div>
-
-                    <div style="
-                        color: #0F172A;
-                        font-size: 10px;
-                        font-weight: 750;
-                        margin-top: 0.3rem;
-                    ">
-                        Transformations
-                    </div>
-
-                    <div style="
-                        color: #64748B;
-                        font-size: 8px;
-                        margin-top: 0.25rem;
-                    ">
-                        Analytical datasets
-                    </div>
-                </div>
-
-
-                <div style="
-                    padding: 0.85rem;
-                    background: #F8FAFC;
-                    border: 1px solid #E2E8F0;
-                    border-radius: 10px;
-                ">
-                    <div style="
-                        color: #D97706;
-                        font-size: 8px;
-                        font-weight: 800;
-                        letter-spacing: 0.05em;
-                    ">
-                        STATE
-                    </div>
-
-                    <div style="
-                        color: #0F172A;
-                        font-size: 10px;
-                        font-weight: 750;
-                        margin-top: 0.3rem;
-                    ">
-                        Filters
-                    </div>
-
-                    <div style="
-                        color: #64748B;
-                        font-size: 8px;
-                        margin-top: 0.25rem;
-                    ">
-                        Session state
-                    </div>
-                </div>
-
-
-                <div style="
-                    padding: 0.85rem;
-                    background: #F8FAFC;
-                    border: 1px solid #E2E8F0;
-                    border-radius: 10px;
-                ">
-                    <div style="
-                        color: #DC2626;
-                        font-size: 8px;
-                        font-weight: 800;
-                        letter-spacing: 0.05em;
-                    ">
-                        STYLES
-                    </div>
-
-                    <div style="
-                        color: #0F172A;
-                        font-size: 10px;
-                        font-weight: 750;
-                        margin-top: 0.3rem;
-                    ">
-                        Design System
-                    </div>
-
-                    <div style="
-                        color: #64748B;
-                        font-size: 8px;
-                        margin-top: 0.25rem;
-                    ">
-                        Centralized theme
-                    </div>
-                </div>
+                    {description}
+                </span>
 
             </div>
 
         </div>
+        """
+    )
 
-    </div>
-    """
+
+# ============================================================================
+# TECHNOLOGY STACK
+# ============================================================================
+
+section_header(
+    title="Technology Stack",
+    description=(
+        "Core technologies supporting the analytical and application layers."
+    ),
 )
+
+
+technologies = [
+    ("🐍", "Python", "Core analytics and application logic."),
+    ("🐼", "Pandas", "Data manipulation and analytical preparation."),
+    ("🧠", "Scikit-learn", "Machine learning and predictive modeling."),
+    ("⚡", "Streamlit", "Interactive dashboard application layer."),
+]
+
+
+technology_columns = st.columns(4, gap="medium")
+
+
+for column, (
+    icon,
+    title,
+    description,
+) in zip(technology_columns, technologies):
+
+    with column:
+
+        render_html(
+            f"""
+            <div class="chart-card" style="height: 100%;">
+
+                <div style="
+                    padding: 1rem;
+                    text-align: center;
+                ">
+
+                    <div style="
+                        font-size: 22px;
+                        margin-bottom: 0.55rem;
+                    ">
+                        {icon}
+                    </div>
+
+                    <div style="
+                        color: #0F172A;
+                        font-size: 11px;
+                        font-weight: 850;
+                        margin-bottom: 0.3rem;
+                    ">
+                        {title}
+                    </div>
+
+                    <div style="
+                        color: #64748B;
+                        font-size: 8.5px;
+                        line-height: 1.55;
+                    ">
+                        {description}
+                    </div>
+
+                </div>
+
+            </div>
+            """
+        )
 
 
 # ============================================================================
@@ -719,35 +811,41 @@ render_html(
 section_header(
     title="Engineering Principles",
     description=(
-        "Design and development principles followed throughout "
-        "the dashboard application."
+        "The application is designed around maintainability, consistency, "
+        "and decision-oriented analytics."
     ),
 )
-
-
-principle_columns = st.columns(3, gap="medium")
 
 
 principles = [
     (
         "01",
         "Separation of Concerns",
-        "Pages focus on presentation while reusable components, "
-        "data transformations, state, and styling remain separated.",
+        "Pages focus on presentation while data, state, components, "
+        "and styling remain independently organized.",
     ),
     (
         "02",
         "Reusable Components",
-        "Common dashboard elements are implemented once and reused "
-        "across analytical pages for visual consistency.",
+        "Shared visual elements are implemented once and reused "
+        "across dashboard pages.",
     ),
     (
         "03",
-        "Decision-Oriented Design",
-        "Visualizations are intended to communicate business patterns "
-        "rather than simply display raw data.",
+        "Centralized Design",
+        "A shared theme maintains consistent typography, spacing, "
+        "colors, cards, and visual hierarchy.",
+    ),
+    (
+        "04",
+        "Decision-Oriented Analytics",
+        "Visualizations focus on communicating patterns and insights "
+        "rather than displaying charts for their own sake.",
     ),
 ]
+
+
+principle_columns = st.columns(4, gap="medium")
 
 
 for column, (
@@ -767,26 +865,27 @@ for column, (
                     <div style="
                         color: #94A3B8;
                         font-size: 8px;
-                        font-weight: 800;
+                        font-weight: 850;
                         letter-spacing: 0.08em;
-                        margin-bottom: 0.5rem;
+                        margin-bottom: 0.55rem;
                     ">
                         PRINCIPLE {number}
                     </div>
 
                     <div style="
                         color: #0F172A;
-                        font-size: 12px;
-                        font-weight: 800;
-                        margin-bottom: 0.35rem;
+                        font-size: 11px;
+                        font-weight: 850;
+                        line-height: 1.3;
+                        margin-bottom: 0.4rem;
                     ">
                         {title}
                     </div>
 
                     <div style="
                         color: #64748B;
-                        font-size: 9px;
-                        line-height: 1.65;
+                        font-size: 8.5px;
+                        line-height: 1.6;
                     ">
                         {description}
                     </div>
@@ -799,33 +898,47 @@ for column, (
 
 
 # ============================================================================
-# FOOTER
+# FINAL PROJECT STATEMENT
 # ============================================================================
 
 render_html(
     """
     <div style="
-        margin-top: 2.25rem;
-        padding: 1rem 0;
-        border-top: 1px solid #E2E8F0;
+        margin-top: 1.8rem;
+        padding: 1.35rem 1.5rem;
+        border-radius: 14px;
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
         text-align: center;
     ">
 
         <div style="
-            color: #0F172A;
-            font-size: 10px;
-            font-weight: 800;
-            letter-spacing: 0.04em;
+            color: #2563EB;
+            font-size: 8px;
+            font-weight: 850;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 0.45rem;
         ">
             ENTERPRISE PREDICTIVE ANALYTICS ENGINE
         </div>
 
         <div style="
-            margin-top: 0.25rem;
-            color: #94A3B8;
-            font-size: 8px;
+            color: #0F172A;
+            font-size: 15px;
+            font-weight: 850;
+            margin-bottom: 0.35rem;
         ">
-            Integrated analytics • Predictive intelligence • Decision support
+            One platform. Multiple analytical perspectives.
+        </div>
+
+        <div style="
+            color: #64748B;
+            font-size: 9px;
+            line-height: 1.6;
+        ">
+            Built to move from data exploration to predictive insight
+            and business-oriented decision support.
         </div>
 
     </div>
