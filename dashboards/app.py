@@ -1,7 +1,4 @@
 """
-Enterprise Predictive Analytics Engine
----------------------------------------
-
 Main Streamlit application entry point.
 
 Responsibilities
@@ -28,7 +25,7 @@ from dashboards.styles.theme import inject_global_styles
 
 st.set_page_config(
     page_title="Enterprise Predictive Analytics Engine",
-    page_icon="◈",
+    page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -38,20 +35,7 @@ st.set_page_config(
 # GLOBAL DESIGN SYSTEM
 # ============================================================================
 
-# Load the centralized visual system before any dashboard page is rendered.
-#
-# This controls:
-# - Application background
-# - Typography
-# - Sidebar
-# - Navigation
-# - KPI cards
-# - Section headers
-# - Charts
-# - Tables
-# - Buttons
-# - Responsive behavior
-
+# Load the centralized visual system before rendering any dashboard page.
 inject_global_styles()
 
 
@@ -59,15 +43,19 @@ inject_global_styles()
 # APPLICATION NAVIGATION
 # ============================================================================
 
+# app.py is located inside the dashboards directory.
+# Therefore, page paths are relative to dashboards/app.py.
+
 pages = {
+
     # ------------------------------------------------------------------------
     # Overview
     # ------------------------------------------------------------------------
     "Overview": [
         st.Page(
-            "dashboards/pages/01_Executive_Overview.py",
+            "pages/01_Executive_Overview.py",
             title="Executive Overview",
-            icon="▦",
+            icon="📊",
         ),
     ],
 
@@ -76,21 +64,21 @@ pages = {
     # ------------------------------------------------------------------------
     "Customer Intelligence": [
         st.Page(
-            "dashboards/pages/02_Customer_Analytics.py",
+            "pages/02_Customer_Analytics.py",
             title="Customer Analytics",
-            icon="♟",
+            icon="👥",
         ),
 
         st.Page(
-            "dashboards/pages/03_Customer_Risk.py",
+            "pages/03_Customer_Risk.py",
             title="Customer Risk",
-            icon="◈",
+            icon="⚠️",
         ),
 
         st.Page(
-            "dashboards/pages/07_Customer_Segmentation.py",
+            "pages/07_Customer_Segmentation.py",
             title="Customer Segmentation",
-            icon="⌘",
+            icon="🎯",
         ),
     ],
 
@@ -99,15 +87,15 @@ pages = {
     # ------------------------------------------------------------------------
     "Predictive Intelligence": [
         st.Page(
-            "dashboards/pages/04_Revenue_Forecast.py",
+            "pages/04_Revenue_Forecast.py",
             title="Revenue Forecast",
-            icon="⌁",
+            icon="📈",
         ),
 
         st.Page(
-            "dashboards/pages/05_Model_Performance.py",
+            "pages/05_Model_Performance.py",
             title="Model Performance",
-            icon="◉",
+            icon="🤖",
         ),
     ],
 
@@ -116,9 +104,20 @@ pages = {
     # ------------------------------------------------------------------------
     "Data & Insights": [
         st.Page(
-            "dashboards/pages/06_Data_Explorer.py",
+            "pages/06_Data_Explorer.py",
             title="Data Explorer",
-            icon="▤",
+            icon="🔎",
+        ),
+    ],
+
+    # ------------------------------------------------------------------------
+    # Application
+    # ------------------------------------------------------------------------
+    "Application": [
+        st.Page(
+            "pages/08_About.py",
+            title="About",
+            icon="ℹ️",
         ),
     ],
 }
@@ -128,7 +127,7 @@ pages = {
 # NAVIGATION
 # ============================================================================
 
-# Streamlit renders the grouped navigation in the sidebar.
+# Render the grouped navigation in the Streamlit sidebar.
 page = st.navigation(
     pages,
     position="sidebar",

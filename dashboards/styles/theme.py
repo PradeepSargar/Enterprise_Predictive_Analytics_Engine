@@ -1,24 +1,58 @@
 """
-Enterprise Predictive Analytics Engine
----------------------------------------
+Enterprise Dashboard Design System
+-----------------------------------
 
-Centralized visual design system for the Streamlit dashboard.
+Centralized visual system for the Enterprise Predictive Analytics Engine.
 
-Design goals
+This module is responsible for:
+
+- Global application styling
+- Typography
+- Sidebar navigation
+- KPI cards
+- Section headers
+- Charts
+- Tables
+- Buttons
+- Tabs
+- Alerts
+- Responsive layout behavior
+- Accessibility-focused visual states
+
+Design philosophy
+-----------------
+The dashboard uses a modern enterprise analytics aesthetic:
+
+- Light analytical canvas
+- Dark navigation sidebar
+- White elevated surfaces
+- Blue primary accent
+- Violet secondary accent
+- Subtle borders
+- Minimal shadows
+- Strong typography hierarchy
+- Consistent spacing
+- Data-first visual hierarchy
+
+Architecture
 ------------
-- Premium enterprise analytics appearance
-- Dark product-navigation sidebar
-- Soft analytical application canvas
-- Strong blue / violet brand identity
-- Layered surfaces with restrained shadows
-- Professional KPI cards
-- Reusable chart and panel surfaces
-- Insight and status cards
-- Consistent forms, buttons, tabs and tables
-- Responsive behavior
+Pages and reusable components should not contain large blocks of CSS.
 
-All dashboard pages should consume these styles rather than
-injecting their own page-specific CSS.
+Instead:
+
+    dashboards/
+        styles/
+            theme.py
+
+provides the centralized visual system.
+
+Usage
+-----
+Call ``inject_global_styles()`` once from the application entry point:
+
+    from dashboards.styles.theme import inject_global_styles
+
+    inject_global_styles()
 """
 
 from __future__ import annotations
@@ -31,69 +65,98 @@ import streamlit as st
 # ============================================================================
 
 COLORS = {
-    # Application surfaces
+    # ------------------------------------------------------------------------
+    # Application
+    # ------------------------------------------------------------------------
     "background": "#F4F7FB",
     "background_top": "#F8FAFC",
     "surface": "#FFFFFF",
-    "surface_soft": "#F8FAFC",
-    "surface_alt": "#F1F5F9",
+    "surface_alt": "#F8FAFC",
+    "surface_soft": "#F1F5F9",
 
-    # Colored surfaces
-    "surface_blue": "#EFF6FF",
-    "surface_violet": "#F5F3FF",
-    "surface_green": "#ECFDF5",
-    "surface_amber": "#FFFBEB",
-    "surface_red": "#FEF2F2",
-
-    # Borders
-    "border": "#E2E8F0",
-    "border_strong": "#CBD5E1",
-    "border_blue": "#BFDBFE",
-    "border_violet": "#DDD6FE",
-    "border_green": "#A7F3D0",
-    "border_amber": "#FDE68A",
-    "border_red": "#FECACA",
-
-    # Typography
-    "text_primary": "#0F172A",
-    "text_secondary": "#475569",
-    "text_muted": "#94A3B8",
-    "text_inverse": "#FFFFFF",
-
-    # Brand
-    "primary": "#2563EB",
-    "primary_dark": "#1D4ED8",
-    "primary_deep": "#1E3A8A",
-    "primary_soft": "#EFF6FF",
-
-    "secondary": "#7C3AED",
-    "secondary_soft": "#F5F3FF",
-
-    # Semantic colors
-    "success": "#059669",
-    "success_bright": "#10B981",
-    "success_soft": "#ECFDF5",
-
-    "warning": "#D97706",
-    "warning_bright": "#F59E0B",
-    "warning_soft": "#FFFBEB",
-
-    "danger": "#DC2626",
-    "danger_bright": "#EF4444",
-    "danger_soft": "#FEF2F2",
-
-    "info": "#0891B2",
-    "info_soft": "#ECFEFF",
-
+    # ------------------------------------------------------------------------
     # Sidebar
+    # ------------------------------------------------------------------------
     "sidebar": "#0B1220",
-    "sidebar_mid": "#0D1525",
     "sidebar_surface": "#111827",
     "sidebar_hover": "#172033",
     "sidebar_active": "#172B4D",
-    "sidebar_text": "#CBD5E1",
-    "sidebar_text_active": "#FFFFFF",
-    "sidebar_muted": "#64748B",
+
+    # ------------------------------------------------------------------------
+    # Primary brand
+    # ------------------------------------------------------------------------
+    "primary": "#2563EB",
+    "primary_dark": "#1D4ED8",
+    "primary_light": "#DBEAFE",
+    "primary_soft": "#EFF6FF",
+
+    # ------------------------------------------------------------------------
+    # Secondary brand
+    # ------------------------------------------------------------------------
+    "secondary": "#7C3AED",
+    "secondary_dark": "#6D28D9",
+    "secondary_light": "#EDE9FE",
+    "secondary_soft": "#F5F3FF",
+
+    # ------------------------------------------------------------------------
+    # Semantic
+    # ------------------------------------------------------------------------
+    "success": "#059669",
+    "success_dark": "#047857",
+    "success_light": "#D1FAE5",
+    "success_soft": "#ECFDF5",
+
+    "warning": "#D97706",
+    "warning_dark": "#B45309",
+    "warning_light": "#FEF3C7",
+    "warning_soft": "#FFFBEB",
+
+    "danger": "#DC2626",
+    "danger_dark": "#B91C1C",
+    "danger_light": "#FEE2E2",
+    "danger_soft": "#FEF2F2",
+
+    "info": "#0891B2",
+    "info_dark": "#0E7490",
+    "info_light": "#CFFAFE",
+    "info_soft": "#ECFEFF",
+
+    # ------------------------------------------------------------------------
+    # Text
+    # ------------------------------------------------------------------------
+    "text": "#0F172A",
+    "text_secondary": "#334155",
+    "text_muted": "#64748B",
+    "text_light": "#94A3B8",
+    "text_inverse": "#FFFFFF",
+
+    # ------------------------------------------------------------------------
+    # Borders
+    # ------------------------------------------------------------------------
+    "border": "#E2E8F0",
+    "border_light": "#EEF2F7",
+    "border_strong": "#CBD5E1",
+
+    # ------------------------------------------------------------------------
+    # Charts
+    # ------------------------------------------------------------------------
+    "chart_blue": "#2563EB",
+    "chart_purple": "#7C3AED",
+    "chart_green": "#059669",
+    "chart_amber": "#D97706",
+    "chart_red": "#DC2626",
+    "chart_cyan": "#0891B2",
+    "chart_pink": "#DB2777",
+    "chart_indigo": "#4F46E5",
+    "chart_teal": "#0F766E",
+    "chart_violet": "#9333EA",
+
+    # ------------------------------------------------------------------------
+    # Miscellaneous
+    # ------------------------------------------------------------------------
+    "white": "#FFFFFF",
+    "black": "#000000",
+    "transparent": "rgba(0,0,0,0)",
 }
 
 
@@ -102,22 +165,90 @@ COLORS = {
 # ============================================================================
 
 FONT_FAMILY = (
-    "Inter, -apple-system, BlinkMacSystemFont, "
-    '"Segoe UI", sans-serif'
+    "Inter, "
+    "-apple-system, "
+    "BlinkMacSystemFont, "
+    '"Segoe UI", '
+    "Roboto, "
+    "Helvetica, "
+    "Arial, "
+    "sans-serif"
 )
 
 
 # ============================================================================
-# SHADOW SYSTEM
+# SHADOWS
 # ============================================================================
 
 SHADOWS = {
-    "xs": "0 1px 2px rgba(15, 23, 42, 0.04)",
-    "sm": "0 2px 8px rgba(15, 23, 42, 0.05)",
-    "md": "0 8px 24px rgba(15, 23, 42, 0.07)",
-    "lg": "0 16px 40px rgba(15, 23, 42, 0.10)",
-    "blue": "0 10px 30px rgba(37, 99, 235, 0.18)",
+    "none": "none",
+
+    "sm": (
+        "0 1px 2px rgba(15, 23, 42, 0.04)"
+    ),
+
+    "card": (
+        "0 2px 8px rgba(15, 23, 42, 0.04)"
+    ),
+
+    "card_hover": (
+        "0 8px 24px rgba(15, 23, 42, 0.08)"
+    ),
+
+    "md": (
+        "0 8px 24px rgba(15, 23, 42, 0.08)"
+    ),
+
+    "lg": (
+        "0 16px 40px rgba(15, 23, 42, 0.12)"
+    ),
 }
+
+
+# ============================================================================
+# BORDER RADIUS
+# ============================================================================
+
+RADIUS = {
+    "sm": "6px",
+    "md": "10px",
+    "lg": "14px",
+    "xl": "18px",
+    "pill": "999px",
+}
+
+
+# ============================================================================
+# SPACING
+# ============================================================================
+
+SPACING = {
+    "xs": "0.25rem",
+    "sm": "0.5rem",
+    "md": "0.75rem",
+    "lg": "1rem",
+    "xl": "1.5rem",
+    "xxl": "2rem",
+    "section": "2.25rem",
+}
+
+
+# ============================================================================
+# CHART PALETTE
+# ============================================================================
+
+CHART_PALETTE = [
+    COLORS["chart_blue"],
+    COLORS["chart_purple"],
+    COLORS["chart_green"],
+    COLORS["chart_amber"],
+    COLORS["chart_red"],
+    COLORS["chart_cyan"],
+    COLORS["chart_pink"],
+    COLORS["chart_indigo"],
+    COLORS["chart_teal"],
+    COLORS["chart_violet"],
+]
 
 
 # ============================================================================
@@ -126,29 +257,24 @@ SHADOWS = {
 
 def inject_global_styles() -> None:
     """
-    Inject the complete application-wide dashboard design system.
+    Inject the centralized dashboard design system.
 
-    Call this once from dashboards/app.py before rendering pages.
+    This function should be called once from ``dashboards/app.py``
+    before rendering the selected dashboard page.
     """
 
     st.markdown(
         f"""
         <style>
 
-        /* =====================================================================
-           GLOBAL FOUNDATION
-           ===================================================================== */
+        /* ==================================================================
+           ROOT APPLICATION
+           ================================================================== */
 
-        @import url(
-            'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap'
-        );
-
-        *,
-        *::before,
-        *::after {{
-            box-sizing: border-box;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+        html,
+        body {{
+            background:
+                {COLORS["background"]} !important;
         }}
 
         html,
@@ -158,146 +284,137 @@ def inject_global_styles() -> None:
         }}
 
         .stApp {{
-            min-height: 100vh;
-
             background:
-                radial-gradient(
-                    circle at 8% 5%,
-                    rgba(59, 130, 246, 0.055) 0,
-                    transparent 30%
-                ),
-                radial-gradient(
-                    circle at 92% 88%,
-                    rgba(124, 58, 237, 0.045) 0,
-                    transparent 30%
-                ),
                 linear-gradient(
                     180deg,
                     {COLORS["background_top"]} 0%,
                     {COLORS["background"]} 48%,
                     #F1F5F9 100%
-                );
+                ) !important;
 
-            color: {COLORS["text_primary"]};
+            color: {COLORS["text"]};
         }}
 
+
+        /* ==================================================================
+           MAIN CONTENT CANVAS
+           
+           Streamlit can inherit a dark application theme depending on the
+           browser and Streamlit configuration. These explicit overrides
+           guarantee that the analytical canvas remains light.
+           ================================================================== */
+
         [data-testid="stAppViewContainer"] {{
-            background: transparent;
+            background:
+                {COLORS["background"]} !important;
+        }}
+
+        [data-testid="stMain"] {{
+            background:
+                linear-gradient(
+                    180deg,
+                    {COLORS["background_top"]} 0%,
+                    {COLORS["background"]} 48%,
+                    #F1F5F9 100%
+                ) !important;
+        }}
+
+        [data-testid="stMainBlockContainer"] {{
+            background: transparent !important;
         }}
 
         [data-testid="block-container"] {{
             max-width: 1520px;
 
-            padding-top: 1.5rem;
-            padding-bottom: 3.5rem;
-
-            padding-left: 2.25rem;
-            padding-right: 2.25rem;
-        }}
-
-        #MainMenu,
-        footer {{
-            visibility: hidden;
-        }}
-
-        header {{
             background: transparent !important;
+
+            padding-top: 2rem;
+            padding-right: 2.25rem;
+            padding-bottom: 3rem;
+            padding-left: 2.25rem;
         }}
 
 
-        /* =====================================================================
-           TYPOGRAPHY
-           ===================================================================== */
+        /* ==================================================================
+           MAIN CONTENT TEXT
+           ================================================================== */
 
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6 {{
-            color: {COLORS["text_primary"]} !important;
-            font-weight: 750 !important;
-            letter-spacing: -0.025em;
-        }}
-
-        p {{
+        .stApp p {{
             color: {COLORS["text_secondary"]};
         }}
 
-        a {{
-            color: {COLORS["primary"]};
+        .stApp h1,
+        .stApp h2,
+        .stApp h3,
+        .stApp h4,
+        .stApp h5,
+        .stApp h6 {{
+            color: {COLORS["text"]};
         }}
 
-        hr {{
-            border: 0;
-            border-top: 1px solid {COLORS["border"]};
-            margin: 1.35rem 0;
-        }}
 
-
-        /* =====================================================================
+        /* ==================================================================
            SIDEBAR
-           ===================================================================== */
+           ================================================================== */
 
-        section[data-testid="stSidebar"] {{
+        [data-testid="stSidebar"] {{
             background:
                 linear-gradient(
                     180deg,
                     {COLORS["sidebar"]} 0%,
-                    {COLORS["sidebar_mid"]} 55%,
-                    {COLORS["sidebar"]} 100%
-                );
+                    #0F172A 100%
+                ) !important;
 
             border-right:
-                1px solid rgba(255, 255, 255, 0.055);
-
-            box-shadow:
-                8px 0 30px rgba(15, 23, 42, 0.08);
+                1px solid rgba(255, 255, 255, 0.06);
         }}
 
-        section[data-testid="stSidebar"] > div {{
-            background: transparent;
+        [data-testid="stSidebar"] > div:first-child {{
+            background: transparent !important;
         }}
 
-        section[data-testid="stSidebar"] * {{
-            color: {COLORS["sidebar_text"]};
+        [data-testid="stSidebar"] * {{
+            box-sizing: border-box;
+        }}
+
+        [data-testid="stSidebar"] .stMarkdown {{
+            color: #CBD5E1;
+        }}
+
+        [data-testid="stSidebar"] p {{
+            color: #94A3B8;
         }}
 
 
-        /* =====================================================================
+        /* ==================================================================
            SIDEBAR BRAND
-           ===================================================================== */
+           ================================================================== */
 
         .sidebar-brand {{
-            position: relative;
-
-            margin:
-                0.15rem 0.2rem 1rem 0.2rem;
-
             padding:
-                0.8rem 0.65rem 1.2rem 0.65rem;
-
-            border-bottom:
-                1px solid rgba(255, 255, 255, 0.07);
+                0.35rem
+                0.25rem
+                1.5rem
+                0.25rem;
         }}
 
         .sidebar-brand-row {{
             display: flex;
             align-items: center;
-            gap: 0.7rem;
+            gap: 0.8rem;
         }}
 
         .sidebar-brand-mark {{
-            width: 43px;
-            height: 43px;
+            width: 42px;
+            height: 42px;
 
-            display: inline-flex;
+            display: flex;
             align-items: center;
             justify-content: center;
 
             flex-shrink: 0;
 
-            border-radius: 13px;
+            border-radius: 12px;
 
             background:
                 linear-gradient(
@@ -306,412 +423,131 @@ def inject_global_styles() -> None:
                     {COLORS["secondary"]}
                 );
 
-            color: #FFFFFF !important;
+            color: #FFFFFF;
 
-            font-size: 17px;
+            font-size: 13px;
             font-weight: 800;
 
+            letter-spacing: 0.04em;
+
             box-shadow:
-                {SHADOWS["blue"]};
+                0 8px 20px rgba(37, 99, 235, 0.25);
         }}
 
         .sidebar-brand-title {{
-            color: #FFFFFF !important;
+            color: #F8FAFC;
 
-            font-size: 14px;
-            font-weight: 750;
+            font-size: 11px;
+            font-weight: 800;
 
-            letter-spacing: 0.01em;
-            line-height: 1.2;
+            letter-spacing: 0.08em;
+
+            line-height: 1.3;
         }}
 
         .sidebar-brand-subtitle {{
-            margin-top: 0.22rem;
+            margin-top: 2px;
 
-            color:
-                {COLORS["sidebar_muted"]} !important;
-
-            font-size: 10px;
-            line-height: 1.45;
-        }}
-
-
-        /* =====================================================================
-           SIDEBAR NAVIGATION
-           ===================================================================== */
-
-        section[data-testid="stSidebar"]
-        [data-testid="stSidebarNav"] {{
-            padding:
-                0.1rem 0.55rem 1rem 0.55rem;
-        }}
-
-        section[data-testid="stSidebar"]
-        [data-testid="stSidebarNav"] ul {{
-            gap: 0.18rem;
-        }}
-
-        section[data-testid="stSidebar"]
-        [data-testid="stSidebarNav"] li > div {{
-            padding:
-                0.65rem 0.75rem 0.3rem 0.75rem;
-
-            color:
-                {COLORS["sidebar_muted"]} !important;
+            color: #64748B;
 
             font-size: 9px;
-            font-weight: 750;
+            font-weight: 500;
 
-            text-transform: uppercase;
-            letter-spacing: 0.095em;
+            line-height: 1.4;
         }}
 
-        section[data-testid="stSidebar"]
+
+        /* ==================================================================
+           SIDEBAR NAVIGATION
+           ================================================================== */
+
+        [data-testid="stSidebarNav"] {{
+            padding-top: 0.25rem;
+        }}
+
+        [data-testid="stSidebarNav"] ul {{
+            gap: 0.2rem;
+        }}
+
+        [data-testid="stSidebarNav"] li {{
+            margin-bottom: 0.15rem;
+        }}
+
         [data-testid="stSidebarNav"] a {{
-            position: relative;
+            border-radius: 9px;
 
-            min-height: 43px;
+            color: #94A3B8 !important;
 
-            padding:
-                0.58rem 0.72rem;
-
-            border-radius: 11px;
-
-            color:
-                {COLORS["sidebar_text"]} !important;
-
-            font-size: 12px;
-            font-weight: 550;
+            font-size: 11px;
+            font-weight: 600;
 
             transition:
-                background 150ms ease,
-                color 150ms ease,
-                transform 150ms ease,
-                box-shadow 150ms ease;
+                background 0.15s ease,
+                color 0.15s ease,
+                transform 0.15s ease;
         }}
 
-        section[data-testid="stSidebar"]
         [data-testid="stSidebarNav"] a:hover {{
             background:
-                rgba(255, 255, 255, 0.055);
+                rgba(255, 255, 255, 0.05) !important;
 
-            color:
-                #FFFFFF !important;
-
-            transform:
-                translateX(2px);
+            color: #F8FAFC !important;
         }}
 
-        section[data-testid="stSidebar"]
-        [data-testid="stSidebarNav"]
-        a[aria-current="page"] {{
+        [data-testid="stSidebarNav"] a[aria-current="page"] {{
             background:
                 linear-gradient(
                     90deg,
-                    rgba(37, 99, 235, 0.27),
-                    rgba(124, 58, 237, 0.10)
-                );
+                    rgba(37, 99, 235, 0.20),
+                    rgba(124, 58, 237, 0.12)
+                ) !important;
 
-            color:
-                #FFFFFF !important;
-
-            font-weight: 700;
+            color: #FFFFFF !important;
 
             box-shadow:
-                inset 3px 0 0 {COLORS["primary"]},
-                0 5px 16px rgba(0, 0, 0, 0.10);
+                inset 3px 0 0 {COLORS["primary"]};
         }}
 
-        section[data-testid="stSidebar"]
-        [data-testid="stSidebarNav"] a svg {{
-            width: 17px;
-            height: 17px;
-
-            margin-right: 0.5rem;
+        [data-testid="stSidebarNav"] a[aria-current="page"] span {{
+            color: #FFFFFF !important;
         }}
 
 
-        /* =====================================================================
-           SIDEBAR FOOTER
-           ===================================================================== */
-
-        .sidebar-footer {{
-            margin:
-                1.4rem 0.55rem 0.4rem 0.55rem;
-
-            padding:
-                0.85rem 0.9rem;
-
-            background:
-                rgba(255, 255, 255, 0.035);
-
-            border:
-                1px solid rgba(255, 255, 255, 0.06);
-
-            border-radius: 12px;
-        }}
-
-        .sidebar-footer-status {{
-            display: flex;
-            align-items: center;
-
-            gap: 0.45rem;
-
-            color: #A7F3D0 !important;
-
-            font-size: 9px;
-            font-weight: 750;
-
-            letter-spacing: 0.07em;
-            text-transform: uppercase;
-        }}
-
-        .sidebar-status-dot {{
-            width: 7px;
-            height: 7px;
-
-            border-radius: 50%;
-
-            background:
-                #34D399;
-
-            box-shadow:
-                0 0 0 4px rgba(52, 211, 153, 0.10);
-        }}
-
-        .sidebar-footer-product {{
-            margin-top: 0.5rem;
-
-            color: #CBD5E1 !important;
-
-            font-size: 10px;
-            line-height: 1.45;
-        }}
-
-        .sidebar-footer-version {{
-            margin-top: 0.25rem;
-
-            color: #64748B !important;
-
-            font-size: 9px;
-        }}
-
-
-        /* =====================================================================
+        /* ==================================================================
            PAGE HEADER
-           ===================================================================== */
+           ================================================================== */
 
         .page-header {{
             position: relative;
 
             display: flex;
-
             align-items: flex-start;
             justify-content: space-between;
 
             gap: 1.5rem;
 
-            margin-bottom: 1.35rem;
+            margin-bottom: 2rem;
 
             padding:
-                1.35rem 1.45rem 1.25rem 1.45rem;
+                1.35rem
+                1.5rem;
 
             background:
-                linear-gradient(
-                    135deg,
-                    rgba(239, 246, 255, 0.96),
-                    rgba(255, 255, 255, 0.98) 55%,
-                    rgba(245, 243, 255, 0.94)
-                );
-
-            border:
-                1px solid #DCE7F7;
-
-            border-radius: 18px;
-
-            box-shadow:
-                {SHADOWS["sm"]};
-
-            overflow: hidden;
-        }}
-
-        .page-header::after {{
-            content: "";
-
-            position: absolute;
-
-            width: 240px;
-            height: 240px;
-
-            right: -100px;
-            top: -150px;
-
-            border-radius: 50%;
-
-            background:
-                radial-gradient(
-                    circle,
-                    rgba(59, 130, 246, 0.11),
-                    transparent 68%
-                );
-
-            pointer-events: none;
-        }}
-
-        .page-header-content {{
-            position: relative;
-
-            z-index: 1;
-
-            min-width: 0;
-        }}
-
-        .page-header-title {{
-            margin: 0;
-
-            color:
-                {COLORS["text_primary"]};
-
-            font-size: 30px;
-            font-weight: 800;
-
-            letter-spacing: -0.045em;
-            line-height: 1.1;
-        }}
-
-        .page-header-description {{
-            max-width: 900px;
-
-            margin-top: 0.45rem;
-
-            color:
-                {COLORS["text_secondary"]};
-
-            font-size: 12px;
-            line-height: 1.6;
-        }}
-
-        .page-header-status {{
-            position: relative;
-
-            z-index: 1;
-
-            flex-shrink: 0;
-
-            padding-top: 0.1rem;
-        }}
-
-
-        /* =====================================================================
-           STATUS BADGES
-           ===================================================================== */
-
-        .status-badge {{
-            display: inline-flex;
-
-            align-items: center;
-            justify-content: center;
-
-            gap: 0.35rem;
-
-            padding:
-                0.35rem 0.7rem;
-
-            border-radius: 999px;
-
-            font-size: 9px;
-            font-weight: 750;
-
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-        }}
-
-        .status-live {{
-            color:
-                {COLORS["success"]};
-
-            background:
-                {COLORS["success_soft"]};
-
-            border:
-                1px solid rgba(5, 150, 105, 0.14);
-        }}
-
-        .status-warning {{
-            color:
-                {COLORS["warning"]};
-
-            background:
-                {COLORS["warning_soft"]};
-
-            border:
-                1px solid rgba(217, 119, 6, 0.14);
-        }}
-
-        .status-danger {{
-            color:
-                {COLORS["danger"]};
-
-            background:
-                {COLORS["danger_soft"]};
-
-            border:
-                1px solid rgba(220, 38, 38, 0.14);
-        }}
-
-        .status-info {{
-            color:
-                {COLORS["info"]};
-
-            background:
-                {COLORS["info_soft"]};
-
-            border:
-                1px solid rgba(8, 145, 178, 0.14);
-        }}
-
-
-        /* =====================================================================
-           KPI CARDS
-           ===================================================================== */
-
-        .kpi-grid {{
-            display: grid;
-
-            grid-template-columns:
-                repeat(4, minmax(0, 1fr));
-
-            gap: 0.9rem;
-        }}
-
-        .kpi-card {{
-            position: relative;
-
-            min-height: 142px;
-
-            overflow: hidden;
-
-            padding:
-                1.15rem 1.2rem;
-
-            background:
-                #FFFFFF;
+                rgba(255, 255, 255, 0.88);
 
             border:
                 1px solid {COLORS["border"]};
 
-            border-radius: 16px;
+            border-radius:
+                {RADIUS["lg"]};
 
             box-shadow:
-                {SHADOWS["xs"]};
+                {SHADOWS["card"]};
 
-            transition:
-                transform 170ms ease,
-                border-color 170ms ease,
-                box-shadow 170ms ease;
+            overflow: hidden;
         }}
 
-        .kpi-card::before {{
+        .page-header::before {{
             content: "";
 
             position: absolute;
@@ -726,154 +562,118 @@ def inject_global_styles() -> None:
                 linear-gradient(
                     90deg,
                     {COLORS["primary"]},
-                    #60A5FA
+                    {COLORS["secondary"]}
                 );
         }}
 
-        .kpi-card::after {{
-            content: "";
-
-            position: absolute;
-
-            width: 150px;
-            height: 150px;
-
-            right: -85px;
-            top: -90px;
-
-            border-radius: 50%;
-
-            background:
-                rgba(59, 130, 246, 0.045);
-
-            pointer-events: none;
+        .page-header-content {{
+            min-width: 0;
+            flex: 1;
         }}
 
-        .kpi-card:hover {{
-            transform:
-                translateY(-3px);
+        .page-header-title {{
+            color: {COLORS["text"]};
 
-            border-color:
-                #C8D5E6;
-
-            box-shadow:
-                {SHADOWS["md"]};
-        }}
-
-        .kpi-label {{
-            color:
-                {COLORS["text_secondary"]};
-
-            font-size: 9px;
-            font-weight: 750;
-
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-        }}
-
-        .kpi-value {{
-            margin-top: 0.5rem;
-
-            color:
-                {COLORS["text_primary"]};
-
-            font-size: 27px;
+            font-size: 25px;
             font-weight: 800;
 
-            letter-spacing: -0.045em;
-            line-height: 1.15;
+            line-height: 1.2;
+
+            letter-spacing: -0.025em;
         }}
 
-        .kpi-footer {{
-            display: flex;
+        .page-header-description {{
+            max-width: 820px;
 
+            margin-top: 0.45rem;
+
+            color: {COLORS["text_muted"]};
+
+            font-size: 12px;
+            font-weight: 400;
+
+            line-height: 1.65;
+        }}
+
+        .page-header-status {{
+            flex-shrink: 0;
+
+            padding-top: 0.1rem;
+        }}
+
+        .status-badge {{
+            display: inline-flex;
             align-items: center;
 
-            min-height: 18px;
+            gap: 0.35rem;
 
-            margin-top: 0.55rem;
+            padding:
+                0.38rem
+                0.7rem;
 
-            font-size: 10px;
+            border-radius:
+                {RADIUS["pill"]};
+
+            font-size: 9px;
+            font-weight: 800;
+
+            letter-spacing: 0.05em;
+
+            white-space: nowrap;
         }}
 
-        .kpi-positive {{
-            color:
-                {COLORS["success"]};
+        .status-live {{
+            color: {COLORS["success_dark"]};
 
-            font-weight: 650;
-        }}
-
-        .kpi-negative {{
-            color:
-                {COLORS["danger"]};
-
-            font-weight: 650;
-        }}
-
-        .kpi-neutral {{
-            color:
-                {COLORS["text_muted"]};
-
-            font-weight: 550;
-        }}
-
-        .kpi-blue::before {{
             background:
-                linear-gradient(
-                    90deg,
-                    #1D4ED8,
-                    #60A5FA
-                );
+                {COLORS["success_soft"]};
+
+            border:
+                1px solid {COLORS["success_light"]};
         }}
 
-        .kpi-green::before {{
+        .status-warning {{
+            color: {COLORS["warning_dark"]};
+
             background:
-                linear-gradient(
-                    90deg,
-                    #047857,
-                    #34D399
-                );
+                {COLORS["warning_soft"]};
+
+            border:
+                1px solid {COLORS["warning_light"]};
         }}
 
-        .kpi-purple::before {{
+        .status-danger {{
+            color: {COLORS["danger_dark"]};
+
             background:
-                linear-gradient(
-                    90deg,
-                    #6D28D9,
-                    #A78BFA
-                );
+                {COLORS["danger_soft"]};
+
+            border:
+                1px solid {COLORS["danger_light"]};
         }}
 
-        .kpi-amber::before {{
+        .status-info {{
+            color: {COLORS["info_dark"]};
+
             background:
-                linear-gradient(
-                    90deg,
-                    #B45309,
-                    #FBBF24
-                );
-        }}
+                {COLORS["info_soft"]};
 
-        .kpi-red::before {{
-            background:
-                linear-gradient(
-                    90deg,
-                    #B91C1C,
-                    #F87171
-                );
+            border:
+                1px solid {COLORS["info_light"]};
         }}
 
 
-        /* =====================================================================
+        /* ==================================================================
            SECTION HEADERS
-           ===================================================================== */
+           ================================================================== */
 
         .section-header {{
             position: relative;
 
-            margin-top: 1.8rem;
-            margin-bottom: 0.85rem;
+            margin-top: 1.75rem;
+            margin-bottom: 1rem;
 
-            padding-left: 0.85rem;
+            padding-left: 0.9rem;
         }}
 
         .section-header::before {{
@@ -881,13 +681,13 @@ def inject_global_styles() -> None:
 
             position: absolute;
 
+            top: 3px;
+            bottom: 3px;
             left: 0;
-            top: 2px;
 
-            width: 4px;
-            height: 31px;
+            width: 3px;
 
-            border-radius: 999px;
+            border-radius: 3px;
 
             background:
                 linear-gradient(
@@ -895,176 +695,93 @@ def inject_global_styles() -> None:
                     {COLORS["primary"]},
                     {COLORS["secondary"]}
                 );
-
-            box-shadow:
-                0 2px 8px rgba(37, 99, 235, 0.20);
         }}
 
         .section-title {{
-            color:
-                {COLORS["text_primary"]};
+            color: {COLORS["text"]};
 
-            font-size: 17px;
-            font-weight: 750;
+            font-size: 16px;
+            font-weight: 800;
 
-            letter-spacing: -0.025em;
+            line-height: 1.35;
 
-            line-height: 1.25;
+            letter-spacing: -0.01em;
         }}
 
         .section-description {{
-            margin-top: 0.2rem;
+            margin-top: 0.25rem;
 
-            color:
-                {COLORS["text_secondary"]};
+            color: {COLORS["text_muted"]};
 
-            font-size: 11px;
-            line-height: 1.5;
+            font-size: 10px;
+
+            line-height: 1.55;
         }}
 
+
+        /* ==================================================================
+           SUBSECTION HEADERS
+           ================================================================== */
+
         .subsection-header {{
-            margin-top: 1rem;
-            margin-bottom: 0.6rem;
+            margin-top: 1.25rem;
+            margin-bottom: 0.75rem;
         }}
 
         .subsection-title {{
-            color:
-                {COLORS["text_primary"]};
+            color: {COLORS["text_secondary"]};
 
-            font-size: 13px;
-            font-weight: 700;
+            font-size: 12px;
+            font-weight: 750;
 
-            letter-spacing: -0.015em;
+            line-height: 1.4;
         }}
 
         .subsection-description {{
-            margin-top: 0.18rem;
-
-            color:
-                {COLORS["text_secondary"]};
-
-            font-size: 10px;
-        }}
-
-
-        /* =====================================================================
-           ANALYTICAL PANELS
-           ===================================================================== */
-
-        .dashboard-panel,
-        .chart-card {{
-            position: relative;
-
-            width: 100%;
-
-            background:
-                #FFFFFF;
-
-            border:
-                1px solid {COLORS["border"]};
-
-            border-radius: 16px;
-
-            box-shadow:
-                {SHADOWS["xs"]};
-
-            overflow: hidden;
-        }}
-
-        .dashboard-panel {{
-            padding:
-                1.05rem 1.1rem 0.85rem 1.1rem;
-        }}
-
-        .chart-card {{
-            padding:
-                1rem 1.05rem 0.7rem 1.05rem;
-
-            transition:
-                box-shadow 180ms ease,
-                transform 180ms ease,
-                border-color 180ms ease;
-        }}
-
-        .chart-card:hover {{
-            transform:
-                translateY(-1px);
-
-            border-color:
-                #D4DEE9;
-
-            box-shadow:
-                {SHADOWS["sm"]};
-        }}
-
-        .dashboard-panel-title,
-        .chart-card-title {{
-            color:
-                {COLORS["text_primary"]};
-
-            font-size: 13px;
-            font-weight: 700;
-
-            letter-spacing: -0.015em;
-        }}
-
-        .dashboard-panel-description,
-        .chart-card-desc {{
             margin-top: 0.2rem;
 
-            color:
-                {COLORS["text_secondary"]};
+            color: {COLORS["text_muted"]};
 
-            font-size: 10px;
+            font-size: 9px;
+
             line-height: 1.5;
         }}
 
-        .chart-container {{
-            width: 100%;
 
-            margin-top: 0.55rem;
+        /* ==================================================================
+           KPI CARDS
+           ================================================================== */
 
-            padding: 0.25rem;
-
-            background:
-                #FFFFFF;
-
-            border-radius: 12px;
-
-            overflow: hidden;
-        }}
-
-
-        /* =====================================================================
-           VISUAL CARD SYSTEM
-           ===================================================================== */
-
-        .card-surface {{
+        .kpi-card {{
             position: relative;
 
-            overflow: hidden;
+            min-height: 132px;
 
             padding:
-                1.25rem 1.35rem;
+                1rem
+                1.1rem;
 
             background:
-                #FFFFFF;
+                {COLORS["surface"]};
 
             border:
                 1px solid {COLORS["border"]};
 
-            border-radius: 17px;
+            border-radius:
+                {RADIUS["lg"]};
 
             box-shadow:
-                {SHADOWS["xs"]};
+                {SHADOWS["card"]};
+
+            overflow: hidden;
 
             transition:
-                transform 180ms ease,
-                box-shadow 180ms ease,
-                border-color 180ms ease;
+                transform 0.18s ease,
+                box-shadow 0.18s ease,
+                border-color 0.18s ease;
         }}
 
-        .card-surface:hover {{
+        .kpi-card:hover {{
             transform:
                 translateY(-2px);
 
@@ -1072,744 +789,372 @@ def inject_global_styles() -> None:
                 #CBD5E1;
 
             box-shadow:
-                {SHADOWS["md"]};
+                {SHADOWS["card_hover"]};
         }}
 
-        .card-gradient-blue {{
-            background:
-                linear-gradient(
-                    135deg,
-                    #EFF6FF 0%,
-                    #FFFFFF 68%
-                );
-
-            border-color:
-                {COLORS["border_blue"]};
-        }}
-
-        .card-gradient-green {{
-            background:
-                linear-gradient(
-                    135deg,
-                    #ECFDF5 0%,
-                    #FFFFFF 68%
-                );
-
-            border-color:
-                {COLORS["border_green"]};
-        }}
-
-        .card-gradient-purple {{
-            background:
-                linear-gradient(
-                    135deg,
-                    #F5F3FF 0%,
-                    #FFFFFF 68%
-                );
-
-            border-color:
-                {COLORS["border_violet"]};
-        }}
-
-        .card-gradient-amber {{
-            background:
-                linear-gradient(
-                    135deg,
-                    #FFFBEB 0%,
-                    #FFFFFF 68%
-                );
-
-            border-color:
-                {COLORS["border_amber"]};
-        }}
-
-        .card-gradient-red {{
-            background:
-                linear-gradient(
-                    135deg,
-                    #FEF2F2 0%,
-                    #FFFFFF 68%
-                );
-
-            border-color:
-                {COLORS["border_red"]};
-        }}
-
-        .card-header {{
-            display: flex;
-
-            align-items: center;
-
-            gap: 0.75rem;
-
-            margin-bottom: 0.75rem;
-        }}
-
-        .card-icon {{
-            width: 43px;
-            height: 43px;
-
-            display: inline-flex;
-
-            align-items: center;
-            justify-content: center;
-
-            flex-shrink: 0;
-
-            border-radius: 12px;
-
-            color:
-                #FFFFFF !important;
-
-            font-size: 1.15rem;
-
-            box-shadow:
-                0 5px 14px rgba(15, 23, 42, 0.12);
-        }}
-
-        .card-icon-blue {{
-            background:
-                linear-gradient(
-                    135deg,
-                    #1E40AF,
-                    #3B82F6
-                );
-        }}
-
-        .card-icon-green {{
-            background:
-                linear-gradient(
-                    135deg,
-                    #047857,
-                    #10B981
-                );
-        }}
-
-        .card-icon-purple {{
-            background:
-                linear-gradient(
-                    135deg,
-                    #6D28D9,
-                    #8B5CF6
-                );
-        }}
-
-        .card-icon-amber {{
-            background:
-                linear-gradient(
-                    135deg,
-                    #B45309,
-                    #F59E0B
-                );
-        }}
-
-        .card-icon-red {{
-            background:
-                linear-gradient(
-                    135deg,
-                    #B91C1C,
-                    #EF4444
-                );
-        }}
-
-        .card-title {{
-            color:
-                {COLORS["text_secondary"]};
-
-            font-size: 9px;
-            font-weight: 700;
-
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-        }}
-
-        .card-value {{
-            margin-top: 0.15rem;
-
-            color:
-                {COLORS["text_primary"]};
-
-            font-size: 25px;
-            font-weight: 800;
-
-            letter-spacing: -0.04em;
-
-            line-height: 1.15;
-        }}
-
-        .card-subtitle {{
-            margin-top: 0.28rem;
-
-            color:
-                {COLORS["text_secondary"]};
-
-            font-size: 10px;
-
-            line-height: 1.5;
-        }}
-
-
-        /* =====================================================================
-           INSIGHT CARDS
-           ===================================================================== */
-
-        .insight-card {{
-            position: relative;
-
-            min-height: 125px;
-
-            padding:
-                1rem 1.1rem 1rem 1.15rem;
-
-            background:
-                #FFFFFF;
-
-            border:
-                1px solid {COLORS["border"]};
-
-            border-radius: 15px;
-
-            box-shadow:
-                {SHADOWS["xs"]};
-
-            overflow: hidden;
-        }}
-
-        .insight-card::before {{
+        .kpi-card::after {{
             content: "";
 
             position: absolute;
 
             left: 0;
-            top: 0;
+            right: 0;
             bottom: 0;
 
-            width: 4px;
+            height: 3px;
 
             background:
                 {COLORS["primary"]};
         }}
 
-        .insight-card-blue::before {{
+        .kpi-card.kpi-blue::after {{
             background:
-                linear-gradient(
-                    180deg,
-                    #1D4ED8,
-                    #60A5FA
-                );
+                {COLORS["primary"]};
         }}
 
-        .insight-card-green::before {{
+        .kpi-card.kpi-green::after {{
             background:
-                linear-gradient(
-                    180deg,
-                    #047857,
-                    #34D399
-                );
+                {COLORS["success"]};
         }}
 
-        .insight-card-amber::before {{
+        .kpi-card.kpi-purple::after {{
             background:
-                linear-gradient(
-                    180deg,
-                    #B45309,
-                    #FBBF24
-                );
+                {COLORS["secondary"]};
         }}
 
-        .insight-card-red::before {{
+        .kpi-card.kpi-amber::after {{
             background:
-                linear-gradient(
-                    180deg,
-                    #B91C1C,
-                    #F87171
-                );
+                {COLORS["warning"]};
         }}
 
-        .insight-card-purple::before {{
+        .kpi-card.kpi-red::after {{
             background:
-                linear-gradient(
-                    180deg,
-                    #6D28D9,
-                    #A78BFA
-                );
+                {COLORS["danger"]};
         }}
 
-        .insight-label {{
+        .kpi-card-top {{
+            position: relative;
+            z-index: 1;
+
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+
+            gap: 0.75rem;
+        }}
+
+        .kpi-card-content {{
+            min-width: 0;
+            flex: 1;
+        }}
+
+        .kpi-label {{
+            color: {COLORS["text_muted"]};
+
             font-size: 9px;
+            font-weight: 700;
 
-            font-weight: 800;
+            letter-spacing: 0.055em;
 
             text-transform: uppercase;
-
-            letter-spacing: 0.08em;
-        }}
-
-        .insight-title {{
-            margin-top: 0.35rem;
-
-            color:
-                {COLORS["text_primary"]};
-
-            font-size: 13px;
-
-            font-weight: 720;
 
             line-height: 1.35;
         }}
 
-        .insight-description {{
-            margin-top: 0.38rem;
+        .kpi-value {{
+            margin-top: 0.35rem;
 
-            color:
-                {COLORS["text_secondary"]};
+            color: {COLORS["text"]};
 
-            font-size: 10px;
+            font-size: 25px;
+            font-weight: 800;
 
-            line-height: 1.55;
+            line-height: 1.15;
+
+            letter-spacing: -0.03em;
+
+            word-break: break-word;
         }}
 
-        .insight-danger {{
-            color:
-                {COLORS["danger"]};
+        .kpi-footer {{
+            margin-top: 0.65rem;
         }}
 
-        .insight-warning {{
-            color:
-                {COLORS["warning"]};
-        }}
-
-        .insight-success {{
-            color:
-                {COLORS["success"]};
-        }}
-
-        .insight-info {{
-            color:
-                {COLORS["info"]};
-        }}
-
-        .insight-purple {{
-            color:
-                {COLORS["secondary"]};
-        }}
-
-
-        /* =====================================================================
-           STATUS / RISK BANNERS
-           ===================================================================== */
-
-        .status-banner {{
-            position: relative;
-
-            overflow: hidden;
-
-            display: flex;
-
-            align-items: flex-start;
-
-            gap: 0.9rem;
+        .kpi-positive,
+        .kpi-negative,
+        .kpi-neutral {{
+            display: inline-flex;
+            align-items: center;
 
             padding:
-                1.15rem 1.25rem;
+                0.25rem
+                0.5rem;
 
-            margin-bottom: 1rem;
+            border-radius:
+                {RADIUS["pill"]};
 
-            border-radius: 16px;
-
-            color:
-                #FFFFFF !important;
-
-            box-shadow:
-                {SHADOWS["md"]};
+            font-size: 9px;
+            font-weight: 700;
         }}
 
-        .status-banner::after {{
-            content: "";
-
-            position: absolute;
-
-            width: 260px;
-            height: 260px;
-
-            right: -110px;
-            top: -130px;
-
-            border-radius: 50%;
+        .kpi-positive {{
+            color: {COLORS["success_dark"]};
 
             background:
-                rgba(255, 255, 255, 0.12);
-
-            pointer-events: none;
+                {COLORS["success_soft"]};
         }}
 
-        .status-banner-risk-low {{
+        .kpi-negative {{
+            color: {COLORS["danger_dark"]};
+
             background:
-                linear-gradient(
-                    135deg,
-                    #047857,
-                    #059669 50%,
-                    #10B981
-                );
+                {COLORS["danger_soft"]};
         }}
 
-        .status-banner-risk-medium {{
+        .kpi-neutral {{
+            color: {COLORS["text_muted"]};
+
             background:
-                linear-gradient(
-                    135deg,
-                    #B45309,
-                    #D97706 50%,
-                    #F59E0B
-                );
+                {COLORS["surface_soft"]};
         }}
 
-        .status-banner-risk-high {{
-            background:
-                linear-gradient(
-                    135deg,
-                    #B91C1C,
-                    #DC2626 50%,
-                    #EF4444
-                );
-        }}
-
-        .status-banner-icon {{
-            position: relative;
-
-            z-index: 1;
-
-            width: 45px;
-            height: 45px;
+        .kpi-icon {{
+            width: 38px;
+            height: 38px;
 
             display: inline-flex;
-
             align-items: center;
             justify-content: center;
 
             flex-shrink: 0;
 
-            border-radius: 13px;
+            border-radius: 11px;
 
             background:
-                rgba(255, 255, 255, 0.17);
+                linear-gradient(
+                    135deg,
+                    {COLORS["primary_soft"]},
+                    {COLORS["primary_light"]}
+                );
+
+            border:
+                1px solid {COLORS["primary_light"]};
 
             color:
-                #FFFFFF !important;
+                {COLORS["primary"]};
 
-            font-size: 1.25rem;
-
-            backdrop-filter:
-                blur(6px);
-        }}
-
-        .status-banner-content {{
-            position: relative;
-
-            z-index: 1;
-
-            flex: 1;
-        }}
-
-        .status-banner-label {{
-            font-size: 8px;
-
+            font-size: 14px;
             font-weight: 800;
 
-            letter-spacing: 0.09em;
-
-            text-transform: uppercase;
-
-            opacity: 0.9;
-        }}
-
-        .status-banner-title {{
-            margin-top: 0.18rem;
-
-            color:
-                #FFFFFF !important;
-
-            font-size: 18px;
-
-            font-weight: 800;
-
-            line-height: 1.2;
-        }}
-
-        .status-banner-desc {{
-            margin-top: 0.25rem;
-
-            color:
-                rgba(255,255,255,0.90) !important;
-
-            font-size: 10px;
-
-            line-height: 1.5;
+            box-shadow:
+                0 4px 10px rgba(37, 99, 235, 0.10);
         }}
 
 
-        /* =====================================================================
-           PROBABILITY GAUGE
-           ===================================================================== */
+        /* ==================================================================
+           CHART CONTAINERS
+           ================================================================== */
 
-        .probability-gauge {{
-            padding:
-                1.2rem 1.35rem;
-
+        .chart-card {{
             background:
-                #FFFFFF;
+                {COLORS["surface"]};
 
             border:
                 1px solid {COLORS["border"]};
 
-            border-radius: 17px;
+            border-radius:
+                {RADIUS["lg"]};
+
+            padding:
+                0.5rem;
 
             box-shadow:
-                {SHADOWS["xs"]};
+                {SHADOWS["card"]};
 
-            text-align: center;
+            overflow: hidden;
         }}
 
-        .probability-gauge-label {{
-            color:
-                {COLORS["text_secondary"]};
+        .chart-card-header {{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 1rem;
+
+            padding:
+                0.8rem
+                0.85rem
+                0.35rem;
+        }}
+
+        .chart-card-title {{
+            color: {COLORS["text"]};
+
+            font-size: 12px;
+            font-weight: 750;
+        }}
+
+        .chart-card-description {{
+            margin-top: 0.15rem;
+
+            color: {COLORS["text_muted"]};
 
             font-size: 9px;
 
-            font-weight: 700;
-
-            letter-spacing: 0.06em;
-
-            text-transform: uppercase;
+            line-height: 1.45;
         }}
 
-        .probability-gauge-value {{
-            margin-top: 0.45rem;
 
-            color:
-                {COLORS["text_primary"]};
+        /* ==================================================================
+           DATA TABLES
+           ================================================================== */
 
-            font-size: 42px;
+        .data-table-wrapper {{
+            width: 100%;
 
-            font-weight: 850;
-
-            letter-spacing: -0.055em;
-
-            line-height: 1;
-        }}
-
-        .probability-bar-outer {{
-            height: 13px;
-
-            margin:
-                0.9rem 0 0.45rem;
+            overflow-x: auto;
 
             background:
-                #E2E8F0;
+                {COLORS["surface"]};
 
-            border-radius: 999px;
+            border:
+                1px solid {COLORS["border"]};
 
-            overflow: hidden;
+            border-radius:
+                {RADIUS["lg"]};
 
             box-shadow:
-                inset 0 1px 3px rgba(15,23,42,0.08);
+                {SHADOWS["card"]};
         }}
 
-        .probability-bar-inner {{
-            height: 100%;
+        .data-table {{
+            width: 100%;
 
-            border-radius: 999px;
+            border-collapse: collapse;
 
-            position: relative;
-
-            transition:
-                width 700ms ease;
+            font-size: 10px;
         }}
 
-        .probability-bar-inner::after {{
-            content: "";
-
-            position: absolute;
-
-            inset: 0;
-
+        .data-table thead {{
             background:
-                linear-gradient(
-                    90deg,
-                    rgba(255,255,255,0.24),
-                    transparent 55%
-                );
+                {COLORS["surface_soft"]};
         }}
 
-        .probability-bar-low {{
-            background:
-                linear-gradient(
-                    90deg,
-                    #059669,
-                    #10B981
-                );
-        }}
-
-        .probability-bar-medium {{
-            background:
-                linear-gradient(
-                    90deg,
-                    #D97706,
-                    #F59E0B
-                );
-        }}
-
-        .probability-bar-high {{
-            background:
-                linear-gradient(
-                    90deg,
-                    #DC2626,
-                    #EF4444
-                );
-        }}
-
-        .probability-scale {{
-            display: flex;
-
-            justify-content: space-between;
+        .data-table th {{
+            padding:
+                0.8rem
+                0.75rem;
 
             color:
                 {COLORS["text_muted"]};
 
-            font-size: 8px;
+            font-size: 9px;
+            font-weight: 800;
 
-            font-weight: 600;
+            letter-spacing: 0.04em;
+
+            text-align: left;
+
+            text-transform: uppercase;
+
+            border-bottom:
+                1px solid {COLORS["border"]};
         }}
 
-
-        /* =====================================================================
-           PILLS / TAGS
-           ===================================================================== */
-
-        .pill {{
-            display: inline-flex;
-
-            align-items: center;
-
-            gap: 0.3rem;
-
+        .data-table td {{
             padding:
-                0.28rem 0.68rem;
+                0.75rem;
 
-            border-radius: 999px;
+            color:
+                {COLORS["text_secondary"]};
 
-            font-size: 9px;
+            border-bottom:
+                1px solid {COLORS["border_light"]};
+
+            vertical-align: middle;
+        }}
+
+        .data-table tbody tr {{
+            transition:
+                background 0.15s ease;
+        }}
+
+        .data-table tbody tr:hover {{
+            background:
+                {COLORS["primary_soft"]};
+        }}
+
+        .data-table tbody tr:last-child td {{
+            border-bottom: none;
+        }}
+
+        .segment-name {{
+            color:
+                {COLORS["text"]};
 
             font-weight: 700;
         }}
 
-        .pill-blue {{
-            color: #1D4ED8;
-            background: #DBEAFE;
-        }}
-
-        .pill-green {{
-            color: #047857;
-            background: #D1FAE5;
-        }}
-
-        .pill-purple {{
-            color: #6D28D9;
-            background: #EDE9FE;
-        }}
-
-        .pill-amber {{
-            color: #B45309;
-            background: #FEF3C7;
-        }}
-
-        .pill-red {{
-            color: #B91C1C;
-            background: #FEE2E2;
-        }}
-
-        .pill-gray {{
-            color: #475569;
-            background: #F1F5F9;
-        }}
-
-
-        /* =====================================================================
-           DATA TABLES
-           ===================================================================== */
-
-        [data-testid="stDataFrame"],
-        [data-testid="stTable"] {{
-            border:
-                1px solid {COLORS["border"]};
-
-            border-radius: 14px;
-
-            overflow: hidden;
-
-            background:
-                #FFFFFF;
-
-            box-shadow:
-                {SHADOWS["xs"]};
-        }}
-
-        [data-testid="stDataFrame"] th,
-        [data-testid="stTable"] th {{
-            background:
-                #F8FAFC !important;
-
+        .table-number {{
             color:
-                {COLORS["text_secondary"]} !important;
+                {COLORS["text_secondary"]};
 
-            font-size: 10px !important;
+            font-variant-numeric:
+                tabular-nums;
 
-            font-weight: 700 !important;
+            text-align: right;
         }}
 
-        [data-testid="stDataFrame"] td,
-        [data-testid="stTable"] td {{
+        .total-value {{
             color:
-                {COLORS["text_secondary"]} !important;
+                {COLORS["primary"]};
 
-            font-size: 10px !important;
+            font-weight: 750;
+        }}
+
+        .monetary {{
+            font-variant-numeric:
+                tabular-nums;
         }}
 
 
-        /* =====================================================================
+        /* ==================================================================
            BUTTONS
-           ===================================================================== */
+           ================================================================== */
 
-        .stButton > button,
-        .stDownloadButton > button {{
+        .stButton > button {{
             min-height: 38px;
 
             padding:
-                0.45rem 0.9rem;
+                0.5rem
+                1rem;
 
             border:
                 1px solid {COLORS["border"]};
 
-            border-radius: 10px;
+            border-radius:
+                {RADIUS["md"]};
 
             background:
-                #FFFFFF;
+                {COLORS["surface"]};
 
             color:
-                {COLORS["text_primary"]};
+                {COLORS["text_secondary"]};
 
             font-size: 11px;
+            font-weight: 700;
 
-            font-weight: 650;
+            box-shadow:
+                {SHADOWS["sm"]};
 
             transition:
-                transform 150ms ease,
-                border-color 150ms ease,
-                box-shadow 150ms ease,
-                background 150ms ease;
+                background 0.15s ease,
+                border-color 0.15s ease,
+                color 0.15s ease,
+                transform 0.15s ease;
         }}
 
-        .stButton > button:hover,
-        .stDownloadButton > button:hover {{
+        .stButton > button:hover {{
             border-color:
                 {COLORS["primary"]};
 
@@ -1821,308 +1166,458 @@ def inject_global_styles() -> None:
 
             transform:
                 translateY(-1px);
-
-            box-shadow:
-                0 5px 14px rgba(37, 99, 235, 0.12);
         }}
 
-        .stButton > button[kind="primary"] {{
-            border:
-                0;
+        .stButton > button:focus {{
+            box-shadow:
+                0 0 0 3px rgba(37, 99, 235, 0.14);
+        }}
+
+
+        /* ==================================================================
+           SELECTBOX
+           ================================================================== */
+
+        [data-baseweb="select"] > div {{
+            min-height: 38px;
 
             background:
-                linear-gradient(
-                    135deg,
-                    {COLORS["primary_dark"]},
-                    {COLORS["primary"]}
-                );
+                {COLORS["surface"]} !important;
 
-            color:
-                #FFFFFF !important;
-
-            box-shadow:
-                0 5px 16px rgba(37, 99, 235, 0.20);
-        }}
-
-        .stButton > button[kind="primary"]:hover {{
-            color:
-                #FFFFFF !important;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #1E3A8A,
-                    #2563EB
-                );
-        }}
-
-
-        /* =====================================================================
-           INPUTS
-           ===================================================================== */
-
-        div[data-baseweb="select"] > div,
-        div[data-baseweb="input"] > div {{
-            min-height: 40px;
-
-            border:
-                1px solid {COLORS["border"]};
-
-            border-radius: 10px;
-
-            background:
-                #FFFFFF;
-
-            box-shadow:
-                none;
-        }}
-
-        div[data-baseweb="select"] > div:hover,
-        div[data-baseweb="input"] > div:hover {{
             border-color:
-                {COLORS["border_strong"]};
-        }}
+                {COLORS["border"]} !important;
 
-        input,
-        textarea {{
-            font-family:
-                {FONT_FAMILY} !important;
+            border-radius:
+                {RADIUS["md"]} !important;
 
             color:
-                {COLORS["text_primary"]} !important;
+                {COLORS["text_secondary"]} !important;
         }}
 
-        label {{
+        [data-baseweb="select"] span {{
             color:
                 {COLORS["text_secondary"]} !important;
 
-            font-size: 10px !important;
-
-            font-weight: 650 !important;
+            font-size: 11px;
         }}
 
 
-        /* =====================================================================
-           TABS
-           ===================================================================== */
+        /* ==================================================================
+           INPUTS
+           ================================================================== */
 
-        .stTabs [data-baseweb="tab-list"] {{
-            gap: 0.3rem;
-
-            padding:
-                0.25rem;
-
+        .stTextInput input,
+        .stNumberInput input,
+        .stDateInput input {{
             background:
-                {COLORS["surface_alt"]};
+                {COLORS["surface"]} !important;
 
             border:
-                1px solid {COLORS["border"]};
+                1px solid {COLORS["border"]} !important;
 
-            border-radius: 11px;
+            border-radius:
+                {RADIUS["md"]} !important;
+
+            color:
+                {COLORS["text"]} !important;
+
+            font-size: 11px;
+        }}
+
+        .stTextInput input:focus,
+        .stNumberInput input:focus,
+        .stDateInput input:focus {{
+            border-color:
+                {COLORS["primary"]} !important;
+
+            box-shadow:
+                0 0 0 3px rgba(37, 99, 235, 0.10) !important;
+        }}
+
+
+        /* ==================================================================
+           TABS
+           ================================================================== */
+
+        .stTabs [data-baseweb="tab-list"] {{
+            gap: 0.25rem;
+
+            border-bottom:
+                1px solid {COLORS["border"]};
         }}
 
         .stTabs [data-baseweb="tab"] {{
             padding:
-                0.45rem 0.82rem;
-
-            border-radius: 8px;
+                0.65rem
+                0.85rem;
 
             color:
-                {COLORS["text_secondary"]};
+                {COLORS["text_muted"]};
 
             font-size: 10px;
-
-            font-weight: 650;
+            font-weight: 700;
         }}
 
         .stTabs [aria-selected="true"] {{
-            background:
-                #FFFFFF !important;
-
             color:
-                {COLORS["primary_dark"]} !important;
+                {COLORS["primary"]} !important;
+        }}
 
-            box-shadow:
-                {SHADOWS["xs"]};
+        .stTabs [data-baseweb="tab-highlight"] {{
+            background:
+                {COLORS["primary"]} !important;
         }}
 
 
-        /* =====================================================================
-           STREAMLIT METRICS
-           ===================================================================== */
+        /* ==================================================================
+           ALERTS
+           ================================================================== */
+
+        [data-testid="stAlert"] {{
+            border-radius:
+                {RADIUS["md"]};
+
+            border-width: 1px;
+
+            font-size: 11px;
+        }}
+
+
+        /* ==================================================================
+           METRIC
+           ================================================================== */
 
         [data-testid="stMetric"] {{
+            padding:
+                0.75rem;
+
             background:
-                #FFFFFF;
+                {COLORS["surface"]};
 
             border:
                 1px solid {COLORS["border"]};
 
-            border-radius: 14px;
-
-            padding:
-                0.85rem 1rem;
+            border-radius:
+                {RADIUS["md"]};
 
             box-shadow:
-                {SHADOWS["xs"]};
+                {SHADOWS["sm"]};
+        }}
+
+        [data-testid="stMetricLabel"] {{
+            color:
+                {COLORS["text_muted"]} !important;
+
+            font-size: 9px !important;
+        }}
+
+        [data-testid="stMetricValue"] {{
+            color:
+                {COLORS["text"]} !important;
+
+            font-size: 21px !important;
+            font-weight: 800 !important;
         }}
 
 
-        /* =====================================================================
-           EXPANDERS
-           ===================================================================== */
+        /* ==================================================================
+           DIVIDERS
+           ================================================================== */
+
+        hr {{
+            margin:
+                1.5rem 0;
+
+            border:
+                none;
+
+            border-top:
+                1px solid {COLORS["border"]};
+        }}
+
+
+        /* ==================================================================
+           SCROLLBAR
+           ================================================================== */
+
+        ::-webkit-scrollbar {{
+            width: 7px;
+            height: 7px;
+        }}
+
+        ::-webkit-scrollbar-track {{
+            background:
+                {COLORS["surface_soft"]};
+        }}
+
+        ::-webkit-scrollbar-thumb {{
+            background:
+                #CBD5E1;
+
+            border-radius:
+                999px;
+        }}
+
+        ::-webkit-scrollbar-thumb:hover {{
+            background:
+                #94A3B8;
+        }}
+
+
+        /* ==================================================================
+           EXPANDER
+           ================================================================== */
 
         [data-testid="stExpander"] {{
+            background:
+                {COLORS["surface"]};
+
             border:
                 1px solid {COLORS["border"]};
 
-            border-radius: 13px;
-
-            background:
-                #FFFFFF;
+            border-radius:
+                {RADIUS["lg"]};
 
             box-shadow:
-                {SHADOWS["xs"]};
+                {SHADOWS["sm"]};
+
+            overflow: hidden;
+        }}
+
+        [data-testid="stExpander"] summary {{
+            color:
+                {COLORS["text"]};
+
+            font-size: 11px;
+            font-weight: 700;
         }}
 
 
-        /* =====================================================================
-           FORMS
-           ===================================================================== */
+        /* ==================================================================
+           DATAFRAME
+           ================================================================== */
 
-        [data-testid="stForm"] {{
-            background:
-                #FFFFFF;
-
+        [data-testid="stDataFrame"] {{
             border:
                 1px solid {COLORS["border"]};
 
-            border-radius: 16px;
+            border-radius:
+                {RADIUS["lg"]};
+
+            overflow: hidden;
+
+            box-shadow:
+                {SHADOWS["card"]};
+        }}
+
+
+        /* ==================================================================
+           PLOTLY
+           ================================================================== */
+
+        .js-plotly-plot,
+        .plot-container {{
+            font-family:
+                {FONT_FAMILY} !important;
+        }}
+
+
+        /* ==================================================================
+           FILE UPLOADER
+           ================================================================== */
+
+        [data-testid="stFileUploader"] {{
+            background:
+                {COLORS["surface"]};
+
+            border:
+                1px dashed {COLORS["border_strong"]};
+
+            border-radius:
+                {RADIUS["lg"]};
 
             padding:
-                1.2rem 1.35rem;
-
-            box-shadow:
-                {SHADOWS["xs"]};
+                0.5rem;
         }}
 
 
-        /* =====================================================================
-           LAYOUT HELPERS
-           ===================================================================== */
+        /* ==================================================================
+           CHECKBOX
+           ================================================================== */
 
-        .grid-2 {{
-            display: grid;
+        [data-testid="stCheckbox"] label {{
+            color:
+                {COLORS["text_secondary"]};
 
-            grid-template-columns:
-                repeat(2, minmax(0, 1fr));
-
-            gap: 1rem;
-        }}
-
-        .grid-3 {{
-            display: grid;
-
-            grid-template-columns:
-                repeat(3, minmax(0, 1fr));
-
-            gap: 1rem;
-        }}
-
-        .grid-4 {{
-            display: grid;
-
-            grid-template-columns:
-                repeat(4, minmax(0, 1fr));
-
-            gap: 0.9rem;
-        }}
-
-        .two-col-layout {{
-            display: grid;
-
-            grid-template-columns:
-                minmax(0, 1fr)
-                minmax(0, 1fr);
-
-            gap: 1rem;
+            font-size: 11px;
         }}
 
 
-        /* =====================================================================
+        /* ==================================================================
+           SLIDER
+           ================================================================== */
+
+        [data-testid="stSlider"] {{
+            padding-top:
+                0.25rem;
+        }}
+
+
+        /* ==================================================================
+           CAPTION
+           ================================================================== */
+
+        .stCaption {{
+            color:
+                {COLORS["text_muted"]} !important;
+
+            font-size: 9px !important;
+        }}
+
+
+        /* ==================================================================
+           LINK BUTTONS
+           ================================================================== */
+
+        .stLinkButton > a {{
+            border:
+                1px solid {COLORS["border"]};
+
+            border-radius:
+                {RADIUS["md"]};
+
+            background:
+                {COLORS["surface"]};
+
+            color:
+                {COLORS["primary"]};
+
+            font-size: 10px;
+            font-weight: 700;
+        }}
+
+        .stLinkButton > a:hover {{
+            border-color:
+                {COLORS["primary"]};
+
+            background:
+                {COLORS["primary_soft"]};
+        }}
+
+
+        /* ==================================================================
            RESPONSIVE DESIGN
-           ===================================================================== */
+           ================================================================== */
 
-        @media (max-width: 1150px) {{
-
-            [data-testid="block-container"] {{
-                padding-left: 1.4rem;
-                padding-right: 1.4rem;
-            }}
-
-            .grid-4,
-            .kpi-grid {{
-                grid-template-columns:
-                    repeat(2, minmax(0, 1fr));
-            }}
-
-            .grid-3 {{
-                grid-template-columns:
-                    repeat(2, minmax(0, 1fr));
-            }}
-        }}
-
-        @media (max-width: 850px) {{
+        @media (max-width: 1100px) {{
 
             [data-testid="block-container"] {{
-                padding-left: 1rem;
-                padding-right: 1rem;
-            }}
-
-            .page-header {{
-                flex-direction: column;
-                gap: 0.7rem;
-            }}
-
-            .page-header-title {{
-                font-size: 25px;
-            }}
-
-            .grid-2,
-            .grid-3,
-            .grid-4,
-            .kpi-grid,
-            .two-col-layout {{
-                grid-template-columns: 1fr;
-            }}
-        }}
-
-        @media (max-width: 600px) {{
-
-            [data-testid="block-container"] {{
-                padding-left: 0.7rem;
-                padding-right: 0.7rem;
-            }}
-
-            .page-header {{
-                padding: 1rem;
-                border-radius: 14px;
+                padding-left: 1.25rem;
+                padding-right: 1.25rem;
             }}
 
             .page-header-title {{
                 font-size: 22px;
             }}
 
+            .kpi-value {{
+                font-size: 22px;
+            }}
+        }}
+
+
+        @media (max-width: 768px) {{
+
+            [data-testid="block-container"] {{
+                padding:
+                    1rem
+                    0.85rem
+                    2rem;
+            }}
+
+            .page-header {{
+                flex-direction: column;
+
+                padding:
+                    1rem;
+            }}
+
+            .page-header-status {{
+                padding-top: 0;
+            }}
+
+            .page-header-title {{
+                font-size: 20px;
+            }}
+
+            .section-title {{
+                font-size: 14px;
+            }}
+
             .kpi-card {{
-                min-height: 125px;
+                min-height: 115px;
+
+                padding:
+                    0.85rem;
             }}
 
             .kpi-value {{
-                font-size: 23px;
+                font-size: 20px;
+            }}
+        }}
+
+
+        @media (max-width: 480px) {{
+
+            .page-header-title {{
+                font-size: 18px;
             }}
 
-            .status-banner {{
-                padding: 0.95rem;
+            .page-header-description {{
+                font-size: 10px;
+            }}
+
+            .kpi-label {{
+                font-size: 8px;
+            }}
+
+            .kpi-value {{
+                font-size: 18px;
+            }}
+
+            .kpi-icon {{
+                width: 32px;
+                height: 32px;
+
+                border-radius: 9px;
+            }}
+        }}
+
+
+        /* ==================================================================
+           ACCESSIBILITY
+           ================================================================== */
+
+        :focus-visible {{
+            outline:
+                2px solid {COLORS["primary"]};
+
+            outline-offset:
+                2px;
+        }}
+
+        @media (prefers-reduced-motion: reduce) {{
+
+            *,
+            *::before,
+            *::after {{
+                scroll-behavior: auto !important;
+
+                transition:
+                    none !important;
+
+                animation:
+                    none !important;
             }}
         }}
 
@@ -2130,3 +1625,18 @@ def inject_global_styles() -> None:
         """,
         unsafe_allow_html=True,
     )
+
+
+# ============================================================================
+# PUBLIC API
+# ============================================================================
+
+__all__ = [
+    "COLORS",
+    "CHART_PALETTE",
+    "FONT_FAMILY",
+    "SHADOWS",
+    "RADIUS",
+    "SPACING",
+    "inject_global_styles",
+]   
