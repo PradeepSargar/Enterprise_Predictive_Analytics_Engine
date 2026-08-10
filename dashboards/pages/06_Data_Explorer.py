@@ -358,7 +358,7 @@ column_summary = pd.DataFrame(
 
 st.dataframe(
     column_summary,
-    use_container_width=True,
+    width="stretch",
     hide_index=True,
     height=400,
     column_config={
@@ -523,7 +523,7 @@ else:
 
     st.dataframe(
         preview_df,
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
         height=450,
     )
@@ -573,9 +573,7 @@ numeric_columns = len(
 
 
 categorical_columns = len(
-    master_df.select_dtypes(
-        include=["object", "category"]
-    ).columns
+    [col for col in master_df.columns if pd.api.types.is_string_dtype(master_df[col]) or isinstance(master_df[col].dtype, pd.CategoricalDtype) or master_df[col].dtype == "object"]
 )
 
 

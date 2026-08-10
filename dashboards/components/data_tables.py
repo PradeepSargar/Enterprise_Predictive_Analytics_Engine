@@ -62,7 +62,7 @@ def render_data_table(
 
     st.dataframe(
         dataframe,
-        use_container_width=True,
+        width="stretch",
         hide_index=hide_index,
         height=height,
     )
@@ -204,7 +204,7 @@ def render_segment_performance_table(
 
     st.dataframe(
         display_df,
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
         height=250,
         column_config={
@@ -240,13 +240,13 @@ def render_segment_performance_table(
 
             "Avg Monetary Value": st.column_config.NumberColumn(
                 "Avg Monetary Value",
-                format="₹%.2f",
+                format="R$%.2f",
                 width="medium",
             ),
 
             "Total Monetary Value": st.column_config.NumberColumn(
                 "Total Monetary Value",
-                format="₹%.2f",
+                format="R$%.2f",
                 width="large",
             ),
         },

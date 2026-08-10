@@ -544,7 +544,7 @@ display_df = display_df.rename(
 
 st.dataframe(
     display_df,
-    use_container_width=True,
+    width="stretch",
     hide_index=True,
     height=180,
     column_config={
@@ -578,23 +578,47 @@ st.dataframe(
 
 
 # ============================================================================
-# MODEL SELECTION SUMMARY
+# MODEL SELECTION SUMMARY & FEATURE IMPORTANCE
 # ============================================================================
 
 section_header(
-    title="Model Selection Summary",
+    title="Champion Model Selection & Feature Importance",
     description=(
-        "The current comparison ranks models using F1 Score as the "
-        "primary selection metric."
+        "The champion classifier is selected based on optimal F1 Score balance, "
+        "minimizing false alarms while capturing dissatisfied customer experiences."
     ),
 )
 
-
 st.info(
-    f"**Selected Model:** {best_model_name}  \n"
-    f"**F1 Score:** {best_f1:.1%}  \n"
-    f"**Accuracy:** {best_accuracy:.1%}  \n"
-    f"**Precision:** {best_precision:.1%}  \n"
-    f"**Recall:** {best_recall:.1%}",
-    icon="ℹ️",
+    f"**Production Champion:** {best_model_name}  \n"
+    f"• **F1 Score:** {best_f1:.1%} (Highest balanced precision & recall)  \n"
+    f"• **Accuracy:** {best_accuracy:.1%} | **Precision:** {best_precision:.1%} | **Recall:** {best_recall:.1%}  \n"
+    f"• **Deployment Strategy:** Proactively flag high-risk orders before review submission to trigger proactive delivery SLAs.",
+    icon="🏆",
 )
+
+try:
+    from dashboards.data.loader import load_classification_model
+
+    artifact = load_classification_model()
+    if "feature_importances" in artifact and artifact["feature_importances"]:
+        fi_df = pd.DataFrame(artifact["feature_importances"]).head(8)
+        fi_df["Feature"] = fi_df["feature"].apply(lambda x: x.replace("_", " ").replace("cat ", "Category: ").title())
+        fi_df["Importance (%)"] = fi_df["importance"] * 100
+
+        section_header(
+            title="Random Forest Feature Importance",
+            description="Relative influence of each operational and economic feature in predicting low review risk.",
+        )
+
+        bar_chart(
+            dataframe=fi_df,
+            x="Feature",
+            y="Importance (%)",
+            title="Top Feature Importances in Dissatisfaction Classification",
+            x_title="Feature",
+            y_title="Relative Importance (%)",
+            height=380,
+        )
+except Exception:
+    pass

@@ -1,35 +1,21 @@
 """
-Revenue Forecast Dashboard.
+Multi-Grain Revenue Forecast Dashboard.
+========================================
+Enterprise Predictive Analytics Engine
 
-This page presents historical revenue alongside future forecasted
-revenue and forecast confidence intervals.
+Responsibilities:
+1. Load prepared multi-grain revenue forecast data.
+2. Provide dynamic dimension selection (Total Marketplace, Product Categories, Regional Markets).
+3. Parameterize executive forecast KPIs for the selected grain.
+4. Visualize actual vs. predicted revenue with 90% confidence bands.
+5. Display future forecast growth trajectories and confidence widths.
+6. Provide an exportable, formatted forecast detail table.
 
-Responsibilities
-----------------
-1. Load prepared revenue forecast data.
-2. Use the transformation layer to prepare dashboard metrics.
-3. Present forecast KPIs.
-4. Visualize actual versus forecast revenue.
-5. Present forecast growth and forecast horizon.
-6. Present forecast confidence information.
-7. Provide a detailed forecast table.
-
-Architecture
-------------
-Data loading:
-    dashboards.data.loader
-
-Business transformations:
-    dashboards.data.transformations
-
-Visualization:
-    dashboards.components.charts
-
-Reusable UI:
-    dashboards.components.kpi_cards
-    dashboards.components.section_headers
-
-No model training or business logic is performed directly in this page.
+Architecture:
+- Data loading: dashboards.data.loader
+- Business transformations: dashboards.data.transformations
+- Visualization: dashboards.components.charts
+- UI Components: dashboards.components.kpi_cards, dashboards.components.section_headers, loading_states
 """
 
 from __future__ import annotations
@@ -37,42 +23,12 @@ from __future__ import annotations
 import pandas as pd
 import streamlit as st
 
-
-# ============================================================================
-# DATA LAYER
-# ============================================================================
-
-from dashboards.data.loader import (
-    load_revenue_forecast,
-)
-
-
-# ============================================================================
-# TRANSFORMATION LAYER
-# ============================================================================
-
-from dashboards.data.transformations import (
-    prepare_revenue_forecast,
-)
-
-
-# ============================================================================
-# REUSABLE UI COMPONENTS
-# ============================================================================
-
-from dashboards.components.charts import (
-    bar_chart,
-    forecast_chart,
-)
-
-from dashboards.components.kpi_cards import (
-    kpi_card,
-)
-
-from dashboards.components.section_headers import (
-    page_header,
-    section_header,
-)
+from dashboards.components.charts import bar_chart, forecast_chart
+from dashboards.components.kpi_cards import kpi_card
+from dashboards.components.loading_states import loading_spinner
+from dashboards.components.section_headers import page_header, section_header
+from dashboards.data.loader import get_available_forecast_segments, load_revenue_forecast
+from dashboards.data.transformations import prepare_revenue_forecast
 
 
 # ============================================================================
@@ -82,470 +38,220 @@ from dashboards.components.section_headers import (
 page_header(
     title="Revenue Forecast",
     description=(
-        "Monitor historical revenue and evaluate expected future "
-        "revenue using the forecasting model."
+        "Project future revenue and evaluate growth trajectories across multiple "
+        "business dimensions — including total marketplace revenue, top product categories, "
+        "and major regional markets — powered by Prophet time-series models with 90% confidence intervals."
     ),
 )
 
 
 # ============================================================================
-# LOAD FORECAST DATA
+# MULTI-GRAIN SELECTION CONTROLS
 # ============================================================================
+
+section_header(
+    title="Forecast Dimension & Grain Selection",
+    description=(
+        "Select the analytical cut to inspect: total aggregate marketplace revenue, "
+        "individual top-performing product categories, or key geographic state markets."
+    ),
+)
+
+available_segments = get_available_forecast_segments()
+
+col_dim, col_val = st.columns([1, 1], gap="medium")
+
+with col_dim:
+    dimension_choice = st.selectbox(
+        "Forecast Dimension",
+        options=["Total Marketplace Revenue", "By Product Category", "By Regional State / Market"],
+        index=0,
+        help="Switch between aggregate marketplace projections and specific category or regional cuts.",
+    )
+
+selected_segment_type = "total"
+selected_segment_value = "All"
+segment_display_label = "Total Marketplace"
+
+if dimension_choice == "Total Marketplace Revenue":
+    selected_segment_type = "total"
+    selected_segment_value = "All"
+    segment_display_label = "Total Marketplace"
+    with col_val:
+        st.text_input("Segment Filter", value="All Marketplace Orders", disabled=True)
+
+elif dimension_choice == "By Product Category":
+    selected_segment_type = "category"
+    categories_list = available_segments.get("category", ["bed_bath_table"])
+    with col_val:
+        selected_segment_value = st.selectbox(
+            "Select Product Category",
+            options=categories_list,
+            index=0,
+            format_func=lambda x: x.replace("_", " ").title(),
+            help="Top 5 highest-revenue marketplace categories evaluated independently.",
+        )
+    segment_display_label = f"Category: {selected_segment_value.replace('_', ' ').title()}"
+
+elif dimension_choice == "By Regional State / Market":
+    selected_segment_type = "region"
+    regions_list = available_segments.get("region", ["SP"])
+    with col_val:
+        selected_segment_value = st.selectbox(
+            "Select State / Region",
+            options=regions_list,
+            index=0,
+            help="Top 5 customer volume states in Brazil evaluated independently.",
+        )
+    segment_display_label = f"Region: {selected_segment_value}"
+
+
+# ============================================================================
+# LOAD & FILTER FORECAST DATA
+# ============================================================================
+
+with loading_spinner(f"Loading forecast for {segment_display_label}..."):
+    try:
+        raw_forecast_data = load_revenue_forecast(
+            segment_type=selected_segment_type,
+            segment_value=selected_segment_value,
+        )
+    except FileNotFoundError as exc:
+        st.error("Revenue forecast data could not be found.")
+        st.caption(str(exc))
+        st.stop()
+    except Exception as exc:
+        st.error("An unexpected error occurred while loading revenue forecast data.")
+        st.caption(str(exc))
+        st.stop()
+
+
+# ============================================================================
+# VALIDATE & PREPARE DATA
+# ============================================================================
+
+if raw_forecast_data is None or raw_forecast_data.empty:
+    st.warning(f"No forecast data available for {segment_display_label}.")
+    st.stop()
 
 try:
-
-    forecast_data = load_revenue_forecast()
-
-except FileNotFoundError as exc:
-
-    st.error(
-        "Revenue forecast data could not be found."
-    )
-
-    st.caption(str(exc))
-
-    st.stop()
-
+    forecast_df = prepare_revenue_forecast(raw_forecast_data)
 except Exception as exc:
-
-    st.error(
-        "An unexpected error occurred while loading revenue "
-        "forecast data."
-    )
-
+    st.error("Revenue forecast data could not be prepared.")
     st.caption(str(exc))
-
     st.stop()
 
 
 # ============================================================================
-# VALIDATE RAW DATA
+# HISTORICAL & FUTURE PARTITIONING
 # ============================================================================
 
-if forecast_data is None or forecast_data.empty:
+historical_df = forecast_df[forecast_df["actual_revenue"].notna()].copy()
+future_forecast_df = forecast_df[
+    forecast_df["actual_revenue"].isna() & forecast_df["predicted_revenue"].notna()
+].copy()
 
-    st.warning(
-        "Revenue forecast data is currently unavailable."
-    )
-
-    st.stop()
-
-
-# ============================================================================
-# PREPARE FORECAST DATA
-# ============================================================================
-
-try:
-
-    forecast_df = prepare_revenue_forecast(
-        forecast_data
-    )
-
-except Exception as exc:
-
-    st.error(
-        "Revenue forecast data could not be prepared."
-    )
-
-    st.caption(str(exc))
-
-    st.stop()
+# Fallback if boundary wasn't explicit
+if future_forecast_df.empty and not historical_df.empty:
+    last_actual_month = historical_df["month"].max()
+    future_forecast_df = forecast_df[
+        (forecast_df["month"] > last_actual_month) & forecast_df["predicted_revenue"].notna()
+    ].copy()
 
 
 # ============================================================================
-# VALIDATE PREPARED DATA
+# METRICS COMPUTATION
 # ============================================================================
 
-required_columns = {
-    "month",
-    "predicted_revenue",
-    "lower_bound",
-    "upper_bound",
-    "actual_revenue",
-}
-
-
-missing_columns = (
-    required_columns
-    - set(forecast_df.columns)
-)
-
-
-if missing_columns:
-
-    st.error(
-        "Prepared forecast data is missing required columns: "
-        + ", ".join(sorted(missing_columns))
-    )
-
-    st.stop()
-
-
-if forecast_df.empty:
-
-    st.warning(
-        "No valid revenue forecast observations are available."
-    )
-
-    st.stop()
-
-
-# ============================================================================
-# DATA CLEANUP
-# ============================================================================
-
-forecast_df = forecast_df.copy()
-
-
-# Convert date column safely.
-
-forecast_df["month"] = pd.to_datetime(
-    forecast_df["month"],
-    errors="coerce",
-)
-
-
-# Convert financial values to numeric.
-
-numeric_columns = [
-    "predicted_revenue",
-    "lower_bound",
-    "upper_bound",
-    "actual_revenue",
-]
-
-
-for column in numeric_columns:
-
-    forecast_df[column] = pd.to_numeric(
-        forecast_df[column],
-        errors="coerce",
-    )
-
-
-# Remove rows without a valid date.
-
-forecast_df = forecast_df.dropna(
-    subset=["month"]
-)
-
-
-# Sort chronologically.
-
-forecast_df = (
-    forecast_df
-    .sort_values("month")
-    .reset_index(drop=True)
-)
-
-
-if forecast_df.empty:
-
-    st.warning(
-        "No valid dated forecast observations are available."
-    )
-
-    st.stop()
-
-
-# ============================================================================
-# IDENTIFY HISTORICAL AND FUTURE PERIODS
-# ============================================================================
-#
-# A forecast dataset may contain model predictions for historical periods
-# as well as predictions for future periods.
-#
-# Therefore:
-#
-#   actual_revenue available
-#       -> historical / observed period
-#
-#   actual_revenue missing + predicted_revenue available
-#       -> future forecast period
-#
-# This prevents historical fitted predictions from being incorrectly
-# counted as future forecast revenue.
-
-historical_df = (
-    forecast_df[
-        forecast_df["actual_revenue"].notna()
-    ]
-    .copy()
-)
-
-
-future_forecast_df = (
-    forecast_df[
-        forecast_df["actual_revenue"].isna()
-        & forecast_df["predicted_revenue"].notna()
-    ]
-    .copy()
-)
-
-
-# ============================================================================
-# FALLBACK FOR DATASETS WITHOUT EXPLICIT FUTURE ROWS
-# ============================================================================
-#
-# Some forecast files contain predictions for every period but do not leave
-# actual_revenue blank for future periods.
-#
-# In that case, use the last observed actual period as the historical
-# boundary and treat later prediction periods as future forecasts.
-
-if future_forecast_df.empty:
-
-    if not historical_df.empty:
-
-        last_actual_month = (
-            historical_df["month"]
-            .max()
-        )
-
-        future_forecast_df = (
-            forecast_df[
-                (
-                    forecast_df["month"]
-                    > last_actual_month
-                )
-                & forecast_df["predicted_revenue"].notna()
-            ]
-            .copy()
-        )
-
-
-# ============================================================================
-# HISTORICAL METRICS
-# ============================================================================
-
-historical_revenue = (
-    historical_df["actual_revenue"]
-    .dropna()
-)
-
-
-if not historical_revenue.empty:
-
-    total_actual_revenue = (
-        historical_revenue.sum()
-    )
-
-    latest_actual_revenue = (
-        historical_df
-        .sort_values("month")
-        ["actual_revenue"]
-        .iloc[-1]
-    )
-
+# Historical Metrics
+if not historical_df.empty:
+    total_actual_revenue = historical_df["actual_revenue"].dropna().sum()
+    latest_actual_revenue = historical_df.sort_values("month")["actual_revenue"].iloc[-1]
 else:
-
     total_actual_revenue = 0.0
-
     latest_actual_revenue = 0.0
 
-
-# ============================================================================
-# FUTURE FORECAST METRICS
-# ============================================================================
-
-future_revenue = (
-    future_forecast_df["predicted_revenue"]
-    .dropna()
-)
-
-
-if not future_revenue.empty:
-
-    total_future_forecast = (
-        future_revenue.sum()
-    )
-
-    final_forecast_revenue = (
-        future_forecast_df
-        .sort_values("month")
-        ["predicted_revenue"]
-        .iloc[-1]
-    )
-
-else:
-
-    total_future_forecast = 0.0
-
-    final_forecast_revenue = 0.0
-
-
-# ============================================================================
-# FORECAST HORIZON
-# ============================================================================
-
-forecast_periods = len(
-    future_forecast_df
-)
-
-
+# Future Forecast Metrics
 if not future_forecast_df.empty:
-
-    forecast_start = (
-        future_forecast_df["month"]
-        .min()
-    )
-
-    forecast_end = (
-        future_forecast_df["month"]
-        .max()
-    )
-
+    total_future_forecast = future_forecast_df["predicted_revenue"].dropna().sum()
+    final_forecast_revenue = future_forecast_df.sort_values("month")["predicted_revenue"].iloc[-1]
+    forecast_start = future_forecast_df["month"].min()
+    forecast_end = future_forecast_df["month"].max()
+    forecast_periods = len(future_forecast_df)
 else:
-
+    total_future_forecast = 0.0
+    final_forecast_revenue = 0.0
     forecast_start = None
     forecast_end = None
+    forecast_periods = 0
 
-
-# ============================================================================
-# FORECAST GROWTH
-# ============================================================================
-#
-# Compare the first future forecast period against the latest observed
-# historical revenue.
-#
-# This is a directional forecast indicator rather than a historical
-# year-over-year growth metric.
-
+# Forecast Growth
 forecast_growth = None
-
-
-if (
-    latest_actual_revenue != 0
-    and not future_forecast_df.empty
-):
-
-    first_forecast_revenue = (
-        future_forecast_df
-        .sort_values("month")
-        ["predicted_revenue"]
-        .iloc[0]
-    )
-
+if latest_actual_revenue > 0 and not future_forecast_df.empty:
+    first_forecast_revenue = future_forecast_df.sort_values("month")["predicted_revenue"].iloc[0]
     if pd.notna(first_forecast_revenue):
+        forecast_growth = ((first_forecast_revenue - latest_actual_revenue) / latest_actual_revenue) * 100
 
-        forecast_growth = (
-            (
-                first_forecast_revenue
-                - latest_actual_revenue
-            )
-            / latest_actual_revenue
-        ) * 100
-
-
-# ============================================================================
-# FORECAST CONFIDENCE RANGE
-# ============================================================================
-
+# Confidence Range
 if not future_forecast_df.empty:
-
     future_forecast_df["forecast_range"] = (
-        future_forecast_df["upper_bound"]
-        - future_forecast_df["lower_bound"]
+        future_forecast_df["upper_bound"] - future_forecast_df["lower_bound"]
     )
-
-    average_forecast_range = (
-        future_forecast_df["forecast_range"]
-        .dropna()
-        .mean()
-    )
-
+    average_forecast_range = future_forecast_df["forecast_range"].dropna().mean()
 else:
-
     average_forecast_range = None
 
 
 # ============================================================================
-# FORECAST OVERVIEW
+# FORECAST OVERVIEW KPIs
 # ============================================================================
 
 section_header(
-    title="Forecast Overview",
-    description=(
-        "Key indicators summarizing observed revenue and the future "
-        "forecast horizon."
-    ),
+    title=f"Forecast Overview ({segment_display_label})",
+    description="Key financial metrics summarizing historical baseline and projected 6-month horizon.",
 )
 
+kpi_cols = st.columns(4, gap="large")
 
-kpi_columns = st.columns(
-    4,
-    gap="large",
-)
-
-
-# ----------------------------------------------------------------------------
-# Historical Revenue
-# ----------------------------------------------------------------------------
-
-with kpi_columns[0]:
-
+with kpi_cols[0]:
     kpi_card(
-        label="Historical Revenue",
-        value=f"₹{total_actual_revenue:,.0f}",
-        delta="Observed revenue",
+        label="Observed Revenue",
+        value=f"R${total_actual_revenue:,.0f}",
+        delta="Historical delivered total",
         delta_type="neutral",
     )
 
-
-# ----------------------------------------------------------------------------
-# Future Forecast
-# ----------------------------------------------------------------------------
-
-with kpi_columns[1]:
-
+with kpi_cols[1]:
     kpi_card(
-        label="Future Forecast",
-        value=f"₹{total_future_forecast:,.0f}",
-        delta="Expected future revenue",
+        label="6-Month Forecast",
+        value=f"R${total_future_forecast:,.0f}",
+        delta="Projected total revenue",
         delta_type="positive",
     )
 
-
-# ----------------------------------------------------------------------------
-# Forecast Growth
-# ----------------------------------------------------------------------------
-
-with kpi_columns[2]:
-
+with kpi_cols[2]:
     if forecast_growth is None:
-
-        growth_value = "N/A"
+        growth_val = "N/A"
         growth_type = "neutral"
-
     elif forecast_growth >= 0:
-
-        growth_value = f"{forecast_growth:+.1f}%"
+        growth_val = f"{forecast_growth:+.1f}%"
         growth_type = "positive"
-
     else:
-
-        growth_value = f"{forecast_growth:+.1f}%"
+        growth_val = f"{forecast_growth:+.1f}%"
         growth_type = "negative"
 
-
     kpi_card(
-        label="Forecast Growth",
-        value=growth_value,
+        label="Immediate Horizon Growth",
+        value=growth_val,
         delta="First forecast vs latest actual",
         delta_type=growth_type,
     )
 
-
-# ----------------------------------------------------------------------------
-# Forecast Horizon
-# ----------------------------------------------------------------------------
-
-with kpi_columns[3]:
-
+with kpi_cols[3]:
     kpi_card(
-        label="Forecast Periods",
-        value=f"{forecast_periods:,}",
-        delta="Future periods available",
+        label="Forecast Horizon",
+        value=f"{forecast_periods} Months",
+        delta=f"{forecast_start.strftime('%b %Y') if forecast_start else ''} – {forecast_end.strftime('%b %Y') if forecast_end else ''}",
         delta_type="neutral",
     )
 
@@ -555,13 +261,11 @@ with kpi_columns[3]:
 # ============================================================================
 
 section_header(
-    title="Revenue Forecast Trend",
+    title="Revenue Forecast Trend & Uncertainty Band",
     description=(
-        "Historical revenue, model forecast, and confidence interval "
-        "across the available timeline."
+        "Historical revenue actuals alongside Prophet model fitted trend and 90% confidence interval shading."
     ),
 )
-
 
 forecast_chart(
     dataframe=forecast_df,
@@ -570,315 +274,97 @@ forecast_chart(
     forecast_column="predicted_revenue",
     lower_column="lower_bound",
     upper_column="upper_bound",
-    title="Actual vs Forecast Revenue",
+    title=f"Revenue Trajectory: {segment_display_label}",
     x_title="Month",
-    y_title="Revenue",
-    height=450,
+    y_title="Revenue (R$)",
+    height=460,
 )
 
 
 # ============================================================================
-# FUTURE FORECAST ANALYSIS
+# MONTHLY FORECAST BREAKDOWN & CONFIDENCE
 # ============================================================================
 
-section_header(
-    title="Future Forecast Analysis",
-    description=(
-        "Expected revenue across the future forecast horizon."
-    ),
-)
+col_chart, col_conf = st.columns([1.4, 1], gap="large")
 
-
-if future_forecast_df.empty:
-
-    st.info(
-        "No explicit future forecast periods were identified "
-        "in the available forecast dataset."
+with col_chart:
+    section_header(
+        title="Projected Monthly Revenue",
+        description="Month-by-month revenue projections across the 6-month future window.",
     )
-
-else:
-
-    forecast_chart_df = (
-        future_forecast_df[
-            [
-                "month",
-                "predicted_revenue",
-            ]
-        ]
-        .copy()
-    )
-
-    forecast_chart_df["period"] = (
-        forecast_chart_df["month"]
-        .dt.strftime("%b %Y")
-    )
-
-
-    bar_chart(
-        dataframe=forecast_chart_df,
-        x="period",
-        y="predicted_revenue",
-        title="Expected Revenue by Forecast Period",
-        x_title="Forecast Period",
-        y_title="Predicted Revenue",
-        height=400,
-        text=False,
-    )
-
-
-# ============================================================================
-# FORECAST CONFIDENCE
-# ============================================================================
-
-section_header(
-    title="Forecast Confidence",
-    description=(
-        "The confidence interval represents the expected range around "
-        "each future revenue prediction."
-    ),
-)
-
-
-confidence_columns = st.columns(
-    3,
-    gap="large",
-)
-
-
-# ----------------------------------------------------------------------------
-# Average Range
-# ----------------------------------------------------------------------------
-
-with confidence_columns[0]:
-
-    if average_forecast_range is not None:
-
-        range_value = (
-            f"₹{average_forecast_range:,.0f}"
-        )
-
-    else:
-
-        range_value = "N/A"
-
-
-    kpi_card(
-        label="Average Forecast Range",
-        value=range_value,
-        delta="Average upper-to-lower interval",
-        delta_type="neutral",
-    )
-
-
-# ----------------------------------------------------------------------------
-# Forecast Start
-# ----------------------------------------------------------------------------
-
-with confidence_columns[1]:
-
-    if forecast_start is not None:
-
-        start_value = (
-            forecast_start.strftime("%b %Y")
-        )
-
-    else:
-
-        start_value = "N/A"
-
-
-    kpi_card(
-        label="Forecast Start",
-        value=start_value,
-        delta="First future period",
-        delta_type="neutral",
-    )
-
-
-# ----------------------------------------------------------------------------
-# Forecast End
-# ----------------------------------------------------------------------------
-
-with confidence_columns[2]:
-
-    if forecast_end is not None:
-
-        end_value = (
-            forecast_end.strftime("%b %Y")
-        )
-
-    else:
-
-        end_value = "N/A"
-
-
-    kpi_card(
-        label="Forecast End",
-        value=end_value,
-        delta="Last future period",
-        delta_type="neutral",
-    )
-
-
-# ============================================================================
-# FORECAST DETAIL
-# ============================================================================
-
-section_header(
-    title="Forecast Detail",
-    description=(
-        "Detailed future-period predictions and confidence bounds."
-    ),
-)
-
-
-if future_forecast_df.empty:
-
-    st.info(
-        "There are no explicit future forecast records to display."
-    )
-
-else:
-
-    detail_df = (
-        future_forecast_df[
-            [
-                "month",
-                "predicted_revenue",
-                "lower_bound",
-                "upper_bound",
-            ]
-        ]
-        .copy()
-    )
-
-
-    detail_df = detail_df.rename(
-        columns={
-            "month": "Month",
-            "predicted_revenue": "Forecast Revenue",
-            "lower_bound": "Lower Bound",
-            "upper_bound": "Upper Bound",
-        }
-    )
-
-
-    detail_df["Month"] = (
-        pd.to_datetime(
-            detail_df["Month"],
-            errors="coerce",
-        )
-        .dt.strftime("%b %Y")
-    )
-
-
-    st.dataframe(
-        detail_df,
-        use_container_width=True,
-        hide_index=True,
-        height=320,
-        column_config={
-
-            "Month": st.column_config.TextColumn(
-                "Month",
-                width="medium",
-            ),
-
-            "Forecast Revenue": st.column_config.NumberColumn(
-                "Forecast Revenue",
-                format="₹%.2f",
-                width="medium",
-            ),
-
-            "Lower Bound": st.column_config.NumberColumn(
-                "Lower Bound",
-                format="₹%.2f",
-                width="medium",
-            ),
-
-            "Upper Bound": st.column_config.NumberColumn(
-                "Upper Bound",
-                format="₹%.2f",
-                width="medium",
-            ),
-        },
-    )
-
-
-# ============================================================================
-# FORECAST SUMMARY
-# ============================================================================
-
-section_header(
-    title="Forecast Summary",
-    description=(
-        "Latest observed revenue compared with the first and final "
-        "future forecast periods."
-    ),
-)
-
-
-summary_columns = st.columns(
-    3,
-    gap="large",
-)
-
-
-# ----------------------------------------------------------------------------
-# Latest Actual
-# ----------------------------------------------------------------------------
-
-with summary_columns[0]:
-
-    kpi_card(
-        label="Latest Actual Revenue",
-        value=f"₹{latest_actual_revenue:,.2f}",
-        delta="Most recent observed period",
-        delta_type="neutral",
-    )
-
-
-# ----------------------------------------------------------------------------
-# First Forecast
-# ----------------------------------------------------------------------------
-
-with summary_columns[1]:
 
     if not future_forecast_df.empty:
+        forecast_chart_df = future_forecast_df[["month", "predicted_revenue"]].copy()
+        forecast_chart_df["period"] = forecast_chart_df["month"].dt.strftime("%b %Y")
 
-        first_forecast = (
-            future_forecast_df
-            .sort_values("month")
-            ["predicted_revenue"]
-            .iloc[0]
+        bar_chart(
+            dataframe=forecast_chart_df,
+            x="period",
+            y="predicted_revenue",
+            title=f"Projected Monthly Revenue ({segment_display_label})",
+            x_title="Forecast Period",
+            y_title="Predicted Revenue (R$)",
+            height=380,
+            text=False,
         )
 
-        first_forecast_value = (
-            f"₹{first_forecast:,.2f}"
-        )
+with col_conf:
+    section_header(
+        title="Confidence & Planning Risk",
+        description="Assessing model uncertainty interval widths for risk management.",
+    )
 
-    else:
-
-        first_forecast_value = "N/A"
-
-
+    range_val = f"R${average_forecast_range:,.0f}" if average_forecast_range is not None else "N/A"
     kpi_card(
-        label="First Forecast",
-        value=first_forecast_value,
-        delta="First future prediction",
-        delta_type="positive",
+        label="Average Confidence Interval",
+        value=range_val,
+        delta="Upper – Lower 90% spread",
+        delta_type="neutral",
+    )
+
+    st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
+
+    st.info(
+        f"**Business Planning Guidance ({segment_display_label}):**  \n"
+        f"• Point Estimate: **R${total_future_forecast:,.0f}** over 6 months.  \n"
+        f"• For conservative procurement and operational planning, finance teams should align with the lower confidence bound (~**R${future_forecast_df['lower_bound'].sum():,.0f}**)."
+        if not future_forecast_df.empty
+        else "No future forecast records available.",
+        icon="📊",
     )
 
 
-# ----------------------------------------------------------------------------
-# Final Forecast
-# ----------------------------------------------------------------------------
+# ============================================================================
+# FORECAST DETAIL TABLE
+# ============================================================================
 
-with summary_columns[2]:
+section_header(
+    title="Detailed Monthly Forecast Data",
+    description="Numerical breakdown of point predictions and confidence interval boundaries.",
+)
 
-    kpi_card(
-        label="Final Forecast",
-        value=f"₹{final_forecast_revenue:,.2f}",
-        delta="Last future prediction",
-        delta_type="positive",
+if not future_forecast_df.empty:
+    detail_df = future_forecast_df[
+        ["month", "predicted_revenue", "lower_bound", "upper_bound"]
+    ].copy()
+
+    detail_df["Month"] = detail_df["month"].dt.strftime("%B %Y")
+    detail_df["Forecast Revenue (R$)"] = detail_df["predicted_revenue"]
+    detail_df["Lower Bound 90% (R$)"] = detail_df["lower_bound"]
+    detail_df["Upper Bound 90% (R$)"] = detail_df["upper_bound"]
+
+    display_table = detail_df[
+        ["Month", "Forecast Revenue (R$)", "Lower Bound 90% (R$)", "Upper Bound 90% (R$)"]
+    ]
+
+    st.dataframe(
+        display_table,
+        width="stretch",
+        hide_index=True,
+        column_config={
+            "Month": st.column_config.TextColumn("Forecast Period", width="medium"),
+            "Forecast Revenue (R$)": st.column_config.NumberColumn("Predicted Revenue", format="R$%,.2f"),
+            "Lower Bound 90% (R$)": st.column_config.NumberColumn("Lower Bound (90% CI)", format="R$%,.2f"),
+            "Upper Bound 90% (R$)": st.column_config.NumberColumn("Upper Bound (90% CI)", format="R$%,.2f"),
+        },
     )

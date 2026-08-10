@@ -308,7 +308,7 @@ with kpi_columns[2]:
 
     kpi_card(
         label="Avg Monetary Value",
-        value=f"₹{average_monetary:,.2f}",
+        value=f"R${average_monetary:,.2f}",
         delta="Average customer value",
         delta_type="positive",
     )
@@ -454,7 +454,7 @@ with rfm_columns[2]:
 
     kpi_card(
         label="Median Monetary",
-        value=f"₹{rfm_summary['monetary_median']:,.2f}",
+        value=f"R${rfm_summary['monetary_median']:,.2f}",
         delta="Customer monetary value",
         delta_type="positive",
     )
@@ -565,7 +565,7 @@ display_df["Customer Share (%)"] = (
 
 st.dataframe(
     display_df,
-    use_container_width=True,
+    width="stretch",
     hide_index=True,
     height=250,
     column_config={
@@ -601,13 +601,13 @@ st.dataframe(
 
         "Avg Monetary Value": st.column_config.NumberColumn(
             "Avg Monetary Value",
-            format="₹%.2f",
+            format="R$%.2f",
             width="medium",
         ),
 
         "Total Monetary Value": st.column_config.NumberColumn(
             "Total Monetary Value",
-            format="₹%.2f",
+            format="R$%.2f",
             width="large",
         ),
     },

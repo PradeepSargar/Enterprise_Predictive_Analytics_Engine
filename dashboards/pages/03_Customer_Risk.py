@@ -67,7 +67,7 @@ from dashboards.components.section_headers import (
     page_header,
     section_header,
 )
-from dashboards.data.loader import load_master_data
+from dashboards.data.loader import load_master_data, predict_dissatisfaction_risk
 
 
 # ============================================================================
@@ -687,7 +687,7 @@ with kpi_columns[4]:
 
         kpi_card(
             label="High-Risk Revenue",
-            value=f"₹{high_risk_revenue:,.0f}",
+            value=f"R${high_risk_revenue:,.0f}",
             delta=(
                 f"{high_risk_revenue_share:.1%} of filtered revenue"
             ),
@@ -801,7 +801,7 @@ with chart_columns[0]:
 
     st.plotly_chart(
         figure,
-        use_container_width=True,
+        width="stretch",
     )
 
 
@@ -855,7 +855,7 @@ with chart_columns[1]:
 
     st.plotly_chart(
         bar_figure,
-        use_container_width=True,
+        width="stretch",
     )
 
 
@@ -958,7 +958,7 @@ if delivery_delay_column is not None:
 
         st.plotly_chart(
             delivery_figure,
-            use_container_width=True,
+            width="stretch",
         )
 
     with driver_columns[1]:
@@ -995,7 +995,7 @@ if delivery_delay_column is not None:
 
         st.dataframe(
             delivery_display,
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
         )
 
@@ -1096,7 +1096,7 @@ if category_column is not None:
 
         st.plotly_chart(
             category_figure,
-            use_container_width=True,
+            width="stretch",
         )
 
 
@@ -1195,7 +1195,7 @@ if geo_column is not None:
 
     st.plotly_chart(
         geo_figure,
-        use_container_width=True,
+        width="stretch",
     )
 
 
@@ -1360,7 +1360,7 @@ if "Review Score" in risk_table.columns:
 
 st.dataframe(
     risk_table.head(100),
-    use_container_width=True,
+    width="stretch",
     hide_index=True,
 )
 
@@ -1635,7 +1635,7 @@ if not model_results.empty:
 
             st.plotly_chart(
                 model_figure,
-                use_container_width=True,
+                width="stretch",
             )
 
 else:
@@ -1645,6 +1645,115 @@ else:
         "The risk page is therefore showing observed customer-experience "
         "risk only."
     )
+
+
+# ============================================================================
+# LIVE ORDER RISK SIMULATOR
+# ============================================================================
+
+section_header(
+    title="Interactive Order Dissatisfaction Simulator",
+    description=(
+        "Simulate order delivery scenarios and predict low-review dissatisfaction risk "
+        "in real-time using the serialized Random Forest champion model artifact."
+    ),
+)
+
+with st.container(border=True):
+    sim_col1, sim_col2, sim_col3 = st.columns(3, gap="medium")
+
+    with sim_col1:
+        sim_delay = st.slider(
+            "Delivery Delay vs SLA (Days)",
+            min_value=-20.0,
+            max_value=30.0,
+            value=3.0,
+            step=1.0,
+            help="Positive = late vs estimated delivery date; Negative = arrived earlier than estimate.",
+        )
+        sim_time = st.slider(
+            "Total Transit Time (Days)",
+            min_value=1.0,
+            max_value=60.0,
+            value=14.0,
+            step=1.0,
+            help="Days from purchase timestamp to customer delivery.",
+        )
+
+    with sim_col2:
+        sim_price = st.number_input(
+            "Product Price (R$)",
+            min_value=5.0,
+            max_value=5000.0,
+            value=120.0,
+            step=10.0,
+        )
+        sim_freight = st.number_input(
+            "Freight Cost (R$)",
+            min_value=0.0,
+            max_value=500.0,
+            value=24.50,
+            step=5.0,
+        )
+
+    with sim_col3:
+        sim_installments = st.selectbox(
+            "Payment Installments",
+            options=[1, 2, 3, 4, 6, 8, 10, 12, 18, 24],
+            index=0,
+        )
+        sim_cat = st.selectbox(
+            "Product Category",
+            options=[
+                "bed_bath_table",
+                "health_beauty",
+                "sports_leisure",
+                "computers_accessories",
+                "furniture_decor",
+                "housewares",
+                "watches_gifts",
+                "telephony",
+                "auto",
+                "garden_tools",
+                "other",
+            ],
+            index=0,
+            format_func=lambda x: x.replace("_", " ").title(),
+        )
+
+    try:
+        prediction_result = predict_dissatisfaction_risk(
+            delivery_delay_days=sim_delay,
+            delivery_time_days=sim_time,
+            price=sim_price,
+            freight_value=sim_freight,
+            payment_installments=sim_installments,
+            product_category=sim_cat,
+        )
+
+        res_col1, res_col2 = st.columns([1, 1.5], gap="large")
+
+        with res_col1:
+            kpi_card(
+                label="Predicted Dissatisfaction Risk",
+                value=f"{prediction_result['risk_score_percent']:.1f}%",
+                delta=prediction_result["risk_label"],
+                delta_type="negative" if prediction_result["is_high_risk"] else "positive",
+            )
+
+        with res_col2:
+            st.markdown(
+                f"**Risk Assessment:** {prediction_result['risk_label']}  \n"
+                f"**Key Driver:** {prediction_result['dominant_driver']}  \n"
+                f"**Model Champion:** Random Forest (Accuracy: 83.5%, F1 Score: 0.430)"
+            )
+            if prediction_result["is_high_risk"]:
+                st.warning("⚠️ High dissatisfaction exposure: recommend proactive customer notification and priority delivery SLA.")
+            else:
+                st.success("✅ Low dissatisfaction risk: order parameters within healthy satisfaction tolerance.")
+
+    except Exception as sim_exc:
+        st.info(f"Simulator initializing: {sim_exc}")
 
 
 # ============================================================================
@@ -1690,7 +1799,7 @@ with insight_columns[0]:
 
             st.caption(
                 f"Associated revenue exposure: "
-                f"₹{high_risk_revenue:,.0f}."
+                f"R${high_risk_revenue:,.0f}."
             )
 
 

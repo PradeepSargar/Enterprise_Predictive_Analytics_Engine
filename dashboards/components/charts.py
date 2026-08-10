@@ -578,7 +578,7 @@ def _render_figure(
 
     st.plotly_chart(
         figure,
-        use_container_width=True,
+        width="stretch",
         config={
             "displayModeBar": False,
             "responsive": True,
@@ -641,7 +641,6 @@ def line_chart(
         y=y_columns,
         color=color,
         markers=markers,
-        render_mode="svg",
     )
 
     figure.update_layout(
@@ -862,9 +861,10 @@ def area_chart(
     x_title: Optional[str] = None,
     y_title: Optional[str] = None,
     height: int = DEFAULT_CHART_HEIGHT,
+    color: str = PRIMARY_COLOR,
 ) -> None:
     """
-    Render a reusable area chart.
+    Render a reusable premium area chart with gradient fill.
     """
 
     if not _validate_dataframe(dataframe):
@@ -883,19 +883,30 @@ def area_chart(
         ],
     )
 
-    figure = px.area(
-        dataframe,
-        x=x,
-        y=y,
-        render_mode="svg",
-    )
-
-    figure.update_traces(
-        line={
-            "color": PRIMARY_COLOR,
-            "width": 2.5,
-        },
-        fillcolor="rgba(37,99,235,0.10)",
+    figure = go.Figure()
+    figure.add_trace(
+        go.Scatter(
+            x=dataframe[x],
+            y=dataframe[y],
+            mode="lines+markers",
+            fill="tozeroy",
+            line={
+                "color": color,
+                "width": 2.5,
+            },
+            marker={
+                "size": 5,
+                "color": color,
+            },
+            fillcolor="rgba(37,99,235,0.12)",
+            hovertemplate=(
+                f"<b>{x_title or x}</b>: "
+                "%{x}<br>"
+                f"<b>{y_title or y}</b>: "
+                "%{y:,.0f}"
+                "<extra></extra>"
+            ),
+        )
     )
 
     figure.update_layout(

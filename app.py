@@ -111,6 +111,18 @@ pages = {
             icon=":material/table_view:",
         ),
     ],
+
+    # ------------------------------------------------------------------------
+    # APPLICATION
+    # ------------------------------------------------------------------------
+
+    "Application": [
+        st.Page(
+            "dashboards/pages/08_About.py",
+            title="About & Architecture",
+            icon=":material/info:",
+        ),
+    ],
 }
 
 

@@ -69,7 +69,7 @@ impact given its size.
 ## 4. Classification: Predicting Low Review Score Risk
 
 **Method:** A binary target was defined — orders receiving a review score
-of 2 or below ("low review," 16.3% base rate). Two models were trained
+of 2 or below ("low review," 16.34% base rate). Three models were trained
 on features known at or before delivery (delivery timing, order economics,
 product category), so the model can flag risk *before* a bad review
 happens, not after.
@@ -78,14 +78,16 @@ happens, not after.
 
 | Model | Accuracy | Precision | Recall | F1 Score |
 |---|---|---|---|---|
-| Logistic Regression | 0.709 | 0.254 | 0.512 | 0.34 |
-| Random Forest | 0.835 | 0.434 | 0.426 | 0.43 |
+| Logistic Regression | 0.709 | 0.254 | 0.512 | 0.340 |
+| Random Forest | 0.835 | 0.434 | 0.426 | 0.430 |
+| Gradient Boosting | 0.873 | 0.636 | 0.309 | 0.416 |
 
-**Random Forest was selected** as the production model — it achieves the
-best balance of precision and recall (F1 0.43) and the highest overall
+**Random Forest was selected** as the production champion model — it achieves the
+best balance of precision and recall (F1 0.430) and strong overall
 accuracy (83.5%). Logistic Regression catches more true low-review cases
 (51.2% recall) but at the cost of far more false alarms (25.4% precision),
-which would overwhelm an intervention team with noise in practice.
+which would overwhelm an intervention team with noise in practice. Gradient Boosting
+achieves high accuracy (87.3%) and precision (63.6%) but lower recall (30.9%).
 
 ### Feature Importance
 
@@ -134,6 +136,11 @@ window, from ~R$1.66M to ~R$1.98M, continuing the steady upward trend
 observed throughout 2017–2018. Confidence bands are moderately wide
 (roughly ±18–20% of the point estimate), reflecting genuine uncertainty
 given only 20 months of historical data.
+
+### Multi-Grain Forecast Decomposition
+The forecasting engine was extended to model individual high-value segments independently:
+- **Top Categories:** `bed_bath_table`, `health_beauty`, `computers_accessories`, `furniture_decor`, and `watches_gifts` capture ~45% of marketplace volume with distinct seasonal slopes.
+- **Top Regional Markets:** `SP` (São Paulo, ~42% of volume), `RJ` (Rio de Janeiro), `MG` (Minas Gerais), `RS` (Rio Grande do Sul), and `PR` (Paraná) allow granular logistics capacity and regional marketing allocation.
 
 **Business implication:** The growth trend is directionally reliable, but
 given the width of the confidence interval, the **lower bound (~R$1.65M

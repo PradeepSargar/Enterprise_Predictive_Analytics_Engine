@@ -1046,7 +1046,7 @@ st.dataframe(
             "Total Value",
         ]
     ],
-    use_container_width=True,
+    width="stretch",
     hide_index=True,
     height=320,
 )

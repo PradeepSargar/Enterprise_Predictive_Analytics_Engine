@@ -171,8 +171,8 @@ def render_segment_performance_table(
                 "Customer Share": "{:.1f}%",
                 "Avg Recency": "{:,.1f} days",
                 "Avg Frequency": "{:.2f}",
-                "Avg Monetary Value": "₹{:,.2f}",
-                "Total Monetary Value": "₹{:,.2f}",
+                "Avg Monetary Value": "R${:,.2f}",
+                "Total Monetary Value": "R${:,.2f}",
             }
         )
 
@@ -303,7 +303,7 @@ def render_segment_performance_table(
 
     st.dataframe(
         styled_df,
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
         height=245,
     )
