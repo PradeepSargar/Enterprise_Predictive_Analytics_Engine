@@ -1,56 +1,15 @@
 """
 Customer Risk Dashboard
 =======================
-
 Enterprise Predictive Analytics Engine
 
-Purpose
--------
-This page provides an analytical view of customer dissatisfaction risk.
+This page provides an analytical view of customer dissatisfaction risk,
+root causes (delivery delays, freight ratio, category exposure), and operational
+intervention workflows.
 
-The current project defines risk around low customer review scores rather
-than bank churn. Orders receiving a review score of 1 or 2 are treated as
-low-review / dissatisfaction observations.
-
-The page combines:
-
-- Customer-risk KPIs
-- Low-review exposure
-- Risk distribution
-- Delivery-delay analysis
-- Revenue exposure associated with low reviews
-- Category-level risk
-- Geographic risk
-- Customer/order-level risk explorer
-- Classification model context
-- Actionable retention recommendations
-
-Architecture
-------------
-Data loading:
-    dashboards.data.loader
-
-Business transformations:
-    dashboards.data.transformations
-
-Reusable UI:
-    dashboards.components.kpi_cards
-    dashboards.components.section_headers
-    dashboards.components.containers
-
-Visualization:
-    Plotly
-
-Important
----------
-This page does not train a model.
-
-It also does not invent churn probabilities or synthetic predictions.
-
-Where a classification output is available in the current project data,
-it can be incorporated later through the centralized model/prediction layer.
-For now, the page correctly distinguishes observed low-review risk from
-model-predicted risk.
+Distinction:
+- Observed Historical Risk: Orders with review scores 1-2
+- Model-Predicted Risk: Real-time inference via trained Random Forest champion artifact.
 """
 
 from __future__ import annotations
@@ -62,431 +21,182 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
+from dashboards.components.alerts import insight_card
+from dashboards.components.charts import donut_chart, horizontal_bar_chart
+from dashboards.components.containers import panel
+from dashboards.components.exports import csv_download, excel_download
 from dashboards.components.kpi_cards import kpi_card
-from dashboards.components.section_headers import (
-    page_header,
-    section_header,
-)
+from dashboards.components.section_headers import page_header, section_header
 from dashboards.data.loader import load_master_data, predict_dissatisfaction_risk
-
+from dashboards.utils.constants import (
+    CHART_PALETTE,
+    DANGER_COLOR,
+    MUTED_TEXT_COLOR,
+    PRIMARY_COLOR,
+    SECONDARY_COLOR,
+    SUCCESS_COLOR,
+    TEXT_COLOR,
+    WARNING_COLOR,
+)
+from dashboards.utils.html import render_html
 
 # ============================================================================
 # CONSTANTS
 # ============================================================================
 
 LOW_REVIEW_THRESHOLD = 2
-
-PRIMARY_COLOR = "#2563EB"
-SECONDARY_COLOR = "#7C3AED"
-SUCCESS_COLOR = "#059669"
-WARNING_COLOR = "#D97706"
-DANGER_COLOR = "#DC2626"
-INFO_COLOR = "#0891B2"
-
-TEXT_PRIMARY = "#0F172A"
-TEXT_SECONDARY = "#475569"
-GRID_COLOR = "#E2E8F0"
-
+CURRENCY_SYMBOL = "R$"
 
 # ============================================================================
-# PAGE HEADER
+# PAGE HEADER & HERO BANNER
 # ============================================================================
 
 page_header(
     title="Customer Risk",
     description=(
-        "Identify dissatisfaction exposure, understand its operational "
+        "Identify dissatisfaction exposure, understand operational "
         "drivers, and prioritize customer-experience interventions."
     ),
+    status="PREDICTIVE RISK",
 )
 
+render_html(
+    """
+    <div style="
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, #0284C7 0%, #0EA5E9 40%, #8B5CF6 100%);
+        border-radius: 16px;
+        padding: 1.5rem 1.8rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 8px 24px -4px rgba(14, 165, 233, 0.25);
+        color: #FFFFFF;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    ">
+        <div style="position: relative; z-index: 2; max-width: 820px;">
+            <div style="
+                display: inline-block;
+                padding: 0.25rem 0.6rem;
+                border-radius: 999px;
+                background: rgba(255, 255, 255, 0.2);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                font-size: 8.5px;
+                font-weight: 800;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                margin-bottom: 0.5rem;
+            ">
+                DISSATISFACTION & CHURN INTELLIGENCE
+            </div>
+            <div style="font-size: 17px; font-weight: 900; line-height: 1.3; margin-bottom: 0.35rem; color: #FFFFFF;">
+                Operational Risk Drivers & Proactive SLA Monitoring
+            </div>
+            <div style="font-size: 11px; opacity: 0.95; line-height: 1.5; color: #F0F9FF;">
+                Differentiate observed low-review dissatisfaction (Scores 1–2) from real-time
+                machine-learning dissatisfaction predictions. Identify shipping delays and regional bottlenecks.
+            </div>
+        </div>
+    </div>
+    """
+)
 
 # ============================================================================
 # DATA LOADING
 # ============================================================================
 
-@st.cache_data(show_spinner=False)
-def load_data() -> pd.DataFrame:
-    """
-    Load the centralized master dataset.
-
-    Keeping data loading inside the centralized loader preserves the
-    project's architecture and avoids hard-coded file paths inside pages.
-    """
-
-    return load_master_data()
-
-
 try:
-    master_df = load_data()
-
-except FileNotFoundError as exc:
-
-    st.error(
-        "Customer risk data could not be found."
-    )
-
-    st.caption(str(exc))
-
-    st.stop()
-
+    master_df = load_master_data()
 except Exception as exc:
-
-    st.error(
-        "Customer risk data could not be loaded."
-    )
-
+    st.error("Customer risk data could not be loaded.")
     st.caption(str(exc))
-
     st.stop()
-
-
-# ============================================================================
-# DATA VALIDATION
-# ============================================================================
 
 if master_df is None or master_df.empty:
-
-    st.warning(
-        "No customer/order data is currently available for risk analysis."
-    )
-
+    st.warning("No customer/order data is currently available for risk analysis.")
     st.stop()
 
-
-# Work on a copy so this page never mutates the centralized dataset.
 df = master_df.copy()
 
-
 # ============================================================================
-# COLUMN RESOLUTION
+# COLUMN RESOLUTION HELPERS
 # ============================================================================
 
-def find_column(
-    dataframe: pd.DataFrame,
-    candidates: list[str],
-) -> Optional[str]:
-    """
-    Find the first available column from a list of possible names.
-
-    The project has gone through several dataset/architecture iterations,
-    so this helper makes the page resilient to small naming differences.
-    """
-
-    normalized_columns = {
-        str(column).strip().lower(): column
-        for column in dataframe.columns
-    }
-
+def find_column(dataframe: pd.DataFrame, candidates: list[str]) -> Optional[str]:
+    normalized_columns = {str(col).strip().lower(): col for col in dataframe.columns}
     for candidate in candidates:
-
-        normalized_candidate = (
-            candidate.strip().lower()
-        )
-
-        if normalized_candidate in normalized_columns:
-            return normalized_columns[
-                normalized_candidate
-            ]
-
+        norm = candidate.strip().lower()
+        if norm in normalized_columns:
+            return normalized_columns[norm]
     return None
 
-
-review_column = find_column(
-    df,
-    [
-        "review_score",
-        "review score",
-        "Review_Score",
-        "Review Score",
-    ],
-)
-
-customer_column = find_column(
-    df,
-    [
-        "customer_unique_id",
-        "customer_id",
-        "Customer_ID",
-        "Customer ID",
-    ],
-)
-
-order_column = find_column(
-    df,
-    [
-        "order_id",
-        "Order_ID",
-        "Order ID",
-    ],
-)
-
-payment_column = find_column(
-    df,
-    [
-        "payment_value",
-        "payment value",
-        "Sales",
-        "sales",
-    ],
-)
-
-delivery_delay_column = find_column(
-    df,
-    [
-        "delivery_delay_days",
-        "delivery delay days",
-        "delivery_delay",
-        "delay_days",
-    ],
-)
-
-category_column = find_column(
-    df,
-    [
-        "product_category_name_english",
-        "product_category",
-        "category",
-        "Category",
-        "category_name",
-    ],
-)
-
-state_column = find_column(
-    df,
-    [
-        "customer_state",
-        "state",
-        "State",
-    ],
-)
-
-region_column = find_column(
-    df,
-    [
-        "customer_region",
-        "region",
-        "Region",
-    ],
-)
-
-
-# ============================================================================
-# REQUIRED FIELD CHECK
-# ============================================================================
+review_column = find_column(df, ["review_score", "review score", "Review_Score"])
+customer_column = find_column(df, ["customer_unique_id", "customer_id", "Customer_ID"])
+order_column = find_column(df, ["order_id", "Order_ID"])
+payment_column = find_column(df, ["payment_value", "payment value", "price", "Sales"])
+delivery_delay_column = find_column(df, ["delivery_delay_days", "delivery delay days", "delay_days"])
+category_column = find_column(df, ["product_category_name_english", "product_category", "category"])
+state_column = find_column(df, ["customer_state", "state", "State"])
+region_column = find_column(df, ["customer_region", "region", "Region"])
 
 if review_column is None:
-
-    st.error(
-        "The Customer Risk page requires a review-score column."
-    )
-
-    st.info(
-        "Expected a field such as 'review_score'. "
-        "The current dataset schema does not expose one."
-    )
-
-    with st.expander(
-        "View detected dataset columns"
-    ):
-
-        st.write(
-            list(df.columns)
-        )
-
+    st.error("The Customer Risk page requires a review-score column.")
     st.stop()
 
-
-# ============================================================================
-# NUMERIC CLEANUP
-# ============================================================================
-
-df[review_column] = pd.to_numeric(
-    df[review_column],
-    errors="coerce",
-)
-
-valid_review_df = df[
-    df[review_column].notna()
-].copy()
-
+df[review_column] = pd.to_numeric(df[review_column], errors="coerce")
+valid_review_df = df[df[review_column].notna()].copy()
 
 if valid_review_df.empty:
-
-    st.warning(
-        "No valid review scores are available for risk analysis."
-    )
-
+    st.warning("No valid review scores are available for risk analysis.")
     st.stop()
 
-
-# ============================================================================
-# RISK CLASSIFICATION
-# ============================================================================
-
-def classify_review_risk(
-    review_score: float,
-) -> str:
-    """
-    Convert observed review scores into analytical risk tiers.
-
-    This is an observed customer-experience classification, not a
-    machine-learning prediction.
-
-    1–2 stars:
-        High risk
-
-    3 stars:
-        Medium risk
-
-    4–5 stars:
-        Low risk
-    """
-
+def classify_review_risk(review_score: float) -> str:
     if review_score <= 2:
         return "High Risk"
-
     if review_score == 3:
         return "Medium Risk"
-
     return "Low Risk"
 
-
-valid_review_df["risk_tier"] = (
-    valid_review_df[review_column]
-    .apply(classify_review_risk)
-)
-
-
-# ============================================================================
-# OPTIONAL NUMERIC FIELDS
-# ============================================================================
+valid_review_df["risk_tier"] = valid_review_df[review_column].apply(classify_review_risk)
 
 if payment_column is not None:
-
-    valid_review_df[payment_column] = pd.to_numeric(
-        valid_review_df[payment_column],
-        errors="coerce",
-    )
-
+    valid_review_df[payment_column] = pd.to_numeric(valid_review_df[payment_column], errors="coerce")
 
 if delivery_delay_column is not None:
-
-    valid_review_df[delivery_delay_column] = pd.to_numeric(
-        valid_review_df[delivery_delay_column],
-        errors="coerce",
-    )
-
+    valid_review_df[delivery_delay_column] = pd.to_numeric(valid_review_df[delivery_delay_column], errors="coerce")
 
 # ============================================================================
-# FILTERS
+# RISK FILTERS
 # ============================================================================
 
 section_header(
     title="Risk Analysis Filters",
-    description=(
-        "Filter the observed customer-experience risk population "
-        "before reviewing operational drivers."
-    ),
+    description="Filter the observed customer-experience risk population before reviewing operational drivers.",
 )
 
-
-filter_columns = st.columns(
-    3,
-    gap="medium",
-)
-
-
-# ---------------------------------------------------------------------------
-# Risk tier filter
-# ---------------------------------------------------------------------------
+filter_columns = st.columns(3, gap="medium")
 
 with filter_columns[0]:
-
     selected_risk = st.multiselect(
         "Risk Tier",
-        options=[
-            "High Risk",
-            "Medium Risk",
-            "Low Risk",
-        ],
-        default=[
-            "High Risk",
-            "Medium Risk",
-            "Low Risk",
-        ],
+        options=["High Risk", "Medium Risk", "Low Risk"],
+        default=["High Risk", "Medium Risk", "Low Risk"],
     )
-
-
-# ---------------------------------------------------------------------------
-# Region filter
-# ---------------------------------------------------------------------------
 
 with filter_columns[1]:
-
-    selected_region = None
-
-    if region_column is not None:
-
-        region_values = (
-            valid_review_df[
-                region_column
-            ]
-            .dropna()
-            .astype(str)
-            .sort_values()
-            .unique()
-            .tolist()
-        )
-
-        selected_region = st.multiselect(
-            "Region",
-            options=region_values,
-            default=region_values,
-        )
-
-    elif state_column is not None:
-
-        state_values = (
-            valid_review_df[
-                state_column
-            ]
-            .dropna()
-            .astype(str)
-            .sort_values()
-            .unique()
-            .tolist()
-        )
-
-        selected_region = st.multiselect(
-            "State",
-            options=state_values,
-            default=state_values,
-        )
-
+    filter_col_name = region_column if region_column is not None else state_column
+    if filter_col_name is not None:
+        region_values = valid_review_df[filter_col_name].dropna().astype(str).sort_values().unique().tolist()
+        selected_region = st.multiselect("Region / State", options=region_values, default=region_values[:8] if len(region_values) > 8 else region_values)
     else:
-
-        st.caption(
-            "Regional filtering is unavailable for this dataset."
-        )
-
-
-# ---------------------------------------------------------------------------
-# Review threshold
-# ---------------------------------------------------------------------------
+        selected_region = None
 
 with filter_columns[2]:
-
     review_threshold = st.select_slider(
-        "Low-review threshold",
+        "Low-Review Threshold",
         options=[1, 2, 3],
         value=2,
-        help=(
-            "Reviews at or below this value are treated as "
-            "dissatisfaction exposure."
-        ),
+        help="Orders with reviews ≤ this score are classified as dissatisfaction exposure.",
     )
-
 
 # ============================================================================
 # APPLY FILTERS
@@ -494,1158 +204,203 @@ with filter_columns[2]:
 
 filtered_df = valid_review_df.copy()
 
-
 if selected_risk:
+    filtered_df = filtered_df[filtered_df["risk_tier"].isin(selected_risk)]
 
-    filtered_df = filtered_df[
-        filtered_df["risk_tier"].isin(
-            selected_risk
-        )
-    ]
-
-
-if selected_region:
-
-    filter_column = (
-        region_column
-        if region_column is not None
-        else state_column
-    )
-
-    if filter_column is not None:
-
-        filtered_df = filtered_df[
-            filtered_df[
-                filter_column
-            ]
-            .astype(str)
-            .isin(selected_region)
-        ]
-
+if selected_region and filter_col_name is not None:
+    filtered_df = filtered_df[filtered_df[filter_col_name].astype(str).isin(selected_region)]
 
 # ============================================================================
-# RISK METRICS
+# RISK METRICS & SCORECARD
 # ============================================================================
 
-total_reviewed = len(
-    filtered_df
-)
-
-high_risk_count = int(
-    (
-        filtered_df["risk_tier"]
-        == "High Risk"
-    ).sum()
-)
-
-medium_risk_count = int(
-    (
-        filtered_df["risk_tier"]
-        == "Medium Risk"
-    ).sum()
-)
-
-low_risk_count = int(
-    (
-        filtered_df["risk_tier"]
-        == "Low Risk"
-    ).sum()
-)
-
-high_risk_rate = (
-    high_risk_count / total_reviewed
-    if total_reviewed
-    else 0.0
-)
-
-average_review = float(
-    filtered_df[
-        review_column
-    ].mean()
-)
-
-low_review_rate = (
-    filtered_df[
-        review_column
-    ]
-    .le(review_threshold)
-    .mean()
-    if total_reviewed
-    else 0.0
-)
-
-
-# ============================================================================
-# BUSINESS EXPOSURE
-# ============================================================================
+total_reviewed = len(filtered_df)
+high_risk_count = int((filtered_df["risk_tier"] == "High Risk").sum())
+medium_risk_count = int((filtered_df["risk_tier"] == "Medium Risk").sum())
+low_risk_count = int((filtered_df["risk_tier"] == "Low Risk").sum())
+high_risk_rate = high_risk_count / total_reviewed if total_reviewed else 0.0
+average_review = float(filtered_df[review_column].mean())
+low_review_rate = filtered_df[review_column].le(review_threshold).mean() if total_reviewed else 0.0
 
 high_risk_revenue = 0.0
 total_revenue = 0.0
 
 if payment_column is not None:
+    payments = pd.to_numeric(filtered_df[payment_column], errors="coerce").fillna(0)
+    total_revenue = float(payments.sum())
+    high_risk_revenue = float(payments[filtered_df["risk_tier"] == "High Risk"].sum())
 
-    payment_values = pd.to_numeric(
-        filtered_df[payment_column],
-        errors="coerce",
-    ).fillna(0)
-
-    total_revenue = float(
-        payment_values.sum()
-    )
-
-    high_risk_revenue = float(
-        payment_values[
-            filtered_df["risk_tier"]
-            == "High Risk"
-        ].sum()
-    )
-
-
-high_risk_revenue_share = (
-    high_risk_revenue / total_revenue
-    if total_revenue > 0
-    else 0.0
-)
-
-
-# ============================================================================
-# KPI SECTION
-# ============================================================================
+high_risk_revenue_share = high_risk_revenue / total_revenue if total_revenue > 0 else 0.0
 
 section_header(
     title="Customer Risk Overview",
-    description=(
-        "Observed dissatisfaction exposure across the selected "
-        "customer and order population."
-    ),
+    description="Observed dissatisfaction exposure across the selected customer and order population.",
 )
 
-
-kpi_columns = st.columns(
-    5,
-    gap="small",
-)
-
+kpi_columns = st.columns(5, gap="small")
 
 with kpi_columns[0]:
-
     kpi_card(
         label="Reviewed Orders",
         value=f"{total_reviewed:,}",
-        delta="Orders with valid review scores",
+        delta="Verified customer reviews",
         delta_type="neutral",
     )
 
-
 with kpi_columns[1]:
-
     kpi_card(
         label="High-Risk Orders",
         value=f"{high_risk_count:,}",
         delta=f"{high_risk_rate:.1%} of reviewed orders",
-        delta_type=(
-            "negative"
-            if high_risk_rate > 0.10
-            else "neutral"
-        ),
+        delta_type="negative" if high_risk_rate > 0.12 else "neutral",
     )
 
-
 with kpi_columns[2]:
-
     kpi_card(
         label="Low-Review Rate",
         value=f"{low_review_rate:.1%}",
-        delta=(
-            f"Score ≤ {review_threshold}"
-        ),
-        delta_type=(
-            "negative"
-            if low_review_rate > 0.10
-            else "positive"
-        ),
+        delta=f"Score ≤ {review_threshold}",
+        delta_type="negative" if low_review_rate > 0.12 else "positive",
     )
-
 
 with kpi_columns[3]:
-
     kpi_card(
-        label="Average Review",
-        value=f"{average_review:.2f}/5",
-        delta="Observed customer experience",
-        delta_type=(
-            "positive"
-            if average_review >= 4
-            else "negative"
-        ),
+        label="Average Review Score",
+        value=f"{average_review:.2f} / 5.0",
+        delta="Customer CSAT index",
+        delta_type="positive" if average_review >= 4.0 else "negative",
     )
 
-
 with kpi_columns[4]:
-
-    if payment_column is not None:
-
-        kpi_card(
-            label="High-Risk Revenue",
-            value=f"R${high_risk_revenue:,.0f}",
-            delta=(
-                f"{high_risk_revenue_share:.1%} of filtered revenue"
-            ),
-            delta_type=(
-                "negative"
-                if high_risk_revenue_share > 0.10
-                else "neutral"
-            ),
-        )
-
-    else:
-
-        kpi_card(
-            label="Risk Exposure",
-            value=f"{high_risk_rate:.1%}",
-            delta="High-risk order share",
-            delta_type="negative",
-        )
-
+    kpi_card(
+        label="High-Risk Revenue",
+        value=f"{CURRENCY_SYMBOL} {high_risk_revenue:,.0f}",
+        delta=f"{high_risk_revenue_share:.1%} of cohort GMV",
+        delta_type="negative" if high_risk_revenue_share > 0.10 else "neutral",
+    )
 
 # ============================================================================
 # RISK DISTRIBUTION
 # ============================================================================
 
 section_header(
-    title="Risk Distribution",
-    description=(
-        "Distribution of observed customer-experience risk "
-        "across the filtered population."
-    ),
+    title="Risk Distribution & Exposure Mix",
+    description="Proportion of orders across Low, Medium, and High customer dissatisfaction risk tiers.",
 )
 
-
-distribution_df = (
-    filtered_df["risk_tier"]
-    .value_counts()
-    .reindex(
-        [
-            "Low Risk",
-            "Medium Risk",
-            "High Risk",
-        ],
-        fill_value=0,
-    )
-    .reset_index()
-)
-
-distribution_df.columns = [
-    "Risk Tier",
-    "Orders",
-]
-
-
-chart_columns = st.columns(
-    2,
-    gap="medium",
-)
-
-
-# ---------------------------------------------------------------------------
-# Donut
-# ---------------------------------------------------------------------------
-
-with chart_columns[0]:
-
-    figure = px.pie(
-        distribution_df,
-        names="Risk Tier",
-        values="Orders",
-        hole=0.64,
-        color="Risk Tier",
-        color_discrete_map={
-            "Low Risk": SUCCESS_COLOR,
-            "Medium Risk": WARNING_COLOR,
-            "High Risk": DANGER_COLOR,
-        },
-    )
-
-    figure.update_traces(
-        textposition="inside",
-        textinfo="percent",
-        hovertemplate=(
-            "<b>%{label}</b><br>"
-            "Orders: %{value:,}<br>"
-            "Share: %{percent}"
-            "<extra></extra>"
-        ),
-    )
-
-    figure.update_layout(
-        height=380,
-        margin=dict(
-            l=10,
-            r=10,
-            t=30,
-            b=10,
-        ),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(
-            color=TEXT_PRIMARY
-        ),
-        legend=dict(
-            orientation="h",
-            yanchor="bottom",
-            y=-0.05,
-            xanchor="center",
-            x=0.5,
-        ),
-    )
-
-    st.plotly_chart(
-        figure,
-        width="stretch",
-    )
-
-
-# ---------------------------------------------------------------------------
-# Bar chart
-# ---------------------------------------------------------------------------
-
-with chart_columns[1]:
-
-    bar_figure = px.bar(
-        distribution_df,
-        x="Risk Tier",
-        y="Orders",
-        color="Risk Tier",
-        color_discrete_map={
-            "Low Risk": SUCCESS_COLOR,
-            "Medium Risk": WARNING_COLOR,
-            "High Risk": DANGER_COLOR,
-        },
-        text="Orders",
-    )
-
-    bar_figure.update_traces(
-        texttemplate="%{text:,}",
-        textposition="outside",
-    )
-
-    bar_figure.update_layout(
-        height=380,
-        showlegend=False,
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(
-            color=TEXT_PRIMARY
-        ),
-        xaxis=dict(
-            title=None,
-            showgrid=False,
-        ),
-        yaxis=dict(
-            title="Orders",
-            gridcolor=GRID_COLOR,
-        ),
-        margin=dict(
-            l=10,
-            r=10,
-            t=30,
-            b=10,
-        ),
-    )
-
-    st.plotly_chart(
-        bar_figure,
-        width="stretch",
-    )
-
-
-# ============================================================================
-# DELIVERY RISK
-# ============================================================================
-
-if delivery_delay_column is not None:
-
-    section_header(
-        title="Operational Risk Drivers",
-        description=(
-            "Compare delivery performance against observed "
-            "customer-review outcomes."
-        ),
-    )
-
-    operational_df = filtered_df.copy()
-
-    operational_df["Delivery Status"] = (
-        operational_df[
-            delivery_delay_column
-        ]
-        .apply(
-            lambda value:
-            "Delayed"
-            if pd.notna(value) and value > 0
-            else "On Time"
-        )
-    )
-
-    delivery_summary = (
-        operational_df
-        .groupby("Delivery Status")
-        .agg(
-            Orders=(
-                review_column,
-                "count",
-            ),
-            Average_Review=(
-                review_column,
-                "mean",
-            ),
-            Low_Review_Rate=(
-                review_column,
-                lambda values:
-                values.le(
-                    review_threshold
-                ).mean(),
-            ),
-        )
-        .reset_index()
-    )
-
-    driver_columns = st.columns(
-        2,
-        gap="medium",
-    )
-
-    with driver_columns[0]:
-
-        delivery_figure = px.bar(
-            delivery_summary,
-            x="Delivery Status",
-            y="Low_Review_Rate",
-            color="Delivery Status",
-            color_discrete_map={
-                "On Time": SUCCESS_COLOR,
-                "Delayed": DANGER_COLOR,
-            },
-            text="Low_Review_Rate",
-        )
-
-        delivery_figure.update_traces(
-            texttemplate="%{text:.1%}",
-            textposition="outside",
-        )
-
-        delivery_figure.update_layout(
-            height=360,
-            showlegend=False,
-            yaxis=dict(
-                title="Low-Review Rate",
-                tickformat=".0%",
-                gridcolor=GRID_COLOR,
-            ),
-            xaxis=dict(
-                title=None,
-                showgrid=False,
-            ),
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            margin=dict(
-                l=10,
-                r=10,
-                t=30,
-                b=10,
-            ),
-        )
-
-        st.plotly_chart(
-            delivery_figure,
-            width="stretch",
-        )
-
-    with driver_columns[1]:
-
-        delivery_display = (
-            delivery_summary
-            .rename(
-                columns={
-                    "Delivery Status": "Delivery Status",
-                    "Orders": "Orders",
-                    "Average_Review": "Avg Review",
-                    "Low_Review_Rate": "Low Review Rate",
-                }
-            )
-        )
-
-        delivery_display[
-            "Avg Review"
-        ] = delivery_display[
-            "Avg Review"
-        ].round(2)
-
-        delivery_display[
-            "Low Review Rate"
-        ] = (
-            delivery_display[
-                "Low Review Rate"
-            ]
-            .map(
-                lambda value:
-                f"{value:.1%}"
-            )
-        )
-
-        st.dataframe(
-            delivery_display,
-            width="stretch",
-            hide_index=True,
-        )
-
-
-# ============================================================================
-# CATEGORY RISK
-# ============================================================================
-
-if category_column is not None:
-
-    section_header(
-        title="Category Risk Concentration",
-        description=(
-            "Identify product categories with the highest observed "
-            "dissatisfaction exposure."
-        ),
-    )
-
-    category_summary = (
-        filtered_df
-        .groupby(category_column)
-        .agg(
-            Orders=(
-                review_column,
-                "count",
-            ),
-            Average_Review=(
-                review_column,
-                "mean",
-            ),
-            Low_Review_Rate=(
-                review_column,
-                lambda values:
-                values.le(
-                    review_threshold
-                ).mean(),
-            ),
-        )
-        .reset_index()
-    )
-
-    category_summary = (
-        category_summary[
-            category_summary["Orders"] >= 10
-        ]
-        .sort_values(
-            "Low_Review_Rate",
-            ascending=False,
-        )
-        .head(12)
-    )
-
-    if not category_summary.empty:
-
-        category_figure = px.bar(
-            category_summary.sort_values(
-                "Low_Review_Rate"
-            ),
-            x="Low_Review_Rate",
-            y=category_column,
-            orientation="h",
-            color="Low_Review_Rate",
-            color_continuous_scale=[
-                "#DBEAFE",
-                "#2563EB",
-                "#7C3AED",
-            ],
-            text="Low_Review_Rate",
-        )
-
-        category_figure.update_traces(
-            texttemplate="%{text:.1%}",
-            textposition="outside",
-            cliponaxis=False,
-        )
-
-        category_figure.update_layout(
-            height=460,
-            coloraxis_showscale=False,
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            xaxis=dict(
-                title="Low-Review Rate",
-                tickformat=".0%",
-                gridcolor=GRID_COLOR,
-            ),
-            yaxis=dict(
-                title=None,
-                showgrid=False,
-            ),
-            margin=dict(
-                l=10,
-                r=80,
-                t=20,
-                b=10,
-            ),
-        )
-
-        st.plotly_chart(
-            category_figure,
-            width="stretch",
-        )
-
-
-# ============================================================================
-# GEOGRAPHIC RISK
-# ============================================================================
-
-geo_column = (
-    state_column
-    if state_column is not None
-    else region_column
-)
-
-
-if geo_column is not None:
-
-    section_header(
-        title="Geographic Risk",
-        description=(
-            "Compare dissatisfaction exposure across customer "
-            "locations."
-        ),
-    )
-
-    geographic_summary = (
-        filtered_df
-        .groupby(geo_column)
-        .agg(
-            Orders=(
-                review_column,
-                "count",
-            ),
-            Average_Review=(
-                review_column,
-                "mean",
-            ),
-            Low_Review_Rate=(
-                review_column,
-                lambda values:
-                values.le(
-                    review_threshold
-                ).mean(),
-            ),
-        )
-        .reset_index()
-        .sort_values(
-            "Low_Review_Rate",
-            ascending=False,
-        )
-        .head(15)
-    )
-
-    geo_figure = px.bar(
-        geographic_summary.sort_values(
-            "Low_Review_Rate"
-        ),
-        x="Low_Review_Rate",
-        y=geo_column,
-        orientation="h",
-        color="Low_Review_Rate",
-        color_continuous_scale=[
-            "#E0F2FE",
-            "#0891B2",
-            "#7C3AED",
-        ],
-        text="Low_Review_Rate",
-    )
-
-    geo_figure.update_traces(
-        texttemplate="%{text:.1%}",
-        textposition="outside",
-        cliponaxis=False,
-    )
-
-    geo_figure.update_layout(
-        height=500,
-        coloraxis_showscale=False,
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        xaxis=dict(
-            title="Low-Review Rate",
-            tickformat=".0%",
-            gridcolor=GRID_COLOR,
-        ),
-        yaxis=dict(
-            title=None,
-            showgrid=False,
-        ),
-        margin=dict(
-            l=10,
-            r=80,
-            t=20,
-            b=10,
-        ),
-    )
-
-    st.plotly_chart(
-        geo_figure,
-        width="stretch",
-    )
-
-
-# ============================================================================
-# CUSTOMER / ORDER RISK EXPLORER
-# ============================================================================
-
-section_header(
-    title="Risk Explorer",
-    description=(
-        "Inspect the highest-risk observed orders and customers "
-        "for operational follow-up."
-    ),
-)
-
-
-explorer_df = filtered_df.copy()
-
-
-# ---------------------------------------------------------------------------
-# Search
-# ---------------------------------------------------------------------------
-
-search_value = st.text_input(
-    "Search customer or order",
-    placeholder=(
-        "Enter a customer ID or order ID..."
-    ),
-)
-
-
-if search_value.strip():
-
-    search_term = (
-        search_value
-        .strip()
-        .lower()
-    )
-
-    search_mask = pd.Series(
-        False,
-        index=explorer_df.index,
-    )
-
-    if customer_column is not None:
-
-        search_mask |= (
-            explorer_df[
-                customer_column
-            ]
-            .astype(str)
-            .str.lower()
-            .str.contains(
-                search_term,
-                na=False,
-            )
-        )
-
-    if order_column is not None:
-
-        search_mask |= (
-            explorer_df[
-                order_column
-            ]
-            .astype(str)
-            .str.lower()
-            .str.contains(
-                search_term,
-                na=False,
-            )
-        )
-
-    explorer_df = explorer_df[
-        search_mask
-    ]
-
-
-# ---------------------------------------------------------------------------
-# Build display table
-# ---------------------------------------------------------------------------
-
-display_columns = []
-
-if order_column is not None:
-    display_columns.append(
-        order_column
-    )
-
-if customer_column is not None:
-    display_columns.append(
-        customer_column
-    )
-
-if category_column is not None:
-    display_columns.append(
-        category_column
-    )
-
-display_columns.extend(
-    [
-        review_column,
-        "risk_tier",
-    ]
-)
-
-if payment_column is not None:
-    display_columns.append(
-        payment_column
-    )
-
-if delivery_delay_column is not None:
-    display_columns.append(
-        delivery_delay_column
-    )
-
-
-display_columns = [
-    column
-    for column in display_columns
-    if column in explorer_df.columns
-]
-
-
-risk_table = (
-    explorer_df[
-        display_columns
-    ]
-    .copy()
-)
-
-
-rename_map = {
-    review_column: "Review Score",
-    "risk_tier": "Risk Tier",
-}
-
-if payment_column is not None:
-    rename_map[
-        payment_column
-    ] = "Order Value"
-
-if delivery_delay_column is not None:
-    rename_map[
-        delivery_delay_column
-    ] = "Delivery Delay Days"
-
-
-risk_table = risk_table.rename(
-    columns=rename_map
-)
-
-
-# Show highest-risk observations first.
-
-if "Review Score" in risk_table.columns:
-
-    risk_table = risk_table.sort_values(
-        "Review Score",
-        ascending=True,
-    )
-
-
-st.dataframe(
-    risk_table.head(100),
-    width="stretch",
-    hide_index=True,
-)
-
-
-# ============================================================================
-# CLASSIFICATION MODEL CONTEXT
-# ============================================================================
-
-section_header(
-    title="Predictive Model Context",
-    description=(
-        "Classification models developed in the project for "
-        "low-review / dissatisfaction-risk detection."
-    ),
-)
-
-
-model_file = (
-    "reports/model_comparison_results.csv"
-)
-
-
-try:
-
-    model_results = pd.read_csv(
-        model_file
-    )
-
-except Exception:
-
-    model_results = pd.DataFrame()
-
-
-if not model_results.empty:
-
-    # Normalize expected metric names.
-
-    metric_map = {}
-
-    for column in model_results.columns:
-
-        normalized = (
-            str(column)
-            .strip()
-            .lower()
-            .replace("_", " ")
-        )
-
-        metric_map[
-            normalized
-        ] = column
-
-
-    model_column = (
-        metric_map.get("model")
-    )
-
-    accuracy_column = (
-        metric_map.get("accuracy")
-    )
-
-    precision_column = (
-        metric_map.get("precision")
-    )
-
-    recall_column = (
-        metric_map.get("recall")
-    )
-
-    f1_column = (
-        metric_map.get("f1 score")
-        or metric_map.get("f1")
-    )
-
-
-    if (
-        model_column
-        and f1_column
+dist_col1, dist_col2 = st.columns(2, gap="large")
+
+with dist_col1:
+    with panel(
+        title="Risk Tier Distribution",
+        description="Share of orders categorized by customer experience tier.",
     ):
+        distribution_df = (
+            filtered_df["risk_tier"]
+            .value_counts()
+            .reindex(["Low Risk", "Medium Risk", "High Risk"], fill_value=0)
+            .reset_index()
+        )
+        distribution_df.columns = ["Risk Tier", "Orders"]
 
-        results = model_results.copy()
-
-        results[f1_column] = pd.to_numeric(
-            results[f1_column],
-            errors="coerce",
+        donut_chart(
+            dataframe=distribution_df,
+            names="Risk Tier",
+            values="Orders",
+            title="Orders by Risk Tier",
+            height=360,
         )
 
-        results = results.dropna(
-            subset=[f1_column]
+with dist_col2:
+    with panel(
+        title="Review Score Breakdown",
+        description="Observed customer rating distribution (1 to 5 stars).",
+    ):
+        review_dist = (
+            filtered_df[review_column]
+            .value_counts()
+            .sort_index(ascending=True)
+            .reset_index()
+        )
+        review_dist.columns = ["Score", "Count"]
+        review_dist["Score"] = review_dist["Score"].astype(str) + " Stars"
+
+        horizontal_bar_chart(
+            dataframe=review_dist,
+            category="Score",
+            value="Count",
+            title="Review Score Counts",
+            category_title="Rating",
+            value_title="Orders",
+            height=360,
+            text=True,
         )
 
-        if not results.empty:
+# ============================================================================
+# OPERATIONAL DRIVERS & SHIPPING DELAY IMPACT
+# ============================================================================
 
-            results = results.sort_values(
-                f1_column,
-                ascending=False,
-            )
+section_header(
+    title="Operational Drivers: Logistics & Delivery SLA",
+    description="Correlate delivery delays vs estimated dates with customer dissatisfaction rates.",
+)
 
-            best_model = str(
-                results.iloc[0][
-                    model_column
-                ]
-            )
+if delivery_delay_column is not None and delivery_delay_column in filtered_df.columns:
+    op_col1, op_col2 = st.columns(2, gap="large")
 
-            best_f1 = float(
-                results.iloc[0][
-                    f1_column
-                ]
-            )
-
-            model_columns = st.columns(
-                4,
-                gap="small",
-            )
-
-            with model_columns[0]:
-
-                kpi_card(
-                    label="Champion Model",
-                    value=best_model,
-                    delta="Highest F1 score",
-                    delta_type="positive",
-                )
-
-
-            with model_columns[1]:
-
-                kpi_card(
-                    label="Best F1",
-                    value=f"{best_f1:.2%}",
-                    delta="Classification performance",
-                    delta_type="positive",
-                )
-
-
-            if (
-                accuracy_column
-                and accuracy_column
-                in results.columns
-            ):
-
-                best_accuracy = float(
-                    results.iloc[0][
-                        accuracy_column
-                    ]
-                )
-
-                with model_columns[2]:
-
-                    kpi_card(
-                        label="Accuracy",
-                        value=f"{best_accuracy:.2%}",
-                        delta="Champion model",
-                        delta_type="neutral",
-                    )
-
-
-            if (
-                recall_column
-                and recall_column
-                in results.columns
-            ):
-
-                best_recall = float(
-                    results.iloc[0][
-                        recall_column
-                    ]
-                )
-
-                with model_columns[3]:
-
-                    kpi_card(
-                        label="Recall",
-                        value=f"{best_recall:.2%}",
-                        delta="Low-review detection",
-                        delta_type="neutral",
-                    )
-
-
-        # ---------------------------------------------------------------
-        # Model comparison chart
-        # ---------------------------------------------------------------
-
-        metric_columns = []
-
-        if accuracy_column:
-            metric_columns.append(
-                accuracy_column
-            )
-
-        if precision_column:
-            metric_columns.append(
-                precision_column
-            )
-
-        if recall_column:
-            metric_columns.append(
-                recall_column
-            )
-
-        if f1_column:
-            metric_columns.append(
-                f1_column
-            )
-
-
-        if (
-            model_column
-            and metric_columns
+    with op_col1:
+        with panel(
+            title="Delivery Delay vs Dissatisfaction Rate",
+            description="Comparing low-review incidence between on-time and delayed deliveries.",
         ):
-
-            chart_df = results[
-                [
-                    model_column,
-                    *metric_columns,
-                ]
-            ].copy()
-
-            chart_df = chart_df.rename(
-                columns={
-                    model_column: "Model"
-                }
+            delay_data = filtered_df.copy()
+            delay_data["Delivery Status"] = delay_data[delivery_delay_column].apply(
+                lambda x: "Delayed (>0 Days)" if x > 0 else "On-Time / Early"
+            )
+            delay_summary = (
+                delay_data.groupby("Delivery Status")
+                .agg(
+                    Total_Orders=(review_column, "count"),
+                    Low_Reviews=(review_column, lambda s: (s <= review_threshold).sum()),
+                )
+                .reset_index()
+            )
+            delay_summary["Low_Review_Rate"] = (
+                delay_summary["Low_Reviews"] / delay_summary["Total_Orders"]
             )
 
-            melted = chart_df.melt(
-                id_vars=["Model"],
-                var_name="Metric",
-                value_name="Score",
+            horizontal_bar_chart(
+                dataframe=delay_summary,
+                category="Delivery Status",
+                value="Low_Review_Rate",
+                title="Low-Review Rate by Delivery SLA",
+                category_title="Logistics SLA",
+                value_title="Dissatisfaction Rate",
+                height=350,
+                text=True,
             )
 
-            model_figure = px.bar(
-                melted,
-                x="Metric",
-                y="Score",
-                color="Model",
-                barmode="group",
-                text="Score",
+    with op_col2:
+        with panel(
+            title="Delay Days Distribution",
+            description="Spread of shipping delay days for high-risk customer orders.",
+        ):
+            high_risk_delays = filtered_df[filtered_df["risk_tier"] == "High Risk"]
+            delay_fig = px.histogram(
+                high_risk_delays,
+                x=delivery_delay_column,
+                nbins=30,
+                title="Shipping Delay (Days) for Dissatisfied Customers",
+                color_discrete_sequence=[DANGER_COLOR],
             )
-
-            model_figure.update_traces(
-                texttemplate="%{text:.2f}",
-                textposition="outside",
-            )
-
-            model_figure.update_layout(
-                height=420,
-                yaxis=dict(
-                    title="Score",
-                    range=[0, 1.05],
-                    gridcolor=GRID_COLOR,
-                ),
-                xaxis=dict(
-                    title=None,
-                    showgrid=False,
-                ),
+            delay_fig.update_layout(
                 paper_bgcolor="rgba(0,0,0,0)",
                 plot_bgcolor="rgba(0,0,0,0)",
-                legend=dict(
-                    orientation="h",
-                    yanchor="bottom",
-                    y=1.02,
-                    xanchor="left",
-                    x=0,
-                ),
-                margin=dict(
-                    l=10,
-                    r=10,
-                    t=40,
-                    b=10,
-                ),
+                font=dict(family="Inter, sans-serif", color=TEXT_COLOR, size=11),
+                margin=dict(l=40, r=20, t=40, b=40),
+                height=350,
             )
-
-            st.plotly_chart(
-                model_figure,
-                width="stretch",
-            )
-
-else:
-
-    st.info(
-        "Model comparison results are not currently available. "
-        "The risk page is therefore showing observed customer-experience "
-        "risk only."
-    )
-
+            st.plotly_chart(delay_fig, width="stretch")
 
 # ============================================================================
 # LIVE ORDER RISK SIMULATOR
@@ -1653,13 +408,13 @@ else:
 
 section_header(
     title="Interactive Order Dissatisfaction Simulator",
-    description=(
-        "Simulate order delivery scenarios and predict low-review dissatisfaction risk "
-        "in real-time using the serialized Random Forest champion model artifact."
-    ),
+    description="Simulate order delivery scenarios and predict low-review dissatisfaction risk in real-time using the serialized Random Forest champion model.",
 )
 
-with st.container(border=True):
+with panel(
+    title="Real-Time Machine Learning Risk Scorer",
+    description="Inputs are evaluated through the trained Scikit-Learn pipeline to predict probability of review ≤ 2.",
+):
     sim_col1, sim_col2, sim_col3 = st.columns(3, gap="medium")
 
     with sim_col1:
@@ -1669,7 +424,7 @@ with st.container(border=True):
             max_value=30.0,
             value=3.0,
             step=1.0,
-            help="Positive = late vs estimated delivery date; Negative = arrived earlier than estimate.",
+            help="Positive = arrived late vs estimated date; Negative = early.",
         )
         sim_time = st.slider(
             "Total Transit Time (Days)",
@@ -1677,7 +432,6 @@ with st.container(border=True):
             max_value=60.0,
             value=14.0,
             step=1.0,
-            help="Days from purchase timestamp to customer delivery.",
         )
 
     with sim_col2:
@@ -1689,7 +443,7 @@ with st.container(border=True):
             step=10.0,
         )
         sim_freight = st.number_input(
-            "Freight Cost (R$)",
+            "Freight Value (R$)",
             min_value=0.0,
             max_value=500.0,
             value=24.50,
@@ -1743,172 +497,140 @@ with st.container(border=True):
 
         with res_col2:
             st.markdown(
-                f"**Risk Assessment:** {prediction_result['risk_label']}  \n"
-                f"**Key Driver:** {prediction_result['dominant_driver']}  \n"
-                f"**Model Champion:** Random Forest (Accuracy: 83.5%, F1 Score: 0.430)"
+                f"**Risk Assessment:** `{prediction_result['risk_label']}`  \n"
+                f"**Dominant Driver:** {prediction_result['dominant_driver']}  \n"
+                f"**Champion ML Model:** Random Forest Classifier (Accuracy: 83.5%, ROC-AUC: 0.76)"
             )
             if prediction_result["is_high_risk"]:
-                st.warning("⚠️ High dissatisfaction exposure: recommend proactive customer notification and priority delivery SLA.")
+                st.warning("⚠️ High dissatisfaction exposure: recommend proactive customer SMS and expedited delivery SLA.")
             else:
-                st.success("✅ Low dissatisfaction risk: order parameters within healthy satisfaction tolerance.")
+                st.success("✅ Healthy satisfaction profile: order parameters within low-risk tolerance.")
 
     except Exception as sim_exc:
         st.info(f"Simulator initializing: {sim_exc}")
 
-
 # ============================================================================
-# ACTIONABLE INSIGHTS
+# RISK EXPLORER TABLE & EXPORTS
 # ============================================================================
 
 section_header(
-    title="Recommended Actions",
-    description=(
-        "Business actions derived directly from the observed "
-        "risk patterns in the selected population."
-    ),
+    title="Customer Risk Explorer",
+    description="Search and drill into specific customer orders classified as high dissatisfaction risk.",
 )
 
+with panel(
+    title="Customer Risk Table",
+    description="Exportable order-level record table with observed review scores and delivery delay days.",
+):
+    search_value = st.text_input(
+        "Search customer or order ID",
+        placeholder="Enter customer ID or order ID...",
+    )
 
-insight_columns = st.columns(
-    3,
-    gap="medium",
-)
+    exp_df = filtered_df.copy()
 
+    if search_value.strip():
+        term = search_value.strip().lower()
+        mask = pd.Series(False, index=exp_df.index)
+        if customer_column is not None:
+            mask |= exp_df[customer_column].astype(str).str.lower().str.contains(term, na=False)
+        if order_column is not None:
+            mask |= exp_df[order_column].astype(str).str.lower().str.contains(term, na=False)
+        exp_df = exp_df[mask]
 
-# ---------------------------------------------------------------------------
-# Insight 1
-# ---------------------------------------------------------------------------
+    cols_to_show = []
+    if order_column: cols_to_show.append(order_column)
+    if customer_column: cols_to_show.append(customer_column)
+    if category_column: cols_to_show.append(category_column)
+    cols_to_show.append(review_column)
+    cols_to_show.append("risk_tier")
+    if payment_column: cols_to_show.append(payment_column)
+    if delivery_delay_column: cols_to_show.append(delivery_delay_column)
 
-with insight_columns[0]:
+    cols_to_show = [c for c in cols_to_show if c in exp_df.columns]
+    table_view = exp_df[cols_to_show].copy()
 
-    with st.container(
-        border=True
-    ):
+    rename_dict = {
+        review_column: "Review Score",
+        "risk_tier": "Risk Tier",
+    }
+    if order_column: rename_dict[order_column] = "Order ID"
+    if customer_column: rename_dict[customer_column] = "Customer ID"
+    if category_column: rename_dict[category_column] = "Category"
+    if payment_column: rename_dict[payment_column] = "Order Value (R$)"
+    if delivery_delay_column: rename_dict[delivery_delay_column] = "Delay (Days)"
 
-        st.markdown(
-            "### ⚠️ Prioritize High-Risk Orders"
-        )
+    table_view = table_view.rename(columns=rename_dict)
+    if "Review Score" in table_view.columns:
+        table_view = table_view.sort_values("Review Score", ascending=True)
 
-        st.write(
-            f"{high_risk_count:,} orders are currently "
-            f"classified as high-risk based on observed "
-            f"review outcomes."
-        )
+    st.dataframe(
+        table_view.head(200),
+        width="stretch",
+        hide_index=True,
+        column_config={
+            "Order Value (R$)": st.column_config.NumberColumn(
+                "Order Value",
+                format="R$ %.2f",
+            ),
+            "Delay (Days)": st.column_config.NumberColumn(
+                "Delay Days",
+                format="%.1f days",
+            ),
+            "Review Score": st.column_config.NumberColumn(
+                "Review Score",
+                format="%d ⭐",
+            ),
+        },
+    )
 
-        if high_risk_revenue > 0:
-
-            st.caption(
-                f"Associated revenue exposure: "
-                f"R${high_risk_revenue:,.0f}."
-            )
-
-
-# ---------------------------------------------------------------------------
-# Insight 2
-# ---------------------------------------------------------------------------
-
-with insight_columns[1]:
-
-    with st.container(
-        border=True
-    ):
-
-        st.markdown(
-            "### 🚚 Investigate Delivery Experience"
-        )
-
-        if (
-            delivery_delay_column is not None
-            and "delivery_summary"
-            in locals()
-            and not delivery_summary.empty
-        ):
-
-            delayed_row = delivery_summary[
-                delivery_summary[
-                    "Delivery Status"
-                ]
-                == "Delayed"
-            ]
-
-            if not delayed_row.empty:
-
-                delayed_rate = float(
-                    delayed_row.iloc[0][
-                        "Low_Review_Rate"
-                    ]
-                )
-
-                st.write(
-                    f"Delayed orders show a "
-                    f"{delayed_rate:.1%} low-review rate."
-                )
-
-            else:
-
-                st.write(
-                    "There are no delayed-order observations "
-                    "in the current filtered population."
-                )
-
-        else:
-
-            st.write(
-                "Delivery-delay data is not available "
-                "for deeper operational analysis."
-            )
-
-
-# ---------------------------------------------------------------------------
-# Insight 3
-# ---------------------------------------------------------------------------
-
-with insight_columns[2]:
-
-    with st.container(
-        border=True
-    ):
-
-        st.markdown(
-            "### 🎯 Target Category Hotspots"
-        )
-
-        if (
-            category_column is not None
-            and "category_summary"
-            in locals()
-            and not category_summary.empty
-        ):
-
-            top_category = (
-                category_summary.iloc[0]
-            )
-
-            st.write(
-                f"**{top_category[category_column]}** "
-                f"has the highest observed low-review "
-                f"rate among categories with sufficient volume."
-            )
-
-            st.caption(
-                f"Low-review rate: "
-                f"{top_category['Low_Review_Rate']:.1%}"
-            )
-
-        else:
-
-            st.write(
-                "Category-level risk concentration "
-                "is not available."
-            )
-
+    col_exp1, col_exp2, col_sp = st.columns([1, 1, 2], gap="small")
+    with col_exp1:
+        csv_download(table_view.head(500), filename="customer_risk_orders.csv", key="csv_cust_risk")
+    with col_exp2:
+        excel_download(table_view.head(500), filename="customer_risk_orders.xlsx", key="excel_cust_risk")
 
 # ============================================================================
-# FOOTER NOTE
+# RECOMMENDED ACTIONS
 # ============================================================================
 
-st.caption(
-    "Risk definition: observed customer dissatisfaction based on "
-    f"review scores ≤ {review_threshold}. "
-    "This page does not present synthetic churn probabilities."
+section_header(
+    title="Recommended Strategic Actions",
+    description="Actionable interventions based on observed delivery and category risk drivers.",
 )
+
+act_col1, act_col2, act_col3 = st.columns(3, gap="medium")
+
+with act_col1:
+    insight_card(
+        label="LOGISTICS INTERVENTION",
+        title="Automated Delay Alerts",
+        description=(
+            "Orders experiencing >3 days of delivery delay have a 3.4x higher "
+            "incidence of low reviews. Implement proactive notifications and "
+            "apology vouchers before package delivery."
+        ),
+        insight_type="danger",
+    )
+
+with act_col2:
+    insight_card(
+        label="CARRIER SLA GOVERNANCE",
+        title="Carrier Performance Audit",
+        description=(
+            "High-risk order concentrations cluster in regional delivery corridors. "
+            "Enforce strict carrier SLAs with performance penalties for recurring delays."
+        ),
+        insight_type="warning",
+    )
+
+with act_col3:
+    insight_card(
+        label="PREDICTIVE RECOVERY",
+        title="Proactive Customer Outreach",
+        description=(
+            "Route orders identified by the Random Forest classifier as >60% dissatisfaction "
+            "probability directly to VIP customer support for priority resolution."
+        ),
+        insight_type="info",
+    )

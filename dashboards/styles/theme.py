@@ -34,54 +34,54 @@ import streamlit as st
 # ============================================================================
 
 COLORS = {
-    # Application
-    "background": "#F4F7FB",
-    "background_top": "#F8FAFC",
+    # Application (Light Grey / Soft Canvas)
+    "background": "#F8FAFC",
+    "background_top": "#F0F9FF",
     "surface": "#FFFFFF",
     "surface_alt": "#F8FAFC",
     "surface_soft": "#F1F5F9",
 
-    # Sidebar
-    "sidebar": "#0B1220",
-    "sidebar_surface": "#111827",
-    "sidebar_hover": "#172033",
-    "sidebar_active": "#172B4D",
+    # Sidebar (Light Sky Blue Canvas)
+    "sidebar": "#F0F9FF",
+    "sidebar_surface": "#E0F2FE",
+    "sidebar_hover": "#BAE6FD",
+    "sidebar_active": "#0EA5E9",
 
-    # Primary
-    "primary": "#2563EB",
-    "primary_dark": "#1D4ED8",
-    "primary_light": "#DBEAFE",
-    "primary_soft": "#EFF6FF",
+    # Primary (Sky Blue)
+    "primary": "#0EA5E9",
+    "primary_dark": "#0284C7",
+    "primary_light": "#E0F2FE",
+    "primary_soft": "#F0F9FF",
 
-    # Secondary
-    "secondary": "#7C3AED",
-    "secondary_dark": "#6D28D9",
-    "secondary_light": "#EDE9FE",
-    "secondary_soft": "#F5F3FF",
+    # Secondary (Light Purple / Lavender)
+    "secondary": "#A855F7",
+    "secondary_dark": "#7E22CE",
+    "secondary_light": "#F3E8FF",
+    "secondary_soft": "#FAF5FF",
 
     # Success
-    "success": "#059669",
-    "success_dark": "#047857",
+    "success": "#10B981",
+    "success_dark": "#059669",
     "success_light": "#D1FAE5",
     "success_soft": "#ECFDF5",
 
     # Warning
-    "warning": "#D97706",
-    "warning_dark": "#B45309",
+    "warning": "#F59E0B",
+    "warning_dark": "#D97706",
     "warning_light": "#FEF3C7",
     "warning_soft": "#FFFBEB",
 
     # Danger
-    "danger": "#DC2626",
-    "danger_dark": "#B91C1C",
+    "danger": "#EF4444",
+    "danger_dark": "#DC2626",
     "danger_light": "#FEE2E2",
     "danger_soft": "#FEF2F2",
 
-    # Information
-    "info": "#0891B2",
-    "info_dark": "#0E7490",
-    "info_light": "#CFFAFE",
-    "info_soft": "#ECFEFF",
+    # Information (Sky)
+    "info": "#38BDF8",
+    "info_dark": "#0284C7",
+    "info_light": "#E0F2FE",
+    "info_soft": "#F0F9FF",
 
     # Text
     "text": "#0F172A",
@@ -90,22 +90,22 @@ COLORS = {
     "text_light": "#94A3B8",
     "text_inverse": "#FFFFFF",
 
-    # Borders
+    # Borders (Light Grey)
     "border": "#E2E8F0",
-    "border_light": "#EEF2F7",
+    "border_light": "#F1F5F9",
     "border_strong": "#CBD5E1",
 
-    # Charts
-    "chart_blue": "#2563EB",
-    "chart_purple": "#7C3AED",
-    "chart_green": "#059669",
-    "chart_amber": "#D97706",
-    "chart_red": "#DC2626",
-    "chart_cyan": "#0891B2",
-    "chart_pink": "#DB2777",
-    "chart_indigo": "#4F46E5",
-    "chart_teal": "#0F766E",
-    "chart_violet": "#9333EA",
+    # Charts (Sky Blue, Light Purple, Mint, Amber, Rose)
+    "chart_blue": "#0EA5E9",
+    "chart_purple": "#A855F7",
+    "chart_green": "#10B981",
+    "chart_amber": "#F59E0B",
+    "chart_red": "#EF4444",
+    "chart_cyan": "#38BDF8",
+    "chart_pink": "#EC4899",
+    "chart_indigo": "#6366F1",
+    "chart_teal": "#14B8A6",
+    "chart_violet": "#C084FC",
 
     # Miscellaneous
     "white": "#FFFFFF",
@@ -302,53 +302,73 @@ def inject_global_styles() -> None:
 
 
         /* ==================================================================
-           SIDEBAR
+           SIDEBAR (FUTURISTIC LIGHT SKY BLUE & HIGH-CONTRAST TEXT)
            ================================================================== */
 
-        [data-testid="stSidebar"] {{
+        section[data-testid="stSidebar"],
+        [data-testid="stSidebar"],
+        [data-testid="stSidebarContent"],
+        [data-testid="stSidebarUserContent"],
+        [data-testid="stSidebar"] > div {
             min-width:
-                265px !important;
+                275px !important;
 
             max-width:
-                265px !important;
+                275px !important;
 
             background:
                 linear-gradient(
                     180deg,
-                    {COLORS["sidebar"]} 0%,
-                    #0F172A 100%
+                    #F0F9FF 0%,
+                    #E0F2FE 35%,
+                    #F5F3FF 75%,
+                    #F8FAFC 100%
                 ) !important;
 
-            border-right:
-                1px solid rgba(255, 255, 255, 0.06);
-        }}
+            background-color:
+                #F0F9FF !important;
 
-        [data-testid="stSidebar"] > div:first-child {{
+            backdrop-filter:
+                blur(20px) !important;
+
+            -webkit-backdrop-filter:
+                blur(20px) !important;
+
+            border-right:
+                1px solid rgba(186, 230, 253, 0.9) !important;
+
+            box-shadow:
+                4px 0 24px -2px rgba(14, 165, 233, 0.08),
+                8px 0 36px -4px rgba(168, 85, 247, 0.05) !important;
+        }
+
+        [data-testid="stSidebar"] > div:first-child {
             background:
                 transparent !important;
-        }}
+        }
 
-        [data-testid="stSidebar"] * {{
+        [data-testid="stSidebar"] * {
             box-sizing:
                 border-box;
-        }}
 
-        [data-testid="stSidebar"] .stMarkdown {{
             color:
-                #CBD5E1;
-        }}
+                #0F172A;
+        }
 
-        [data-testid="stSidebar"] p {{
+        [data-testid="stSidebar"] .stMarkdown,
+        [data-testid="stSidebar"] .stMarkdown p,
+        [data-testid="stSidebar"] p,
+        [data-testid="stSidebar"] span {
             color:
-                #94A3B8;
-        }}
+                #0F172A;
+        }
 
 
         /* ==================================================================
-           CUSTOM SIDEBAR BRAND
+           CUSTOM SIDEBAR BRAND (FUTURISTIC 3D GLOW)
            ================================================================== */
 
-        .custom-sidebar-brand {{
+        .custom-sidebar-brand {
             display:
                 flex;
 
@@ -356,21 +376,41 @@ def inject_global_styles() -> None:
                 center;
 
             gap:
-                0.75rem;
+                0.85rem;
 
             padding:
-                0.35rem
-                0.2rem
-                1rem
-                0.2rem;
-        }}
+                0.75rem
+                0.85rem;
 
-        .sidebar-brand-mark {{
+            margin-bottom:
+                1.1rem;
+
+            background:
+                rgba(255, 255, 255, 0.88);
+
+            backdrop-filter:
+                blur(16px);
+
+            -webkit-backdrop-filter:
+                blur(16px);
+
+            border:
+                1px solid rgba(186, 230, 253, 0.95);
+
+            border-radius:
+                14px;
+
+            box-shadow:
+                0 4px 16px rgba(14, 165, 233, 0.08),
+                0 1px 3px rgba(15, 23, 42, 0.04);
+        }
+
+        .sidebar-brand-mark {
             width:
-                40px;
+                44px;
 
             height:
-                40px;
+                44px;
 
             flex-shrink:
                 0;
@@ -385,147 +425,170 @@ def inject_global_styles() -> None:
                 center;
 
             border-radius:
-                11px;
+                12px;
 
             background:
                 linear-gradient(
                     135deg,
-                    {COLORS["primary"]},
-                    {COLORS["secondary"]}
+                    #0EA5E9 0%,
+                    #8B5CF6 100%
                 );
+
+            border:
+                1px solid rgba(255, 255, 255, 0.6);
 
             color:
                 #FFFFFF;
 
             font-size:
-                15px;
+                19px;
 
             font-weight:
-                800;
+                900;
 
             box-shadow:
-                0 7px 18px
-                rgba(37, 99, 235, 0.24);
-        }}
+                0 4px 14px rgba(14, 165, 233, 0.40),
+                0 0 10px rgba(139, 92, 246, 0.28);
+        }
 
-        .sidebar-brand-text {{
+        .sidebar-brand-text {
             min-width:
                 0;
-        }}
+        }
 
-        .sidebar-brand-title {{
+        .sidebar-brand-title {
             color:
-                #F8FAFC;
+                #0F172A !important;
 
             font-size:
-                10px;
+                16px !important;
 
             font-weight:
-                850;
+                900 !important;
 
             letter-spacing:
-                0.08em;
+                0.05em;
 
             line-height:
-                1.3;
-        }}
+                1.15;
+        }
 
-        .sidebar-brand-subtitle {{
+        .sidebar-brand-subtitle {
             margin-top:
                 3px;
 
             color:
-                #64748B;
+                #0284C7 !important;
 
             font-size:
-                7.5px;
+                10px !important;
 
             font-weight:
-                600;
+                800 !important;
 
             letter-spacing:
-                0.055em;
+                0.07em;
 
             line-height:
-                1.35;
-        }}
+                1.3;
+        }
 
 
         /* ==================================================================
            SIDEBAR DIVIDER
            ================================================================== */
 
-        .sidebar-divider {{
+        .sidebar-divider {
             height:
                 1px;
 
             margin:
-                0.35rem
+                0.4rem
                 0.2rem
-                1rem;
+                0.9rem;
 
             background:
                 linear-gradient(
                     90deg,
-                    rgba(255, 255, 255, 0.10),
-                    rgba(255, 255, 255, 0.02)
+                    rgba(14, 165, 233, 0.35),
+                    rgba(168, 85, 247, 0.15),
+                    transparent
                 );
-        }}
+        }
 
 
         /* ==================================================================
            SIDEBAR SECTION LABELS
            ================================================================== */
 
-        .sidebar-section-label {{
+        .sidebar-section-label {
             margin:
-                1.05rem
+                1.15rem
                 0.2rem
                 0.35rem;
 
             color:
-                #64748B;
+                #0369A1 !important;
 
             font-size:
-                7.5px;
+                8.5px !important;
 
             font-weight:
-                800;
+                850 !important;
 
             letter-spacing:
-                0.105em;
+                0.12em;
 
             line-height:
                 1.3;
 
             text-transform:
                 uppercase;
-        }}
 
-        .sidebar-section-label:first-of-type {{
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                6px;
+        }
+
+        .sidebar-section-label::before {
+            content:
+                "";
+
+            display:
+                inline-block;
+
+            width:
+                6px;
+
+            height:
+                6px;
+
+            border-radius:
+                50%;
+
+            background:
+                #38BDF8;
+
+            box-shadow:
+                0 0 6px #0EA5E9;
+        }
+
+        .sidebar-section-label:first-of-type {
             margin-top:
                 0.2rem;
-        }}
+        }
 
 
         /* ==================================================================
-           CUSTOM PAGE-LINK NAVIGATION
+           CUSTOM PAGE-LINK NAVIGATION (HIGH CONTRAST & FUTURISTIC)
            ================================================================== */
 
-        /*
-         * app.py uses:
-         *
-         *     st.navigation(..., position="hidden")
-         *
-         * and:
-         *
-         *     st.page_link(...)
-         *
-         * Therefore this section styles the custom navigation rather
-         * than Streamlit's default navigation component.
-         */
-
-        [data-testid="stSidebar"] .stPageLink {{
+        [data-testid="stSidebar"] .stPageLink {
             width:
                 100% !important;
 
@@ -534,14 +597,14 @@ def inject_global_styles() -> None:
 
             padding:
                 0 !important;
-        }}
+        }
 
-        [data-testid="stSidebar"] .stPageLink > div {{
+        [data-testid="stSidebar"] .stPageLink > div {
             width:
                 100% !important;
-        }}
+        }
 
-        [data-testid="stSidebar"] .stPageLink a {{
+        [data-testid="stSidebar"] .stPageLink a {
             display:
                 flex !important;
 
@@ -552,28 +615,40 @@ def inject_global_styles() -> None:
                 100% !important;
 
             min-height:
-                40px !important;
+                42px !important;
 
             margin:
-                0.12rem 0 !important;
+                0.22rem 0 !important;
 
             padding:
-                0.5rem 0.75rem !important;
+                0.55rem 0.85rem !important;
 
             border-radius:
-                9px !important;
+                11px !important;
 
             background:
-                transparent !important;
+                rgba(255, 255, 255, 0.72) !important;
+
+            backdrop-filter:
+                blur(12px) !important;
+
+            -webkit-backdrop-filter:
+                blur(12px) !important;
+
+            border:
+                1px solid rgba(226, 232, 240, 0.85) !important;
 
             color:
-                #94A3B8 !important;
+                #0F172A !important;
 
             font-size:
-                10.5px !important;
+                11.5px !important;
 
             font-weight:
-                600 !important;
+                750 !important;
+
+            letter-spacing:
+                -0.01em !important;
 
             line-height:
                 1.3 !important;
@@ -581,66 +656,92 @@ def inject_global_styles() -> None:
             text-decoration:
                 none !important;
 
-            transition:
-                background 0.16s ease,
-                color 0.16s ease,
-                transform 0.16s ease,
-                box-shadow 0.16s ease !important;
-        }}
+            box-shadow:
+                0 1px 3px rgba(15, 23, 42, 0.02) !important;
 
-        [data-testid="stSidebar"] .stPageLink a:hover {{
+            transition:
+                all 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+
+        [data-testid="stSidebar"] .stPageLink a span,
+        [data-testid="stSidebar"] .stPageLink a p {
+            color:
+                #0F172A !important;
+
+            font-weight:
+                750 !important;
+
+            font-size:
+                11.5px !important;
+        }
+
+        [data-testid="stSidebar"] .stPageLink a:hover {
             background:
-                rgba(255, 255, 255, 0.055) !important;
+                #FFFFFF !important;
 
             color:
-                #F8FAFC !important;
+                #0284C7 !important;
 
             transform:
-                translateX(2px) !important;
-        }}
+                translateX(3px) !important;
 
-        [data-testid="stSidebar"] .stPageLink a:focus-visible {{
+            border-color:
+                rgba(14, 165, 233, 0.50) !important;
+
+            box-shadow:
+                0 4px 14px rgba(14, 165, 233, 0.14) !important;
+        }
+
+        [data-testid="stSidebar"] .stPageLink a:hover span,
+        [data-testid="stSidebar"] .stPageLink a:hover p {
+            color:
+                #0284C7 !important;
+        }
+
+        [data-testid="stSidebar"] .stPageLink a:focus-visible {
             outline:
-                2px solid {COLORS["primary"]} !important;
+                2px solid #0EA5E9 !important;
 
             outline-offset:
                 2px !important;
-        }}
+        }
 
         /*
-         * Active page.
-         *
-         * Streamlit marks the current page with:
-         *
-         *     aria-current="page"
+         * Active page - High-Impact Glowing Gradient
          */
 
-        [data-testid="stSidebar"] .stPageLink a[aria-current="page"] {{
+        [data-testid="stSidebar"] .stPageLink a[aria-current="page"] {
             background:
                 linear-gradient(
-                    90deg,
-                    rgba(37, 99, 235, 0.24),
-                    rgba(124, 58, 237, 0.16)
+                    135deg,
+                    #0EA5E9 0%,
+                    #6366F1 100%
                 ) !important;
 
             color:
                 #FFFFFF !important;
 
-            box-shadow:
-                inset 3px 0 0 {COLORS["primary"]},
-                0 4px 14px rgba(37, 99, 235, 0.08) !important;
-        }}
+            font-weight:
+                850 !important;
 
-        [data-testid="stSidebar"] .stPageLink a[aria-current="page"] span {{
+            border:
+                1px solid rgba(255, 255, 255, 0.45) !important;
+
+            box-shadow:
+                0 6px 18px rgba(14, 165, 233, 0.35),
+                0 0 12px rgba(99, 102, 241, 0.25) !important;
+        }
+
+        [data-testid="stSidebar"] .stPageLink a[aria-current="page"] span,
+        [data-testid="stSidebar"] .stPageLink a[aria-current="page"] p {
             color:
                 #FFFFFF !important;
-        }}
 
-        /*
-         * Keep all navigation icons aligned.
-         */
+            font-weight:
+                850 !important;
+        }
 
-        [data-testid="stSidebar"] .stPageLink a > span:first-child {{
+        [data-testid="stSidebar"] .stPageLink a > span:first-child {
             width:
                 24px !important;
 
@@ -661,31 +762,40 @@ def inject_global_styles() -> None:
 
             font-size:
                 14px !important;
-        }}
+        }
 
 
         /* ==================================================================
-           SIDEBAR FOOTER
+           SIDEBAR FOOTER (FUTURISTIC FROSTED GLASS)
            ================================================================== */
 
-        .sidebar-footer {{
+        .sidebar-footer {
             margin-top:
-                1.4rem;
+                1.5rem;
 
             padding:
-                0.8rem 0.75rem;
+                0.85rem 0.95rem;
 
             border:
-                1px solid rgba(255, 255, 255, 0.06);
+                1px solid rgba(186, 230, 253, 0.95);
 
             border-radius:
-                10px;
+                12px;
 
             background:
-                rgba(255, 255, 255, 0.025);
-        }}
+                rgba(255, 255, 255, 0.88);
 
-        .sidebar-footer-status {{
+            backdrop-filter:
+                blur(16px);
+
+            -webkit-backdrop-filter:
+                blur(16px);
+
+            box-shadow:
+                0 4px 16px rgba(14, 165, 233, 0.08);
+        }
+
+        .sidebar-footer-status {
             display:
                 flex;
 
@@ -693,27 +803,27 @@ def inject_global_styles() -> None:
                 center;
 
             gap:
-                0.4rem;
+                0.45rem;
 
             color:
-                #CBD5E1;
+                #0F172A;
 
             font-size:
-                7.5px;
+                8.5px;
 
             font-weight:
-                800;
+                900;
 
             letter-spacing:
-                0.07em;
-        }}
+                0.08em;
+        }
 
-        .sidebar-status-dot {{
+        .sidebar-status-dot {
             width:
-                6px;
+                7px;
 
             height:
-                6px;
+                7px;
 
             flex-shrink:
                 0;
@@ -722,26 +832,50 @@ def inject_global_styles() -> None:
                 50%;
 
             background:
-                {COLORS["success"]};
+                #10B981;
 
             box-shadow:
-                0 0 0 3px
-                rgba(5, 150, 105, 0.12);
-        }}
+                0 0 0 3px rgba(16, 185, 129, 0.25),
+                0 0 8px rgba(16, 185, 129, 0.5);
 
-        .sidebar-footer-text {{
+            animation:
+                status-pulse 2s infinite;
+        }
+
+        @keyframes status-pulse {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+
+        .sidebar-footer-text {
             margin-top:
                 0.3rem;
 
             color:
-                #64748B;
+                #0284C7;
 
             font-size:
-                7.5px;
+                8px;
+
+            font-weight:
+                700;
 
             line-height:
                 1.4;
-        }}
+
+            letter-spacing:
+                0.03em;
+        }
 
 
         /* ==================================================================
@@ -1159,6 +1293,358 @@ def inject_global_styles() -> None:
 
 
         /* ==================================================================
+           METRIC BADGES
+           ================================================================== */
+
+        .metric-badge {{
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            padding:
+                0.22rem 0.6rem;
+
+            border-radius:
+                {RADIUS["pill"]};
+
+            font-size:
+                9px;
+
+            font-weight:
+                800;
+
+            letter-spacing:
+                0.05em;
+
+            line-height:
+                1.2;
+
+            text-transform:
+                uppercase;
+
+            white-space:
+                nowrap;
+        }}
+
+        .metric-badge-positive {{
+            background:
+                #D1FAE5;
+
+            color:
+                #065F46;
+
+            border:
+                1px solid #A7F3D0;
+        }}
+
+        .metric-badge-negative {{
+            background:
+                #FEE2E2;
+
+            color:
+                #991B1B;
+
+            border:
+                1px solid #FECACA;
+        }}
+
+        .metric-badge-neutral {{
+            background:
+                #F1F5F9;
+
+            color:
+                #475569;
+
+            border:
+                1px solid #E2E8F0;
+        }}
+
+        .metric-badge-warning {{
+            background:
+                #FEF3C7;
+
+            color:
+                #92400E;
+
+            border:
+                1px solid #FDE68A;
+        }}
+
+        .metric-badge-info {{
+            background:
+                #E0F2FE;
+
+            color:
+                #075985;
+
+            border:
+                1px solid #BAE6FD;
+        }}
+
+
+        /* ==================================================================
+           STATUS INDICATORS
+           ================================================================== */
+
+        .status-indicator {{
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            gap:
+                0.45rem;
+
+            padding:
+                0.3rem 0.7rem;
+
+            border-radius:
+                {RADIUS["pill"]};
+
+            font-size:
+                9px;
+
+            font-weight:
+                800;
+
+            letter-spacing:
+                0.06em;
+
+            text-transform:
+                uppercase;
+
+            background:
+                rgba(255, 255, 255, 0.85);
+
+            border:
+                1px solid rgba(226, 232, 240, 0.9);
+
+            box-shadow:
+                0 2px 6px rgba(15, 23, 42, 0.04);
+        }}
+
+        .status-indicator-dot {{
+            width:
+                7px;
+
+            height:
+                7px;
+
+            border-radius:
+                50%;
+
+            display:
+                inline-block;
+
+            flex-shrink:
+                0;
+        }}
+
+        .status-live .status-indicator-dot {{
+            background:
+                #10B981;
+
+            box-shadow:
+                0 0 0 3px rgba(16, 185, 129, 0.25);
+        }}
+
+        .status-healthy .status-indicator-dot {{
+            background:
+                #10B981;
+        }}
+
+        .status-warning .status-indicator-dot {{
+            background:
+                #F59E0B;
+
+            box-shadow:
+                0 0 0 3px rgba(245, 158, 11, 0.25);
+        }}
+
+        .status-error .status-indicator-dot {{
+            background:
+                #EF4444;
+
+            box-shadow:
+                0 0 0 3px rgba(239, 68, 68, 0.25);
+        }}
+
+        .status-processing .status-indicator-dot {{
+            background:
+                #0EA5E9;
+
+            box-shadow:
+                0 0 0 3px rgba(14, 165, 233, 0.25);
+        }}
+
+        .status-inactive .status-indicator-dot {{
+            background:
+                #94A3B8;
+        }}
+
+
+        /* ==================================================================
+           EMPTY STATES (GLASSMORPHISM)
+           ================================================================== */
+
+        .empty-state {{
+            padding:
+                2.5rem 1.5rem;
+
+            text-align:
+                center;
+
+            background:
+                rgba(255, 255, 255, 0.85);
+
+            backdrop-filter:
+                blur(14px) saturate(180%);
+
+            border:
+                1px solid rgba(226, 232, 240, 0.85);
+
+            border-radius:
+                {RADIUS["lg"]};
+
+            box-shadow:
+                0 6px 20px -2px rgba(14, 165, 233, 0.05);
+
+            margin:
+                1rem 0;
+        }}
+
+        .empty-state-icon {{
+            font-size:
+                28px;
+
+            margin-bottom:
+                0.75rem;
+
+            color:
+                #0EA5E9;
+        }}
+
+        .empty-state-title {{
+            color:
+                #0F172A;
+
+            font-size:
+                14px;
+
+            font-weight:
+                800;
+
+            margin-bottom:
+                0.35rem;
+        }}
+
+        .empty-state-description {{
+            color:
+                #64748B;
+
+            font-size:
+                11px;
+
+            max-width:
+                480px;
+
+            margin:
+                0 auto;
+
+            line-height:
+                1.5;
+        }}
+
+
+        /* ==================================================================
+           LOADING STATES & SKELETONS
+           ================================================================== */
+
+        @keyframes skeleton-shimmer {{
+            0% {{
+                background-position: -200% 0;
+            }}
+            100% {{
+                background-position: 200% 0;
+            }}
+        }}
+
+        .skeleton-card,
+        .skeleton-chart-wrapper {{
+            padding:
+                1.25rem;
+
+            background:
+                rgba(255, 255, 255, 0.85);
+
+            backdrop-filter:
+                blur(14px);
+
+            border:
+                1px solid rgba(226, 232, 240, 0.85);
+
+            border-radius:
+                {RADIUS["lg"]};
+
+            box-shadow:
+                0 4px 16px rgba(14, 165, 233, 0.05);
+
+            margin-bottom:
+                1rem;
+        }}
+
+        .skeleton-line {{
+            height:
+                14px;
+
+            border-radius:
+                6px;
+
+            margin-bottom:
+                0.6rem;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #F1F5F9 25%,
+                    #E2E8F0 50%,
+                    #F1F5F9 75%
+                );
+
+            background-size:
+                200% 100%;
+
+            animation:
+                skeleton-shimmer 1.8s infinite;
+        }}
+
+        .skeleton-value {{
+            height:
+                28px;
+        }}
+
+        .loading-state {{
+            padding:
+                2rem;
+
+            text-align:
+                center;
+
+            color:
+                #64748B;
+
+            font-size:
+                12px;
+
+            font-weight:
+                700;
+        }}
+
+
+        /* ==================================================================
            KPI CARDS
            ================================================================== */
 
@@ -1167,30 +1653,37 @@ def inject_global_styles() -> None:
                 relative;
 
             min-height:
-                132px;
+                125px;
 
             padding:
-                1rem 1.1rem;
+                1rem 1.15rem;
 
             background:
-                {COLORS["surface"]};
+                rgba(255, 255, 255, 0.85);
+
+            backdrop-filter:
+                blur(14px) saturate(180%);
+
+            -webkit-backdrop-filter:
+                blur(14px) saturate(180%);
 
             border:
-                1px solid {COLORS["border"]};
+                1px solid rgba(226, 232, 240, 0.85);
 
             border-radius:
                 {RADIUS["lg"]};
 
             box-shadow:
-                {SHADOWS["card"]};
+                0 6px 20px -2px rgba(14, 165, 233, 0.05),
+                0 1px 3px 0 rgba(15, 23, 42, 0.03);
 
             overflow:
                 hidden;
 
             transition:
-                transform 0.18s ease,
-                box-shadow 0.18s ease,
-                border-color 0.18s ease;
+                transform 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.22s cubic-bezier(0.4, 0, 0.2, 1);
         }}
 
         .kpi-card:hover {{
@@ -1198,10 +1691,11 @@ def inject_global_styles() -> None:
                 translateY(-2px);
 
             border-color:
-                #CBD5E1;
+                rgba(14, 165, 233, 0.40);
 
             box-shadow:
-                {SHADOWS["card_hover"]};
+                0 12px 28px -4px rgba(14, 165, 233, 0.12),
+                0 4px 8px -2px rgba(15, 23, 42, 0.04);
         }}
 
         .kpi-card::after {{
@@ -1424,68 +1918,245 @@ def inject_global_styles() -> None:
            CHART CONTAINERS
            ================================================================== */
 
-        .chart-card {{
+        .dashboard-panel,
+        .chart-card,
+        .dashboard-content-container {{
             background:
-                {COLORS["surface"]};
+                rgba(255, 255, 255, 0.85);
+
+            backdrop-filter:
+                blur(16px) saturate(180%);
+
+            -webkit-backdrop-filter:
+                blur(16px) saturate(180%);
 
             border:
-                1px solid {COLORS["border"]};
+                1px solid rgba(226, 232, 240, 0.85);
 
             border-radius:
                 {RADIUS["lg"]};
 
             padding:
-                0.5rem;
+                1rem;
+
+            margin-bottom:
+                1rem;
 
             box-shadow:
-                {SHADOWS["card"]};
+                0 6px 24px -2px rgba(14, 165, 233, 0.06),
+                0 2px 6px -1px rgba(15, 23, 42, 0.03);
 
             overflow:
                 hidden;
+
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
         }}
 
+        .dashboard-panel:hover,
+        .chart-card:hover {{
+            border-color:
+                rgba(14, 165, 233, 0.35);
+
+            box-shadow:
+                0 12px 32px -4px rgba(14, 165, 233, 0.12),
+                0 4px 10px -2px rgba(15, 23, 42, 0.05);
+        }}
+
+        .dashboard-panel-header,
         .chart-card-header {{
             display:
                 flex;
 
-            align-items:
-                center;
-
-            justify-content:
-                space-between;
+            flex-direction:
+                column;
 
             gap:
-                1rem;
+                0.2rem;
 
             padding:
-                0.8rem
-                0.85rem
-                0.35rem;
+                0.2rem
+                0.35rem
+                0.75rem;
+
+            margin-bottom:
+                0.65rem;
+
+            border-bottom:
+                1px solid rgba(226, 232, 240, 0.65);
         }}
 
+        .dashboard-panel-title,
         .chart-card-title {{
             color:
                 {COLORS["text"]};
 
             font-size:
-                12px;
+                13px;
 
             font-weight:
-                750;
+                800;
+
+            letter-spacing:
+                -0.01em;
         }}
 
+        .dashboard-panel-description,
         .chart-card-description {{
-            margin-top:
-                0.15rem;
-
             color:
                 {COLORS["text_muted"]};
 
             font-size:
-                9px;
+                10px;
 
             line-height:
                 1.45;
+        }}
+
+        /* ==================================================================
+           INSIGHT & ALERT CARDS (GLASS EFFECT)
+           ================================================================== */
+
+        .insight-card {{
+            position:
+                relative;
+
+            padding:
+                1.1rem 1.2rem;
+
+            background:
+                rgba(255, 255, 255, 0.85);
+
+            backdrop-filter:
+                blur(14px) saturate(180%);
+
+            -webkit-backdrop-filter:
+                blur(14px) saturate(180%);
+
+            border:
+                1px solid rgba(226, 232, 240, 0.85);
+
+            border-radius:
+                {RADIUS["lg"]};
+
+            box-shadow:
+                0 6px 20px -2px rgba(14, 165, 233, 0.05),
+                0 1px 3px 0 rgba(15, 23, 42, 0.03);
+
+            transition:
+                transform 0.2s ease,
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
+        }}
+
+        .insight-card:hover {{
+            transform:
+                translateY(-2px);
+
+            border-color:
+                rgba(14, 165, 233, 0.35);
+
+            box-shadow:
+                0 12px 28px -4px rgba(14, 165, 233, 0.12);
+        }}
+
+        .insight-label {{
+            display:
+                inline-block;
+
+            padding:
+                0.2rem 0.55rem;
+
+            border-radius:
+                {RADIUS["pill"]};
+
+            font-size:
+                9px;
+
+            font-weight:
+                800;
+
+            letter-spacing:
+                0.07em;
+
+            text-transform:
+                uppercase;
+
+            margin-bottom:
+                0.6rem;
+        }}
+
+        .insight-danger {{
+            background:
+                #FEE2E2;
+
+            color:
+                #DC2626;
+
+            border:
+                1px solid #FECACA;
+        }}
+
+        .insight-warning {{
+            background:
+                #FEF3C7;
+
+            color:
+                #D97706;
+
+            border:
+                1px solid #FDE68A;
+        }}
+
+        .insight-success {{
+            background:
+                #D1FAE5;
+
+            color:
+                #059669;
+
+            border:
+                1px solid #A7F3D0;
+        }}
+
+        .insight-info {{
+            background:
+                #E0F2FE;
+
+            color:
+                #0284C7;
+
+            border:
+                1px solid #BAE6FD;
+        }}
+
+        .insight-title {{
+            color:
+                #0F172A;
+
+            font-size:
+                13px;
+
+            font-weight:
+                800;
+
+            line-height:
+                1.35;
+
+            margin-bottom:
+                0.4rem;
+        }}
+
+        .insight-description {{
+            color:
+                #64748B;
+
+            font-size:
+                10.5px;
+
+            line-height:
+                1.55;
         }}
 
 
@@ -1797,21 +2468,29 @@ def inject_global_styles() -> None:
            STREAMLIT METRICS
            ================================================================== */
 
-        [data-testid="stMetric"] {{
+        [data-testid="stMetric"],
+        [data-testid="stExpander"],
+        [data-testid="stVerticalBlockBorderWrapper"] {{
             padding:
-                0.75rem;
+                0.9rem;
 
             background:
-                {COLORS["surface"]};
+                rgba(255, 255, 255, 0.85) !important;
+
+            backdrop-filter:
+                blur(14px) saturate(180%) !important;
+
+            -webkit-backdrop-filter:
+                blur(14px) saturate(180%) !important;
 
             border:
-                1px solid {COLORS["border"]};
+                1px solid rgba(226, 232, 240, 0.85) !important;
 
             border-radius:
-                {RADIUS["md"]};
+                {RADIUS["lg"]} !important;
 
             box-shadow:
-                {SHADOWS["sm"]};
+                0 4px 16px -2px rgba(14, 165, 233, 0.05) !important;
         }}
 
         [data-testid="stMetricLabel"] {{

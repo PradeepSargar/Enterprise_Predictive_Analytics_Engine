@@ -49,7 +49,7 @@ def _validate_dataframe(
 def csv_download(
     dataframe: pd.DataFrame,
     filename: str = "dashboard_data.csv",
-    label: str = "Download CSV",
+    label: str = "📥 Download CSV",
     key: str | None = None,
 ) -> None:
     """
@@ -62,6 +62,7 @@ def csv_download(
             label,
             disabled=True,
             key=key,
+            use_container_width=True,
         )
 
         return
@@ -87,7 +88,7 @@ def csv_download(
 def excel_download(
     dataframe: pd.DataFrame,
     filename: str = "dashboard_data.xlsx",
-    label: str = "Download Excel",
+    label: str = "📊 Download Excel",
     sheet_name: str = "Dashboard Data",
     key: str | None = None,
 ) -> None:
@@ -101,6 +102,7 @@ def excel_download(
             label,
             disabled=True,
             key=key,
+            use_container_width=True,
         )
 
         return

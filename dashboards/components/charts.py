@@ -41,14 +41,15 @@ import streamlit as st
 # DESIGN TOKENS
 # ============================================================================
 
-PRIMARY_COLOR = "#2563EB"
-PRIMARY_DARK = "#1D4ED8"
-SECONDARY_COLOR = "#7C3AED"
+PRIMARY_COLOR = "#0EA5E9"
+PRIMARY_DARK = "#0284C7"
+SECONDARY_COLOR = "#A855F7"
+SECONDARY_LIGHT = "#C084FC"
 
-SUCCESS_COLOR = "#059669"
-WARNING_COLOR = "#D97706"
-DANGER_COLOR = "#DC2626"
-INFO_COLOR = "#0891B2"
+SUCCESS_COLOR = "#10B981"
+WARNING_COLOR = "#F59E0B"
+DANGER_COLOR = "#EF4444"
+INFO_COLOR = "#38BDF8"
 
 NEUTRAL_COLOR = "#64748B"
 
@@ -56,14 +57,14 @@ TEXT_COLOR = "#0F172A"
 MUTED_TEXT_COLOR = "#64748B"
 LIGHT_TEXT_COLOR = "#94A3B8"
 
-GRID_COLOR = "#E8EEF5"
+GRID_COLOR = "#F1F5F9"
 BORDER_COLOR = "#E2E8F0"
 
 WHITE = "#FFFFFF"
 TRANSPARENT = "rgba(0,0,0,0)"
 
-SOFT_BLUE = "#EFF6FF"
-SOFT_PURPLE = "#F5F3FF"
+SOFT_BLUE = "#F0F9FF"
+SOFT_PURPLE = "#FAF5FF"
 SOFT_GREEN = "#ECFDF5"
 SOFT_AMBER = "#FFFBEB"
 SOFT_RED = "#FEF2F2"
@@ -74,16 +75,16 @@ SOFT_RED = "#FEF2F2"
 # ============================================================================
 
 CHART_PALETTE = [
-    PRIMARY_COLOR,
-    SECONDARY_COLOR,
-    SUCCESS_COLOR,
-    WARNING_COLOR,
-    DANGER_COLOR,
-    INFO_COLOR,
-    "#DB2777",
-    "#4F46E5",
-    "#0F766E",
-    "#9333EA",
+    "#0EA5E9",  # Sky Blue
+    "#A855F7",  # Light Purple
+    "#38BDF8",  # Light Sky
+    "#C084FC",  # Lavender Purple
+    "#10B981",  # Mint Green
+    "#F59E0B",  # Soft Amber
+    "#EC4899",  # Pink
+    "#6366F1",  # Indigo
+    "#14B8A6",  # Teal
+    "#8B5CF6",  # Violet
 ]
 
 
@@ -162,9 +163,11 @@ def _render_empty_state(
             align-items: center;
             justify-content: center;
             text-align: center;
-            background: #FFFFFF;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(14px);
             border: 1px solid {BORDER_COLOR};
             border-radius: 14px;
+            box-shadow: 0 4px 16px rgba(14, 165, 233, 0.05);
             padding: 2rem;
         ">
             <div>

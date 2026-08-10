@@ -102,21 +102,31 @@ render_html(
     <div style="
         position: relative;
         overflow: hidden;
-        background: linear-gradient(135deg, #0B1220 0%, #172554 60%, #1E3A8A 100%);
+        background: linear-gradient(135deg, #0F172A 0%, #0369A1 50%, #6B21A8 100%);
         border-radius: 14px;
-        padding: 1.5rem 1.8rem;
+        padding: 1.6rem 1.9rem;
         margin-bottom: 1.5rem;
-        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 10px 25px rgba(14, 165, 233, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.12);
     ">
         <div style="
             position: absolute;
-            width: 220px;
-            height: 220px;
+            width: 240px;
+            height: 240px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0) 70%);
-            top: -60px;
-            right: 40px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, rgba(56, 189, 248, 0) 70%);
+            top: -70px;
+            right: 50px;
+            pointer-events: none;
+        "></div>
+        <div style="
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(192, 132, 252, 0.22) 0%, rgba(192, 132, 252, 0) 70%);
+            bottom: -50px;
+            right: -20px;
             pointer-events: none;
         "></div>
 
@@ -125,35 +135,35 @@ render_html(
                 display: inline-flex;
                 align-items: center;
                 gap: 6px;
-                padding: 0.25rem 0.65rem;
+                padding: 0.25rem 0.7rem;
                 border-radius: 999px;
-                background: rgba(255, 255, 255, 0.1);
-                border: 1px solid rgba(255, 255, 255, 0.18);
-                color: #93C5FD;
+                background: rgba(255, 255, 255, 0.12);
+                border: 1px solid rgba(255, 255, 255, 0.20);
+                color: #BAE6FD;
                 font-size: 11px;
                 font-weight: 700;
                 letter-spacing: 0.08em;
                 text-transform: uppercase;
                 margin-bottom: 0.75rem;
             ">
-                <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#38BDF8;"></span>
-                Marketplace Performance Summary
+                <span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:#38BDF8;"></span>
+                Marketplace Executive Intelligence
             </div>
 
             <div style="
                 color: #FFFFFF;
-                font-size: 22px;
+                font-size: 23px;
                 font-weight: 800;
                 line-height: 1.3;
                 margin-bottom: 0.5rem;
             ">
-                Driving <span style="color: #60A5FA;">R$15.4M+</span> in Gross Marketplace Volume across <span style="color: #93C5FD;">96.5k Orders</span>
+                Driving <span style="color: #38BDF8;">R$15.4M+</span> in Gross Volume across <span style="color: #C084FC;">96.5k Orders</span>
             </div>
 
             <div style="
-                color: #94A3B8;
+                color: #E2E8F0;
                 font-size: 13px;
-                line-height: 1.5;
+                line-height: 1.55;
                 max-width: 860px;
             ">
                 Comprehensive e-commerce intelligence platform integrating descriptive transaction analytics, 

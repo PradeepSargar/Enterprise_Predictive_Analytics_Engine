@@ -220,9 +220,7 @@ with st.sidebar:
         '<div class="sidebar-brand-mark">◈</div>'
         '<div class="sidebar-brand-text">'
         '<div class="sidebar-brand-title">ENTERPRISE</div>'
-        '<div class="sidebar-brand-subtitle">'
-        'PREDICTIVE ANALYTICS'
-        '</div>'
+        '<div class="sidebar-brand-subtitle">PREDICTIVE ENGINE</div>'
         '</div>'
         '</div>',
         unsafe_allow_html=True,
