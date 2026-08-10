@@ -1,93 +1,124 @@
 """
-Customer Analytics
-==================
+Customer Analytics Dashboard.
 
-Enterprise Predictive Analytics Engine
+This page provides a portfolio-quality analytical view of customer
+behavior using the prepared RFM customer segmentation dataset.
 
-Purpose
--------
-Provide a detailed analytical view of customer behavior using
-the prepared RFM customer segmentation dataset.
-
-The page covers:
-
-- Customer KPI overview
-- RFM segmentation
+Responsibilities
+----------------
+- Customer KPI analysis
 - Customer segment distribution
 - Customer value analysis
-- Frequency and monetary behavior
-- Retention opportunities
+- RFM behavioral analysis
+- Customer value relationships
+- Retention opportunity analysis
 - Segment-level business insights
 
 Architecture
 ------------
-This page uses the centralized dashboard data layer.
+Data loading:
+    dashboards.data.loader
 
-No CSV files are loaded directly here.
+Visualization:
+    dashboards.components.charts
+
+UI:
+    dashboards.components.kpi_cards
+    dashboards.components.section_headers
+    dashboards.components.alerts
+
+No CSV files are loaded directly by this page.
 No business metrics are hardcoded.
-No custom HTML is rendered directly by this page.
 """
 
+from __future__ import annotations
+
 import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
 import streamlit as st
 
-from dashboards.components.alerts import insight_card
-from dashboards.components.kpi_cards import kpi_card
+
+# ============================================================================
+# REUSABLE UI COMPONENTS
+# ============================================================================
+
+from dashboards.components.alerts import (
+    insight_card,
+)
+
+from dashboards.components.charts import (
+    donut_chart,
+    histogram,
+    horizontal_bar_chart,
+    scatter_chart,
+)
+
+from dashboards.components.kpi_cards import (
+    kpi_card,
+)
+
 from dashboards.components.section_headers import (
     page_header,
     section_header,
 )
+
+
+# ============================================================================
+# DATA LAYER
+# ============================================================================
 
 from dashboards.data.loader import (
     load_customer_segments,
 )
 
 
-# =====================================================================
+# ============================================================================
 # CONSTANTS
-# =====================================================================
+# ============================================================================
 
 CURRENCY_SYMBOL = "R$"
 
 
-# =====================================================================
+# ============================================================================
 # LOAD CUSTOMER DATA
-# =====================================================================
-
-# Load the prepared customer-level RFM segmentation dataset.
-#
-# The centralized loader handles:
-# - file location
-# - file validation
-# - Streamlit caching
-#
-# This page therefore remains focused on analytics and presentation.
+# ============================================================================
 
 customer_df = load_customer_segments()
 
 
-# Work on a copy so cached data is never modified.
+# ============================================================================
+# VALIDATE DATASET
+# ============================================================================
+
+if customer_df is None or customer_df.empty:
+
+    st.warning(
+        "Customer segmentation data is currently unavailable."
+    )
+
+    st.stop()
+
+
+# Work on a copy so Streamlit's cached dataframe is never modified.
+
 customer_df = customer_df.copy()
 
 
-# =====================================================================
+# ============================================================================
 # PAGE HEADER
-# =====================================================================
+# ============================================================================
 
 page_header(
     title="Customer Analytics",
     description=(
-        "Customer behavior, RFM segmentation, value distribution, "
+        "Customer behavior, RFM segmentation, customer value, "
         "and retention opportunities."
     ),
 )
 
 
-# =====================================================================
+# ============================================================================
 # DATA VALIDATION
-# =====================================================================
+# ============================================================================
 
 required_columns = {
     "customer_unique_id",
@@ -114,23 +145,9 @@ if missing_columns:
     st.stop()
 
 
-if customer_df.empty:
-
-    st.warning(
-        "Customer segmentation data is currently unavailable."
-    )
-
-    st.stop()
-
-
-# =====================================================================
+# ============================================================================
 # DATA PREPARATION
-# =====================================================================
-
-# Ensure the numerical RFM fields are numeric.
-#
-# Invalid values are converted to NaN and excluded from calculations
-# where appropriate.
+# ============================================================================
 
 for column in (
     "recency",
@@ -144,26 +161,22 @@ for column in (
     )
 
 
-# Remove rows without a valid customer identifier.
 customer_df = customer_df.dropna(
-    subset=["customer_unique_id"]
+    subset=[
+        "customer_unique_id",
+        "segment",
+    ]
 )
 
 
-# Remove rows without a valid segment.
-customer_df = customer_df.dropna(
-    subset=["segment"]
-)
-
-
-# =====================================================================
+# ============================================================================
 # SEGMENT FILTER
-# =====================================================================
+# ============================================================================
 
 section_header(
-    title="Customer Analysis Controls",
+    title="Analysis Controls",
     description=(
-        "Focus the detailed analysis on a specific RFM customer segment."
+        "Focus the customer analysis on a specific RFM segment."
     ),
 )
 
@@ -190,7 +203,10 @@ selected_segment = st.selectbox(
 )
 
 
-# Apply the selected segment filter.
+# ============================================================================
+# APPLY SEGMENT FILTER
+# ============================================================================
+
 if selected_segment == "All Segments":
 
     filtered_customers = customer_df.copy()
@@ -203,24 +219,23 @@ else:
     ].copy()
 
 
-# =====================================================================
-# CUSTOMER KPI OVERVIEW
-# =====================================================================
+if filtered_customers.empty:
 
-section_header(
-    title="Customer KPI Overview",
-    description=(
-        "Core customer metrics calculated from the RFM customer-level data."
-    ),
-)
+    st.warning(
+        "No customers are available for the selected segment."
+    )
+
+    st.stop()
 
 
-# ---------------------------------------------------------------------
-# KPI calculations
-# ---------------------------------------------------------------------
+# ============================================================================
+# KPI CALCULATIONS
+# ============================================================================
 
 total_customers = int(
-    filtered_customers["customer_unique_id"].nunique()
+    filtered_customers[
+        "customer_unique_id"
+    ].nunique()
 )
 
 
@@ -239,32 +254,52 @@ repeat_customer_rate = (
 
 
 average_frequency = (
-    filtered_customers["frequency"].mean()
+    filtered_customers["frequency"]
+    .mean()
 )
 
 
 average_monetary = (
-    filtered_customers["monetary"].mean()
+    filtered_customers["monetary"]
+    .mean()
 )
 
 
 average_recency = (
-    filtered_customers["recency"].mean()
+    filtered_customers["recency"]
+    .mean()
 )
 
 
-# =====================================================================
-# KPI CARDS
-# =====================================================================
+median_monetary = (
+    filtered_customers["monetary"]
+    .median()
+)
 
-kpi_col1, kpi_col2, kpi_col3, kpi_col4 = st.columns(4)
+
+# ============================================================================
+# CUSTOMER KPI OVERVIEW
+# ============================================================================
+
+section_header(
+    title="Customer KPI Overview",
+    description=(
+        "Core customer metrics calculated from the selected RFM population."
+    ),
+)
 
 
-# ---------------------------------------------------------------------
+kpi_columns = st.columns(
+    5,
+    gap="small",
+)
+
+
+# ----------------------------------------------------------------------------
 # Total Customers
-# ---------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
-with kpi_col1:
+with kpi_columns[0]:
 
     kpi_card(
         label="Total Customers",
@@ -278,11 +313,11 @@ with kpi_col1:
     )
 
 
-# ---------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Repeat Customer Rate
-# ---------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
-with kpi_col2:
+with kpi_columns[1]:
 
     kpi_card(
         label="Repeat Customer Rate",
@@ -296,76 +331,147 @@ with kpi_col2:
     )
 
 
-# ---------------------------------------------------------------------
-# Average Purchase Frequency
-# ---------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+# Average Frequency
+# ----------------------------------------------------------------------------
 
-with kpi_col3:
+with kpi_columns[2]:
 
     kpi_card(
-        label="Avg. Purchase Frequency",
+        label="Avg Purchase Frequency",
         value=f"{average_frequency:.2f}",
         delta="Orders per customer",
         delta_type="neutral",
     )
 
 
-# ---------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Average Customer Value
-# ---------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
-with kpi_col4:
+with kpi_columns[3]:
 
     kpi_card(
-        label="Avg. Customer Value",
+        label="Avg Customer Value",
         value=(
             f"{CURRENCY_SYMBOL}"
             f"{average_monetary:,.0f}"
         ),
-        delta="Average RFM monetary value",
+        delta="Average monetary value",
         delta_type="positive",
     )
 
 
-# =====================================================================
+# ----------------------------------------------------------------------------
+# Average Recency
+# ----------------------------------------------------------------------------
+
+with kpi_columns[4]:
+
+    kpi_card(
+        label="Avg Recency",
+        value=f"{average_recency:.0f} days",
+        delta="Days since purchase",
+        delta_type=(
+            "positive"
+            if average_recency <= 180
+            else "negative"
+        ),
+    )
+
+
+# ============================================================================
 # CUSTOMER SEGMENTATION
-# =====================================================================
+# ============================================================================
 
 section_header(
     title="Customer Segmentation",
     description=(
-        "Distribution and economic value of the project's RFM customer segments."
+        "Understand customer concentration and the relative scale "
+        "of each RFM segment."
     ),
 )
 
 
-segment_chart_col, value_chart_col = st.columns(
-    [1.45, 1],
+# ============================================================================
+# SEGMENT SUMMARY DATA
+# ============================================================================
+
+segment_summary = (
+    customer_df
+    .groupby(
+        "segment",
+        as_index=False,
+    )
+    .agg(
+        customers=(
+            "customer_unique_id",
+            "nunique",
+        ),
+        avg_recency=(
+            "recency",
+            "mean",
+        ),
+        avg_frequency=(
+            "frequency",
+            "mean",
+        ),
+        avg_monetary=(
+            "monetary",
+            "mean",
+        ),
+        total_monetary=(
+            "monetary",
+            "sum",
+        ),
+    )
+)
+
+
+segment_summary["customer_share"] = (
+    segment_summary["customers"]
+    / segment_summary["customers"].sum()
+)
+
+
+# ============================================================================
+# SEGMENT VISUALS
+# ============================================================================
+
+segment_mix_col, segment_scale_col = st.columns(
+    [1.0, 1.15],
     gap="large",
 )
 
 
-# =====================================================================
-# SEGMENT DISTRIBUTION
-# =====================================================================
+# ----------------------------------------------------------------------------
+# Segment Mix
+# ----------------------------------------------------------------------------
 
-with segment_chart_col:
+with segment_mix_col:
 
-    segment_counts = (
-        customer_df["segment"]
-        .value_counts()
-        .reset_index()
+    donut_chart(
+        dataframe=segment_summary,
+        names="segment",
+        values="customers",
+        title="Customer Segment Mix",
+        height=390,
     )
 
 
-    segment_counts.columns = [
-        "segment",
-        "customers",
-    ]
+# ----------------------------------------------------------------------------
+# Segment Scale
+# ----------------------------------------------------------------------------
 
+with segment_scale_col:
 
-    segment_counts = (
-        segment_counts
+    segment_scale = (
+        segment_summary[
+            [
+                "segment",
+                "customers",
+            ]
+        ]
         .sort_values(
             "customers",
             ascending=True,
@@ -373,186 +479,109 @@ with segment_chart_col:
     )
 
 
-    segment_counts["share"] = (
-        segment_counts["customers"]
-        / segment_counts["customers"].sum()
+    horizontal_bar_chart(
+        dataframe=segment_scale,
+        category="segment",
+        value="customers",
+        title="Customer Count by Segment",
+        category_title="Segment",
+        value_title="Customers",
+        height=390,
+        text=True,
     )
 
 
-    figure = px.bar(
-        segment_counts,
-        x="customers",
-        y="segment",
-        orientation="h",
-        text="customers",
-    )
+# ============================================================================
+# CUSTOMER VALUE ANALYSIS
+# ============================================================================
+
+section_header(
+    title="Customer Value Analysis",
+    description=(
+        "Compare monetary value and purchase engagement across customer segments."
+    ),
+)
 
 
-    figure.update_traces(
-        texttemplate="%{text:,}",
-        textposition="outside",
-        marker_color="#2563EB",
-        hovertemplate=(
-            "<b>%{y}</b><br>"
-            "Customers: %{x:,}<br>"
-            "<extra></extra>"
-        ),
-    )
+value_col, frequency_col = st.columns(
+    2,
+    gap="large",
+)
 
 
-    figure.update_layout(
-        title=dict(
-            text="Customer Distribution by Segment",
-            x=0,
-            xanchor="left",
-            font=dict(
-                size=16,
-                color="#111827",
-            ),
-        ),
-        height=360,
-        margin=dict(
-            l=5,
-            r=35,
-            t=45,
-            b=10,
-        ),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(
-            family=(
-                "Inter, -apple-system, "
-                "BlinkMacSystemFont, Segoe UI, sans-serif"
-            ),
-            color="#64748B",
-        ),
-        xaxis=dict(
-            title=None,
-            showgrid=True,
-            gridcolor="#EEF2F7",
-            zeroline=False,
-            showline=False,
-        ),
-        yaxis=dict(
-            title=None,
-            showgrid=False,
-            showline=False,
-        ),
-    )
+# ----------------------------------------------------------------------------
+# Average Monetary Value
+# ----------------------------------------------------------------------------
 
+with value_col:
 
-    st.plotly_chart(
-        figure,
-        use_container_width=True,
-        config={
-            "displayModeBar": False,
-            "responsive": True,
-        },
-    )
-
-
-# =====================================================================
-# AVERAGE CUSTOMER VALUE BY SEGMENT
-# =====================================================================
-
-with value_chart_col:
-
-    segment_value = (
-        customer_df
-        .groupby("segment", as_index=False)
-        .agg(
-            average_monetary=(
-                "monetary",
-                "mean",
-            )
-        )
+    value_by_segment = (
+        segment_summary[
+            [
+                "segment",
+                "avg_monetary",
+            ]
+        ]
         .sort_values(
-            "average_monetary",
+            "avg_monetary",
             ascending=True,
         )
     )
 
 
-    figure = px.bar(
-        segment_value,
-        x="average_monetary",
-        y="segment",
-        orientation="h",
-        text="average_monetary",
+    horizontal_bar_chart(
+        dataframe=value_by_segment,
+        category="segment",
+        value="avg_monetary",
+        title="Average Customer Value by Segment",
+        category_title="Segment",
+        value_title="Average Value",
+        height=380,
+        text=True,
     )
 
 
-    figure.update_traces(
-        texttemplate="R$ %{text:,.0f}",
-        textposition="outside",
-        marker_color="#0F766E",
-        hovertemplate=(
-            "<b>%{y}</b><br>"
-            "Average value: R$%{x:,.0f}"
-            "<extra></extra>"
-        ),
+# ----------------------------------------------------------------------------
+# Average Purchase Frequency
+# ----------------------------------------------------------------------------
+
+with frequency_col:
+
+    frequency_by_segment = (
+        segment_summary[
+            [
+                "segment",
+                "avg_frequency",
+            ]
+        ]
+        .sort_values(
+            "avg_frequency",
+            ascending=True,
+        )
     )
 
 
-    figure.update_layout(
-        title=dict(
-            text="Average Customer Value by Segment",
-            x=0,
-            xanchor="left",
-            font=dict(
-                size=16,
-                color="#111827",
-            ),
-        ),
-        height=360,
-        margin=dict(
-            l=5,
-            r=45,
-            t=45,
-            b=10,
-        ),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(
-            family=(
-                "Inter, -apple-system, "
-                "BlinkMacSystemFont, Segoe UI, sans-serif"
-            ),
-            color="#64748B",
-        ),
-        xaxis=dict(
-            title=None,
-            showgrid=True,
-            gridcolor="#EEF2F7",
-            zeroline=False,
-            showline=False,
-        ),
-        yaxis=dict(
-            title=None,
-            showgrid=False,
-            showline=False,
-        ),
+    horizontal_bar_chart(
+        dataframe=frequency_by_segment,
+        category="segment",
+        value="avg_frequency",
+        title="Average Purchase Frequency by Segment",
+        category_title="Segment",
+        value_title="Orders per Customer",
+        height=380,
+        text=True,
     )
 
 
-    st.plotly_chart(
-        figure,
-        use_container_width=True,
-        config={
-            "displayModeBar": False,
-            "responsive": True,
-        },
-    )
-
-
-# =====================================================================
-# RFM ANALYSIS
-# =====================================================================
+# ============================================================================
+# RFM BEHAVIOR
+# ============================================================================
 
 section_header(
-    title="RFM Analysis",
+    title="RFM Behavioral Analysis",
     description=(
-        "Understand customer recency, purchase frequency, and monetary value."
+        "Examine recency, purchase frequency, and monetary value "
+        "at the customer level."
     ),
 )
 
@@ -563,405 +592,190 @@ rfm_col1, rfm_col2, rfm_col3 = st.columns(
 )
 
 
-# =====================================================================
-# RECENCY DISTRIBUTION
-# =====================================================================
+# ----------------------------------------------------------------------------
+# Recency
+# ----------------------------------------------------------------------------
 
 with rfm_col1:
 
-    figure = px.histogram(
-        filtered_customers,
-        x="recency",
-        nbins=30,
-    )
-
-
-    figure.update_traces(
-        marker_color="#2563EB",
-        hovertemplate=(
-            "Recency: %{x}<br>"
-            "Customers: %{y:,}"
-            "<extra></extra>"
-        ),
-    )
-
-
-    figure.update_layout(
+    histogram(
+        dataframe=filtered_customers,
+        column="recency",
         title="Recency Distribution",
-        height=300,
-        margin=dict(
-            l=5,
-            r=5,
-            t=45,
-            b=10,
-        ),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(
-            color="#64748B",
-        ),
-        xaxis_title="Days Since Last Purchase",
-        yaxis_title="Customers",
-        bargap=0.08,
+        x_title="Days Since Last Purchase",
+        y_title="Customers",
+        bins=30,
+        height=330,
     )
 
 
-    st.plotly_chart(
-        figure,
-        use_container_width=True,
-        config={
-            "displayModeBar": False,
-            "responsive": True,
-        },
-    )
-
-
-# =====================================================================
-# FREQUENCY DISTRIBUTION
-# =====================================================================
+# ----------------------------------------------------------------------------
+# Frequency
+# ----------------------------------------------------------------------------
 
 with rfm_col2:
 
-    figure = px.histogram(
-        filtered_customers,
-        x="frequency",
-        nbins=20,
+    histogram(
+        dataframe=filtered_customers,
+        column="frequency",
+        title="Purchase Frequency Distribution",
+        x_title="Orders per Customer",
+        y_title="Customers",
+        bins=20,
+        height=330,
     )
 
 
-    figure.update_traces(
-        marker_color="#7C3AED",
-        hovertemplate=(
-            "Frequency: %{x}<br>"
-            "Customers: %{y:,}"
-            "<extra></extra>"
-        ),
-    )
-
-
-    figure.update_layout(
-        title="Purchase Frequency",
-        height=300,
-        margin=dict(
-            l=5,
-            r=5,
-            t=45,
-            b=10,
-        ),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(
-            color="#64748B",
-        ),
-        xaxis_title="Orders per Customer",
-        yaxis_title="Customers",
-        bargap=0.08,
-    )
-
-
-    st.plotly_chart(
-        figure,
-        use_container_width=True,
-        config={
-            "displayModeBar": False,
-            "responsive": True,
-        },
-    )
-
-
-# =====================================================================
-# MONETARY DISTRIBUTION
-# =====================================================================
+# ----------------------------------------------------------------------------
+# Monetary
+# ----------------------------------------------------------------------------
 
 with rfm_col3:
 
-    figure = px.histogram(
-        filtered_customers,
-        x="monetary",
-        nbins=30,
-    )
-
-
-    figure.update_traces(
-        marker_color="#0F766E",
-        hovertemplate=(
-            "Monetary: R$%{x:,.0f}<br>"
-            "Customers: %{y:,}"
-            "<extra></extra>"
-        ),
-    )
-
-
-    figure.update_layout(
+    histogram(
+        dataframe=filtered_customers,
+        column="monetary",
         title="Monetary Value Distribution",
-        height=300,
-        margin=dict(
-            l=5,
-            r=5,
-            t=45,
-            b=10,
-        ),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(
-            color="#64748B",
-        ),
-        xaxis_title="Customer Monetary Value (R$)",
-        yaxis_title="Customers",
-        bargap=0.08,
+        x_title="Customer Value",
+        y_title="Customers",
+        bins=30,
+        height=330,
     )
 
 
-    st.plotly_chart(
-        figure,
-        use_container_width=True,
-        config={
-            "displayModeBar": False,
-            "responsive": True,
-        },
+# ============================================================================
+# RFM SUMMARY KPIs
+# ============================================================================
+
+rfm_summary_col1, rfm_summary_col2, rfm_summary_col3 = st.columns(
+    3,
+    gap="medium",
+)
+
+
+with rfm_summary_col1:
+
+    kpi_card(
+        label="Median Recency",
+        value=(
+            f"{filtered_customers['recency'].median():.0f} days"
+        ),
+        delta="Typical customer recency",
+        delta_type="neutral",
     )
 
 
-# =====================================================================
-# CUSTOMER VALUE BEHAVIOR
-# =====================================================================
+with rfm_summary_col2:
+
+    kpi_card(
+        label="Median Frequency",
+        value=(
+            f"{filtered_customers['frequency'].median():.2f}"
+        ),
+        delta="Typical purchase frequency",
+        delta_type="neutral",
+    )
+
+
+with rfm_summary_col3:
+
+    kpi_card(
+        label="Median Customer Value",
+        value=(
+            f"{CURRENCY_SYMBOL}"
+            f"{median_monetary:,.0f}"
+        ),
+        delta="Typical monetary value",
+        delta_type="positive",
+    )
+
+
+# ============================================================================
+# CUSTOMER VALUE RELATIONSHIP
+# ============================================================================
 
 section_header(
-    title="Customer Value Behavior",
+    title="Customer Value Relationship",
     description=(
-        "Explore how purchase frequency relates to customer monetary value."
+        "Identify the relationship between purchase frequency "
+        "and customer monetary value."
     ),
 )
 
 
-value_behavior_col, summary_col = st.columns(
-    [1.7, 1],
+relationship_col, relationship_summary_col = st.columns(
+    [1.7, 1.0],
     gap="large",
 )
 
 
-# =====================================================================
-# FREQUENCY VS MONETARY VALUE
-# =====================================================================
+# ----------------------------------------------------------------------------
+# Frequency vs Monetary Scatter
+# ----------------------------------------------------------------------------
 
-with value_behavior_col:
+with relationship_col:
 
-    scatter_data = filtered_customers.dropna(
-        subset=[
-            "frequency",
-            "monetary",
-            "segment",
-        ]
-    ).copy()
-
-
-    figure = px.scatter(
-        scatter_data,
+    scatter_chart(
+        dataframe=filtered_customers,
         x="frequency",
         y="monetary",
         color="segment",
-        hover_data={
-            "frequency": True,
-            "monetary": ":,.0f",
-            "segment": True,
-        },
+        title="Purchase Frequency vs Customer Value",
+        x_title="Purchase Frequency",
+        y_title="Monetary Value",
+        height=420,
         opacity=0.65,
     )
 
 
-    figure.update_traces(
-        marker=dict(
-            size=7,
-        ),
-    )
+# ----------------------------------------------------------------------------
+# Segment Engagement Ranking
+# ----------------------------------------------------------------------------
 
+with relationship_summary_col:
 
-    figure.update_layout(
-        title=dict(
-            text="Purchase Frequency vs Customer Value",
-            x=0,
-            xanchor="left",
-            font=dict(
-                size=16,
-                color="#111827",
-            ),
-        ),
-        height=390,
-        margin=dict(
-            l=5,
-            r=5,
-            t=45,
-            b=10,
-        ),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(
-            family=(
-                "Inter, -apple-system, "
-                "BlinkMacSystemFont, Segoe UI, sans-serif"
-            ),
-            color="#64748B",
-        ),
-        xaxis=dict(
-            title="Purchase Frequency",
-            showgrid=True,
-            gridcolor="#EEF2F7",
-            zeroline=False,
-        ),
-        yaxis=dict(
-            title="Monetary Value (R$)",
-            showgrid=True,
-            gridcolor="#EEF2F7",
-            zeroline=False,
-        ),
-        legend=dict(
-            title="Segment",
-            font=dict(size=10),
-        ),
-    )
-
-
-    st.plotly_chart(
-        figure,
-        use_container_width=True,
-        config={
-            "displayModeBar": False,
-            "responsive": True,
-        },
-    )
-
-
-# =====================================================================
-# CUSTOMER SEGMENT PERFORMANCE SUMMARY
-# =====================================================================
-
-with summary_col:
-
-    st.markdown("### Segment Performance")
-
-    st.caption(
-        "Business-level comparison of customer segments."
-    )
-
-
-    segment_summary = (
-        customer_df
-        .groupby("segment", as_index=False)
-        .agg(
-            customers=(
-                "customer_unique_id",
-                "nunique",
-            ),
-            avg_recency=(
-                "recency",
-                "mean",
-            ),
-            avg_frequency=(
-                "frequency",
-                "mean",
-            ),
-            avg_monetary=(
-                "monetary",
-                "mean",
-            ),
-            total_monetary=(
-                "monetary",
-                "sum",
-            ),
-        )
-    )
-
-
-    segment_summary["customer_share"] = (
-        segment_summary["customers"]
-        / segment_summary["customers"].sum()
-    )
-
-
-    display_summary = segment_summary.copy()
-
-
-    display_summary["customer_share"] = (
-        display_summary["customer_share"]
-        .map(lambda value: f"{value:.1%}")
-    )
-
-
-    display_summary["avg_recency"] = (
-        display_summary["avg_recency"]
-        .map(lambda value: f"{value:.0f}")
-    )
-
-
-    display_summary["avg_frequency"] = (
-        display_summary["avg_frequency"]
-        .map(lambda value: f"{value:.2f}")
-    )
-
-
-    display_summary["avg_monetary"] = (
-        display_summary["avg_monetary"]
-        .map(
-            lambda value: f"R$ {value:,.0f}"
-        )
-    )
-
-
-    display_summary["total_monetary"] = (
-        display_summary["total_monetary"]
-        .map(
-            lambda value: f"R$ {value:,.0f}"
-        )
-    )
-
-
-    display_summary = display_summary.rename(
-        columns={
-            "segment": "Segment",
-            "customers": "Customers",
-            "customer_share": "Share",
-            "avg_recency": "Avg Recency",
-            "avg_frequency": "Avg Frequency",
-            "avg_monetary": "Avg Value",
-            "total_monetary": "Total Value",
-        }
-    )
-
-
-    st.dataframe(
-        display_summary[
+    segment_engagement = (
+        segment_summary[
             [
-                "Segment",
-                "Customers",
-                "Share",
-                "Avg Recency",
-                "Avg Frequency",
-                "Avg Value",
-                "Total Value",
+                "segment",
+                "avg_frequency",
             ]
-        ],
-        use_container_width=True,
-        hide_index=True,
-        height=390,
+        ]
+        .sort_values(
+            "avg_frequency",
+            ascending=True,
+        )
     )
 
 
-# =====================================================================
-# RETENTION OPPORTUNITY
-# =====================================================================
+    horizontal_bar_chart(
+        dataframe=segment_engagement,
+        category="segment",
+        value="avg_frequency",
+        title="Segment Engagement",
+        category_title="Segment",
+        value_title="Avg Frequency",
+        height=420,
+        text=True,
+    )
+
+
+# ============================================================================
+# RETENTION OPPORTUNITIES
+# ============================================================================
 
 section_header(
     title="Retention Opportunities",
     description=(
-        "Identify customer groups that require attention or represent "
-        "high-value retention opportunities."
+        "Prioritize customer groups based on conversion potential, "
+        "retention risk, and customer value."
     ),
 )
 
 
-# ---------------------------------------------------------------------
-# Identify strategic customer groups
-# ---------------------------------------------------------------------
+# ============================================================================
+# RETENTION SEGMENT IDENTIFICATION
+# ============================================================================
 
 one_time_names = {
     "Recent One-Time Buyers",
@@ -977,21 +791,26 @@ risk_names = {
 
 one_time_count = int(
     customer_df[
-        customer_df["segment"].isin(one_time_names)
+        customer_df["segment"].isin(
+            one_time_names
+        )
     ].shape[0]
 )
 
 
 risk_count = int(
     customer_df[
-        customer_df["segment"].isin(risk_names)
+        customer_df["segment"].isin(
+            risk_names
+        )
     ].shape[0]
 )
 
 
 high_value_count = int(
     customer_df[
-        customer_df["segment"].astype(str)
+        customer_df["segment"]
+        .astype(str)
         .str.contains(
             "High-Value",
             case=False,
@@ -1002,30 +821,77 @@ high_value_count = int(
 
 
 total_customer_base = int(
-    customer_df["customer_unique_id"].nunique()
+    customer_df[
+        "customer_unique_id"
+    ].nunique()
 )
 
 
 one_time_share = (
-    one_time_count / total_customer_base
+    one_time_count
+    / total_customer_base
     if total_customer_base > 0
     else 0
 )
 
 
 risk_share = (
-    risk_count / total_customer_base
+    risk_count
+    / total_customer_base
     if total_customer_base > 0
     else 0
 )
 
 
 high_value_share = (
-    high_value_count / total_customer_base
+    high_value_count
+    / total_customer_base
     if total_customer_base > 0
     else 0
 )
 
+
+# ============================================================================
+# RETENTION VISUAL
+# ============================================================================
+
+retention_chart = pd.DataFrame(
+    {
+        "opportunity": [
+            "One-Time Buyers",
+            "At-Risk / Lapsed",
+            "High-Value Customers",
+        ],
+        "customers": [
+            one_time_count,
+            risk_count,
+            high_value_count,
+        ],
+    }
+)
+
+
+retention_chart = retention_chart.sort_values(
+    "customers",
+    ascending=True,
+)
+
+
+horizontal_bar_chart(
+    dataframe=retention_chart,
+    category="opportunity",
+    value="customers",
+    title="Strategic Customer Groups",
+    category_title="Customer Group",
+    value_title="Customers",
+    height=350,
+    text=True,
+)
+
+
+# ============================================================================
+# RETENTION INSIGHTS
+# ============================================================================
 
 retention_col1, retention_col2, retention_col3 = st.columns(
     3,
@@ -1033,9 +899,9 @@ retention_col1, retention_col2, retention_col3 = st.columns(
 )
 
 
-# ---------------------------------------------------------------------
-# One-time buyers
-# ---------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+# One-time Buyers
+# ----------------------------------------------------------------------------
 
 with retention_col1:
 
@@ -1045,17 +911,17 @@ with retention_col1:
         description=(
             f"{one_time_count:,} customers "
             f"({one_time_share:.1%} of the customer base) "
-            "are classified as recent one-time buyers. "
-            "They represent the clearest opportunity for "
-            "repeat-purchase conversion."
+            "are recent one-time buyers. "
+            "They represent the clearest opportunity "
+            "for repeat-purchase conversion."
         ),
         insight_type="warning",
     )
 
 
-# ---------------------------------------------------------------------
-# At-risk customers
-# ---------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+# At-risk Customers
+# ----------------------------------------------------------------------------
 
 with retention_col2:
 
@@ -1065,7 +931,7 @@ with retention_col2:
         description=(
             f"{risk_count:,} customers "
             f"({risk_share:.1%} of the customer base) "
-            "fall into the lapsed or at-risk segment."
+            "fall into lapsed or at-risk segments."
         ),
         insight_type=(
             "danger"
@@ -1075,9 +941,9 @@ with retention_col2:
     )
 
 
-# ---------------------------------------------------------------------
-# High-value customers
-# ---------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+# High-value Customers
+# ----------------------------------------------------------------------------
 
 with retention_col3:
 
@@ -1087,16 +953,108 @@ with retention_col3:
         description=(
             f"{high_value_count:,} customers "
             f"({high_value_share:.1%} of the customer base) "
-            "are classified as high-value customers and "
-            "should receive priority retention attention."
+            "are classified as high-value and should receive "
+            "priority retention attention."
         ),
         insight_type="success",
     )
 
 
-# =====================================================================
+# ============================================================================
+# SEGMENT DETAIL
+# ============================================================================
+
+section_header(
+    title="Segment Performance Detail",
+    description=(
+        "Detailed RFM and customer-value metrics for each customer segment."
+    ),
+)
+
+
+display_summary = segment_summary.copy()
+
+
+display_summary["customer_share"] = (
+    display_summary["customer_share"]
+    .map(
+        lambda value: f"{value:.1%}"
+    )
+)
+
+
+display_summary["avg_recency"] = (
+    display_summary["avg_recency"]
+    .map(
+        lambda value: f"{value:.0f} days"
+    )
+)
+
+
+display_summary["avg_frequency"] = (
+    display_summary["avg_frequency"]
+    .map(
+        lambda value: f"{value:.2f}"
+    )
+)
+
+
+display_summary["avg_monetary"] = (
+    display_summary["avg_monetary"]
+    .map(
+        lambda value: (
+            f"{CURRENCY_SYMBOL}"
+            f"{value:,.0f}"
+        )
+    )
+)
+
+
+display_summary["total_monetary"] = (
+    display_summary["total_monetary"]
+    .map(
+        lambda value: (
+            f"{CURRENCY_SYMBOL}"
+            f"{value:,.0f}"
+        )
+    )
+)
+
+
+display_summary = display_summary.rename(
+    columns={
+        "segment": "Segment",
+        "customers": "Customers",
+        "customer_share": "Share",
+        "avg_recency": "Avg Recency",
+        "avg_frequency": "Avg Frequency",
+        "avg_monetary": "Avg Value",
+        "total_monetary": "Total Value",
+    }
+)
+
+
+st.dataframe(
+    display_summary[
+        [
+            "Segment",
+            "Customers",
+            "Share",
+            "Avg Recency",
+            "Avg Frequency",
+            "Avg Value",
+            "Total Value",
+        ]
+    ],
+    use_container_width=True,
+    hide_index=True,
+    height=320,
+)
+
+
+# ============================================================================
 # CUSTOMER ANALYTICS SUMMARY
-# =====================================================================
+# ============================================================================
 
 section_header(
     title="Customer Analytics Summary",
@@ -1106,9 +1064,9 @@ section_header(
 )
 
 
-# ---------------------------------------------------------------------
-# Find largest segment
-# ---------------------------------------------------------------------
+# ============================================================================
+# SUMMARY METRICS
+# ============================================================================
 
 largest_segment_row = (
     segment_summary
@@ -1138,10 +1096,6 @@ largest_segment_share = (
 )
 
 
-# ---------------------------------------------------------------------
-# Find highest-value segment
-# ---------------------------------------------------------------------
-
 highest_value_row = (
     segment_summary
     .sort_values(
@@ -1161,10 +1115,6 @@ highest_value_amount = float(
     highest_value_row["avg_monetary"]
 )
 
-
-# ---------------------------------------------------------------------
-# Find most frequent segment
-# ---------------------------------------------------------------------
 
 highest_frequency_row = (
     segment_summary
@@ -1186,59 +1136,60 @@ highest_frequency_value = float(
 )
 
 
+# ============================================================================
+# SUMMARY INSIGHTS
+# ============================================================================
+
 summary_col1, summary_col2, summary_col3 = st.columns(
     3,
     gap="medium",
 )
 
 
-# ---------------------------------------------------------------------
-# Largest segment insight
-# ---------------------------------------------------------------------
-
 with summary_col1:
 
     insight_card(
         label="SEGMENT SCALE",
-        title=f"{largest_segment_name} is the largest segment",
+        title=(
+            f"{largest_segment_name} is the largest segment"
+        ),
         description=(
             f"It contains {largest_segment_size:,} customers, "
-            f"representing {largest_segment_share:.1%} of the "
-            "customer base."
+            f"representing {largest_segment_share:.1%} "
+            "of the customer base."
         ),
         insight_type="info",
     )
 
 
-# ---------------------------------------------------------------------
-# Highest-value segment insight
-# ---------------------------------------------------------------------
-
 with summary_col2:
 
     insight_card(
         label="CUSTOMER VALUE",
-        title=f"{highest_value_segment} has the highest average value",
+        title=(
+            f"{highest_value_segment} has the highest value"
+        ),
         description=(
             f"Average monetary value is "
-            f"R$ {highest_value_amount:,.0f} per customer."
+            f"{CURRENCY_SYMBOL} "
+            f"{highest_value_amount:,.0f} "
+            "per customer."
         ),
         insight_type="success",
     )
 
 
-# ---------------------------------------------------------------------
-# Highest-frequency segment insight
-# ---------------------------------------------------------------------
-
 with summary_col3:
 
     insight_card(
         label="ENGAGEMENT",
-        title=f"{highest_frequency_segment} purchases most frequently",
+        title=(
+            f"{highest_frequency_segment} purchases most frequently"
+        ),
         description=(
             f"Average purchase frequency is "
-            f"{highest_frequency_value:.2f} orders per customer."
+            f"{highest_frequency_value:.2f} "
+            "orders per customer."
         ),
         insight_type="info",
     )

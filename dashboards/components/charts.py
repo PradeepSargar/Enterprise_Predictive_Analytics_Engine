@@ -6,12 +6,13 @@ This module is the centralized visualization layer for the dashboard.
 Responsibilities
 ----------------
 - Create reusable Plotly visualizations.
-- Apply consistent dashboard styling.
+- Apply consistent enterprise dashboard styling.
 - Keep chart configuration out of individual pages.
 - Handle empty and invalid datasets safely.
 - Prevent large datasets from overwhelming the browser.
-- Use SVG-based charts for maximum browser compatibility.
-- Standardize titles, spacing, grids, hover behavior, and legends.
+- Use SVG-based charts for browser compatibility.
+- Standardize titles, spacing, grids, hover behavior, legends,
+  annotations, and chart surfaces.
 
 Architecture
 ------------
@@ -41,18 +42,49 @@ import streamlit as st
 # ============================================================================
 
 PRIMARY_COLOR = "#2563EB"
+PRIMARY_DARK = "#1D4ED8"
 SECONDARY_COLOR = "#7C3AED"
+
 SUCCESS_COLOR = "#059669"
 WARNING_COLOR = "#D97706"
 DANGER_COLOR = "#DC2626"
+INFO_COLOR = "#0891B2"
+
 NEUTRAL_COLOR = "#64748B"
 
-GRID_COLOR = "#E5E7EB"
 TEXT_COLOR = "#0F172A"
 MUTED_TEXT_COLOR = "#64748B"
+LIGHT_TEXT_COLOR = "#94A3B8"
+
+GRID_COLOR = "#E8EEF5"
+BORDER_COLOR = "#E2E8F0"
 
 WHITE = "#FFFFFF"
 TRANSPARENT = "rgba(0,0,0,0)"
+
+SOFT_BLUE = "#EFF6FF"
+SOFT_PURPLE = "#F5F3FF"
+SOFT_GREEN = "#ECFDF5"
+SOFT_AMBER = "#FFFBEB"
+SOFT_RED = "#FEF2F2"
+
+
+# ============================================================================
+# COLOR PALETTE
+# ============================================================================
+
+CHART_PALETTE = [
+    PRIMARY_COLOR,
+    SECONDARY_COLOR,
+    SUCCESS_COLOR,
+    WARNING_COLOR,
+    DANGER_COLOR,
+    INFO_COLOR,
+    "#DB2777",
+    "#4F46E5",
+    "#0F766E",
+    "#9333EA",
+]
 
 
 # ============================================================================
@@ -62,13 +94,12 @@ TRANSPARENT = "rgba(0,0,0,0)"
 DEFAULT_CHART_HEIGHT = 380
 
 DEFAULT_MARGIN = {
-    "l": 55,
-    "r": 25,
-    "t": 55,
-    "b": 50,
+    "l": 48,
+    "r": 28,
+    "t": 58,
+    "b": 48,
 }
 
-# Maximum number of customer observations rendered in scatter plots.
 MAX_SCATTER_POINTS = 6000
 
 
@@ -120,12 +151,50 @@ def _render_empty_state(
     message: str,
 ) -> None:
     """
-    Render a consistent empty-state message.
+    Render a clean analytical empty state.
     """
 
-    st.info(
-        message,
-        icon="ℹ️",
+    st.markdown(
+        f"""
+        <div style="
+            min-height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: #FFFFFF;
+            border: 1px solid {BORDER_COLOR};
+            border-radius: 14px;
+            padding: 2rem;
+        ">
+            <div>
+                <div style="
+                    font-size: 26px;
+                    margin-bottom: 0.45rem;
+                    opacity: 0.55;
+                ">
+                    ◌
+                </div>
+
+                <div style="
+                    color: {TEXT_COLOR};
+                    font-size: 13px;
+                    font-weight: 700;
+                ">
+                    No chart data available
+                </div>
+
+                <div style="
+                    margin-top: 0.3rem;
+                    color: {MUTED_TEXT_COLOR};
+                    font-size: 10px;
+                ">
+                    {message}
+                </div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
 
@@ -143,8 +212,10 @@ def _prepare_scatter_data(
     """
     Prepare customer-level data for browser-safe scatter rendering.
 
-    Large customer datasets are sampled deterministically so that the
-    browser does not have to render tens of thousands of points.
+    Large datasets are sampled deterministically.
+
+    Extreme observations are preserved where possible so that
+    important high-value customers are not accidentally removed.
     """
 
     columns_to_keep = [x, y]
@@ -152,9 +223,10 @@ def _prepare_scatter_data(
     if color:
         columns_to_keep.append(color)
 
-    prepared = dataframe[columns_to_keep].copy()
+    prepared = dataframe[
+        columns_to_keep
+    ].copy()
 
-    # Remove observations that cannot be plotted.
     prepared = prepared.dropna(
         subset=[x, y]
     )
@@ -162,12 +234,11 @@ def _prepare_scatter_data(
     if prepared.empty:
         return prepared
 
-    # No sampling is necessary for reasonably small datasets.
     if len(prepared) <= max_points:
         return prepared.reset_index(drop=True)
 
     # ------------------------------------------------------------------------
-    # Preserve high-value / extreme observations.
+    # Preserve extreme observations.
     # ------------------------------------------------------------------------
 
     extreme_count = min(
@@ -178,6 +249,7 @@ def _prepare_scatter_data(
     extreme_indices: set[int] = set()
 
     try:
+
         x_numeric = pd.to_numeric(
             prepared[x],
             errors="coerce",
@@ -212,7 +284,9 @@ def _prepare_scatter_data(
         extreme_indices = set()
 
     extreme_indices = set(
-        list(extreme_indices)[: max_points // 4]
+        list(extreme_indices)[
+            : max_points // 4
+        ]
     )
 
     remaining = prepared.drop(
@@ -232,7 +306,9 @@ def _prepare_scatter_data(
 
     if color and color in remaining.columns:
 
-        category_count = remaining[color].nunique(
+        category_count = remaining[
+            color
+        ].nunique(
             dropna=True
         )
 
@@ -279,8 +355,10 @@ def _prepare_scatter_data(
             random_state=42,
         )
 
-    # Fill remaining space if category-aware sampling did not
-    # reach the target size.
+    # ------------------------------------------------------------------------
+    # Fill remaining space.
+    # ------------------------------------------------------------------------
+
     if len(sampled) < remaining_slots:
 
         sampled_indices = set(
@@ -310,7 +388,7 @@ def _prepare_scatter_data(
             )
 
     # ------------------------------------------------------------------------
-    # Combine extreme observations and sampled observations.
+    # Combine extreme and sampled observations.
     # ------------------------------------------------------------------------
 
     if extreme_indices:
@@ -351,7 +429,7 @@ def _base_layout(
     height: int = DEFAULT_CHART_HEIGHT,
 ) -> dict:
     """
-    Return the shared dashboard Plotly layout.
+    Return the shared enterprise dashboard Plotly layout.
     """
 
     title_config = None
@@ -362,20 +440,27 @@ def _base_layout(
             "text": title,
             "x": 0,
             "xanchor": "left",
-            "y": 0.98,
+            "y": 0.985,
             "yanchor": "top",
             "font": {
-                "size": 16,
+                "size": 15,
                 "color": TEXT_COLOR,
+                "family": (
+                    "Inter, -apple-system, BlinkMacSystemFont, "
+                    "Segoe UI, sans-serif"
+                ),
             },
         }
 
     return {
         "title": title_config,
+
         "height": height,
+
         "margin": DEFAULT_MARGIN.copy(),
 
         "paper_bgcolor": TRANSPARENT,
+
         "plot_bgcolor": TRANSPARENT,
 
         "font": {
@@ -384,27 +469,37 @@ def _base_layout(
                 "Segoe UI, sans-serif"
             ),
             "color": MUTED_TEXT_COLOR,
-            "size": 12,
+            "size": 11,
         },
 
         "hoverlabel": {
             "bgcolor": WHITE,
-            "bordercolor": GRID_COLOR,
+            "bordercolor": BORDER_COLOR,
             "font": {
-                "size": 12,
+                "size": 11,
                 "color": TEXT_COLOR,
+                "family": (
+                    "Inter, -apple-system, BlinkMacSystemFont, "
+                    "Segoe UI, sans-serif"
+                ),
             },
+            "namelength": -1,
         },
 
         "legend": {
             "font": {
-                "size": 11,
+                "size": 10,
                 "color": MUTED_TEXT_COLOR,
             },
             "bgcolor": TRANSPARENT,
+            "borderwidth": 0,
         },
 
         "hovermode": "closest",
+
+        "dragmode": False,
+
+        "showlegend": True,
     }
 
 
@@ -420,7 +515,7 @@ def _apply_axis_style(
     show_y_grid: bool = True,
 ) -> None:
     """
-    Apply the standard dashboard axis styling.
+    Apply the standard enterprise dashboard axis styling.
     """
 
     figure.update_xaxes(
@@ -430,12 +525,13 @@ def _apply_axis_style(
         gridwidth=1,
         zeroline=False,
         showline=False,
+        ticks="",
         title_font={
-            "size": 12,
+            "size": 10,
             "color": MUTED_TEXT_COLOR,
         },
         tickfont={
-            "size": 11,
+            "size": 10,
             "color": MUTED_TEXT_COLOR,
         },
         automargin=True,
@@ -448,12 +544,13 @@ def _apply_axis_style(
         gridwidth=1,
         zeroline=False,
         showline=False,
+        ticks="",
         title_font={
-            "size": 12,
+            "size": 10,
             "color": MUTED_TEXT_COLOR,
         },
         tickfont={
-            "size": 11,
+            "size": 10,
             "color": MUTED_TEXT_COLOR,
         },
         automargin=True,
@@ -470,10 +567,14 @@ def _render_figure(
     """
     Render a Plotly figure using SVG-compatible rendering.
 
-    SVG is deliberately used instead of WebGL because the dashboard
-    should work reliably across browsers, remote desktops and machines
-    where WebGL support is unavailable.
+    The mode bar is hidden because the dashboard is intended to
+    behave like a polished analytical product rather than a Plotly
+    development canvas.
     """
+
+    figure.update_layout(
+        hoverdistance=30,
+    )
 
     st.plotly_chart(
         figure,
@@ -481,6 +582,9 @@ def _render_figure(
         config={
             "displayModeBar": False,
             "responsive": True,
+            "scrollZoom": False,
+            "doubleClick": False,
+            "displaylogo": False,
         },
     )
 
@@ -501,7 +605,7 @@ def line_chart(
     color: Optional[str] = None,
 ) -> None:
     """
-    Render a reusable SVG-based line chart.
+    Render a reusable professional line chart.
     """
 
     if not _validate_dataframe(dataframe):
@@ -545,6 +649,15 @@ def line_chart(
             title=title,
             height=height,
         )
+    )
+
+    figure.update_traces(
+        line={
+            "width": 2.5,
+        },
+        marker={
+            "size": 6,
+        },
     )
 
     _apply_axis_style(
@@ -604,6 +717,7 @@ def bar_chart(
         y=y,
         color=color,
         text=y if text else None,
+        color_discrete_sequence=CHART_PALETTE,
     )
 
     if color is None:
@@ -611,6 +725,14 @@ def bar_chart(
         figure.update_traces(
             marker_color=PRIMARY_COLOR,
             marker_line_width=0,
+            opacity=0.92,
+        )
+
+    else:
+
+        figure.update_traces(
+            marker_line_width=0,
+            opacity=0.92,
         )
 
     if text:
@@ -619,6 +741,10 @@ def bar_chart(
             texttemplate="%{text}",
             textposition="outside",
             cliponaxis=False,
+            textfont={
+                "size": 10,
+                "color": TEXT_COLOR,
+            },
         )
 
     figure.update_layout(
@@ -633,6 +759,7 @@ def bar_chart(
         x_title=x_title,
         y_title=y_title,
         show_y_grid=True,
+        show_x_grid=False,
     )
 
     _render_figure(
@@ -680,11 +807,15 @@ def horizontal_bar_chart(
         y=category,
         orientation="h",
         text=value if text else None,
+        color_discrete_sequence=[
+            PRIMARY_COLOR
+        ],
     )
 
     figure.update_traces(
         marker_color=PRIMARY_COLOR,
         marker_line_width=0,
+        opacity=0.92,
     )
 
     if text:
@@ -693,6 +824,10 @@ def horizontal_bar_chart(
             texttemplate="%{text}",
             textposition="outside",
             cliponaxis=False,
+            textfont={
+                "size": 10,
+                "color": TEXT_COLOR,
+            },
         )
 
     figure.update_layout(
@@ -758,7 +893,7 @@ def area_chart(
     figure.update_traces(
         line={
             "color": PRIMARY_COLOR,
-            "width": 2,
+            "width": 2.5,
         },
         fillcolor="rgba(37,99,235,0.10)",
     )
@@ -794,7 +929,7 @@ def donut_chart(
     hole: float = 0.62,
 ) -> None:
     """
-    Render a reusable donut chart.
+    Render a reusable professional donut chart.
     """
 
     if not _validate_dataframe(dataframe):
@@ -818,15 +953,17 @@ def donut_chart(
         names=names,
         values=values,
         hole=hole,
+        color_discrete_sequence=CHART_PALETTE,
     )
 
     figure.update_traces(
         textposition="inside",
         textinfo="percent",
+        sort=False,
         marker={
             "line": {
                 "color": WHITE,
-                "width": 2,
+                "width": 3,
             }
         },
         hovertemplate=(
@@ -836,6 +973,34 @@ def donut_chart(
             "<extra></extra>"
         ),
     )
+
+    # ------------------------------------------------------------------------
+    # Add a clean center annotation.
+    # ------------------------------------------------------------------------
+
+    try:
+
+        total_value = dataframe[
+            values
+        ].sum()
+
+        figure.add_annotation(
+            text=(
+                f"<b>{total_value:,.0f}</b>"
+                "<br>"
+                "<span style='font-size:10px'>TOTAL</span>"
+            ),
+            x=0.5,
+            y=0.5,
+            showarrow=False,
+            font={
+                "size": 16,
+                "color": TEXT_COLOR,
+            },
+        )
+
+    except Exception:
+        pass
 
     figure.update_layout(
         **_base_layout(
@@ -847,8 +1012,12 @@ def donut_chart(
     figure.update_layout(
         legend={
             "orientation": "v",
+            "x": 1.02,
+            "xanchor": "left",
+            "y": 0.5,
+            "yanchor": "middle",
             "font": {
-                "size": 11,
+                "size": 10,
                 "color": MUTED_TEXT_COLOR,
             },
             "bgcolor": TRANSPARENT,
@@ -879,16 +1048,9 @@ def scatter_chart(
     """
     Render a browser-safe SVG scatter chart.
 
-    Important
-    ---------
-    This function intentionally uses graph_objects.Scatter instead
-    of Plotly Express scatter.
-
-    That removes the WebGL dependency that was causing:
-
-        "WebGL is not supported by your browser"
-
-    The chart remains SVG-based even for customer-level data.
+    The chart intentionally uses ``go.Scatter`` rather than WebGL-based
+    rendering so that customer-level analytics work reliably across
+    browsers and remote environments.
     """
 
     if not _validate_dataframe(dataframe):
@@ -934,7 +1096,7 @@ def scatter_chart(
     figure = go.Figure()
 
     # ------------------------------------------------------------------------
-    # SINGLE-CATEGORY SCATTER
+    # Single-category scatter.
     # ------------------------------------------------------------------------
 
     if not color:
@@ -952,7 +1114,9 @@ def scatter_chart(
 
                 normalized_size = (
                     numeric_size
-                    .fillna(numeric_size.median())
+                    .fillna(
+                        numeric_size.median()
+                    )
                     .clip(lower=0)
                 )
 
@@ -973,16 +1137,19 @@ def scatter_chart(
                 x=plot_dataframe[x],
                 y=plot_dataframe[y],
                 mode="markers",
+
                 marker={
                     "size": marker_size,
                     "color": PRIMARY_COLOR,
                     "opacity": opacity,
                     "line": {
-                        "width": 0.5,
+                        "width": 0.6,
                         "color": WHITE,
                     },
                 },
+
                 name="Customers",
+
                 hovertemplate=(
                     f"<b>{x}</b>: "
                     "%{x}<br>"
@@ -994,7 +1161,7 @@ def scatter_chart(
         )
 
     # ------------------------------------------------------------------------
-    # CATEGORY-BASED SCATTER
+    # Category-based scatter.
     # ------------------------------------------------------------------------
 
     else:
@@ -1006,18 +1173,9 @@ def scatter_chart(
             .tolist()
         )
 
-        category_palette = [
-            PRIMARY_COLOR,
-            SECONDARY_COLOR,
-            SUCCESS_COLOR,
-            WARNING_COLOR,
-            DANGER_COLOR,
-            "#0891B2",
-            "#DB2777",
-            "#4F46E5",
-        ]
-
-        for index, category in enumerate(categories):
+        for index, category in enumerate(
+            categories
+        ):
 
             category_df = plot_dataframe[
                 plot_dataframe[color] == category
@@ -1028,18 +1186,22 @@ def scatter_chart(
                     x=category_df[x],
                     y=category_df[y],
                     mode="markers",
+
                     name=str(category),
+
                     marker={
                         "size": 7,
-                        "color": category_palette[
-                            index % len(category_palette)
+                        "color": CHART_PALETTE[
+                            index
+                            % len(CHART_PALETTE)
                         ],
                         "opacity": opacity,
                         "line": {
-                            "width": 0.5,
+                            "width": 0.6,
                             "color": WHITE,
                         },
                     },
+
                     hovertemplate=(
                         f"<b>{color}</b>: "
                         f"{category}"
@@ -1055,7 +1217,7 @@ def scatter_chart(
             )
 
     # ------------------------------------------------------------------------
-    # Layout
+    # Layout.
     # ------------------------------------------------------------------------
 
     figure.update_layout(
@@ -1081,11 +1243,17 @@ def scatter_chart(
                 "xanchor": "left",
                 "x": 0,
                 "font": {
-                    "size": 11,
+                    "size": 10,
                     "color": MUTED_TEXT_COLOR,
                 },
                 "bgcolor": TRANSPARENT,
             }
+        )
+
+    else:
+
+        figure.update_layout(
+            showlegend=False
         )
 
     _render_figure(
@@ -1135,6 +1303,7 @@ def histogram(
     figure.update_traces(
         marker_color=color,
         marker_line_width=0,
+        opacity=0.88,
         hovertemplate=(
             "%{x}<br>"
             "Count: %{y:,}"
@@ -1237,7 +1406,7 @@ def forecast_chart(
     figure = go.Figure()
 
     # ------------------------------------------------------------------------
-    # Confidence interval
+    # Confidence interval.
     # ------------------------------------------------------------------------
 
     if lower_column and upper_column:
@@ -1246,12 +1415,16 @@ def forecast_chart(
             go.Scatter(
                 x=df[date_column],
                 y=df[upper_column],
+
                 mode="lines",
+
                 line={
                     "width": 0,
                     "color": TRANSPARENT,
                 },
+
                 showlegend=False,
+
                 hoverinfo="skip",
             )
         )
@@ -1260,35 +1433,47 @@ def forecast_chart(
             go.Scatter(
                 x=df[date_column],
                 y=df[lower_column],
+
                 mode="lines",
+
                 line={
                     "width": 0,
                     "color": TRANSPARENT,
                 },
+
                 fill="tonexty",
-                fillcolor="rgba(124,58,237,0.12)",
+
+                fillcolor="rgba(124,58,237,0.11)",
+
                 name="Confidence interval",
+
                 hoverinfo="skip",
             )
         )
 
     # ------------------------------------------------------------------------
-    # Actual values
+    # Actual values.
     # ------------------------------------------------------------------------
 
     figure.add_trace(
         go.Scatter(
             x=df[date_column],
             y=df[actual_column],
+
             mode="lines+markers",
+
             name="Actual",
+
             line={
                 "color": NEUTRAL_COLOR,
-                "width": 2,
+                "width": 2.2,
             },
+
             marker={
-                "size": 6,
+                "size": 5,
+                "color": NEUTRAL_COLOR,
             },
+
             hovertemplate=(
                 "<b>Actual</b><br>"
                 "%{x|%b %Y}<br>"
@@ -1299,22 +1484,28 @@ def forecast_chart(
     )
 
     # ------------------------------------------------------------------------
-    # Forecast values
+    # Forecast values.
     # ------------------------------------------------------------------------
 
     figure.add_trace(
         go.Scatter(
             x=df[date_column],
             y=df[forecast_column],
+
             mode="lines+markers",
+
             name="Forecast",
+
             line={
                 "color": SECONDARY_COLOR,
                 "width": 3,
             },
+
             marker={
-                "size": 6,
+                "size": 5,
+                "color": SECONDARY_COLOR,
             },
+
             hovertemplate=(
                 "<b>Forecast</b><br>"
                 "%{x|%b %Y}<br>"
@@ -1325,7 +1516,7 @@ def forecast_chart(
     )
 
     # ------------------------------------------------------------------------
-    # Layout
+    # Layout.
     # ------------------------------------------------------------------------
 
     figure.update_layout(
@@ -1349,7 +1540,7 @@ def forecast_chart(
             "xanchor": "left",
             "x": 0,
             "font": {
-                "size": 11,
+                "size": 10,
                 "color": MUTED_TEXT_COLOR,
             },
             "bgcolor": TRANSPARENT,

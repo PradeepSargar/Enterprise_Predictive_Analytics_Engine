@@ -7,11 +7,12 @@ Enterprise Predictive Analytics Engine dashboard.
 Design principles
 -----------------
 - One component = one KPI card.
-- Presentation styling remains controlled by the global theme.
-- Pages provide data; this component only renders it.
-- No business logic belongs here.
-- No page-specific styling belongs here.
-- The public API remains simple and reusable across all pages.
+- Pages provide data; this component only renders presentation.
+- Business logic does not belong here.
+- Styling is controlled by the centralized dashboard theme.
+- The public ``kpi_card()`` API remains backward compatible.
+- HTML content is escaped before rendering.
+- Optional visual variants provide stronger dashboard hierarchy.
 """
 
 from __future__ import annotations
@@ -32,6 +33,14 @@ DeltaType = Literal[
     "neutral",
 ]
 
+KPIAccent = Literal[
+    "blue",
+    "green",
+    "purple",
+    "amber",
+    "red",
+]
+
 
 # ============================================================================
 # CONSTANTS
@@ -41,6 +50,14 @@ SUPPORTED_DELTA_TYPES = {
     "positive",
     "negative",
     "neutral",
+}
+
+SUPPORTED_ACCENTS = {
+    "blue",
+    "green",
+    "purple",
+    "amber",
+    "red",
 }
 
 
@@ -53,6 +70,8 @@ def kpi_card(
     value: str,
     delta: str | None = None,
     delta_type: DeltaType = "neutral",
+    accent: KPIAccent = "blue",
+    icon: str | None = None,
 ) -> None:
     """
     Render a reusable premium KPI card.
@@ -60,51 +79,76 @@ def kpi_card(
     Parameters
     ----------
     label:
-        Short name of the business metric.
+        Short business name of the metric.
 
     value:
         Primary metric value displayed prominently.
 
     delta:
-        Optional supporting information displayed below the
-        primary value.
+        Optional supporting information displayed below
+        the primary value.
 
     delta_type:
-        Semantic styling for the supporting information.
+        Semantic style for the supporting information.
 
         Supported values:
         - "positive"
         - "negative"
         - "neutral"
 
+    accent:
+        Visual accent applied to the top edge of the card.
+
+        Supported values:
+        - "blue"
+        - "green"
+        - "purple"
+        - "amber"
+        - "red"
+
+    icon:
+        Optional visual icon displayed inside the KPI card.
+
+        Example:
+            icon="◉"
+
+        The icon is optional so existing pages using the
+        original four-argument API continue to work.
+
     Notes
     -----
-    The component intentionally does not inject CSS.
+    The component does not inject CSS.
 
-    Visual styling is handled by the centralized dashboard
-    theme so that every KPI card across every page remains
-    visually consistent.
+    All visual styling is provided by ``dashboards.styles.theme``.
+
+    The component only creates the semantic HTML structure
+    required by the centralized theme.
     """
 
     # ------------------------------------------------------------------------
     # Validate delta type
     # ------------------------------------------------------------------------
-    #
-    # Prevent accidental invalid CSS class names from being generated.
-    # Falling back to "neutral" is safer than allowing arbitrary values
-    # into the rendered HTML.
 
     if delta_type not in SUPPORTED_DELTA_TYPES:
         delta_type = "neutral"
 
 
     # ------------------------------------------------------------------------
-    # Normalize values
+    # Validate accent
+    # ------------------------------------------------------------------------
+
+    if accent not in SUPPORTED_ACCENTS:
+        accent = "blue"
+
+
+    # ------------------------------------------------------------------------
+    # Normalize and escape dynamic values
     # ------------------------------------------------------------------------
     #
-    # Convert values to strings before escaping them.
-    # This allows callers to safely pass numbers or other string-like
-    # values while keeping the public component API simple.
+    # Values are converted to strings first so that callers can safely
+    # provide numbers, pandas values, or other string-like objects.
+    #
+    # ``escape()`` prevents user/data content from becoming executable HTML.
 
     safe_label = escape(
         str(label)
@@ -113,6 +157,25 @@ def kpi_card(
     safe_value = escape(
         str(value)
     )
+
+
+    # ------------------------------------------------------------------------
+    # Build optional icon
+    # ------------------------------------------------------------------------
+
+    icon_html = ""
+
+    if icon is not None:
+
+        safe_icon = escape(
+            str(icon)
+        )
+
+        icon_html = (
+            '<div class="kpi-icon">'
+            f"{safe_icon}"
+            "</div>"
+        )
 
 
     # ------------------------------------------------------------------------
@@ -140,21 +203,35 @@ def kpi_card(
     # Build KPI card
     # ------------------------------------------------------------------------
     #
-    # Keep the HTML as one continuous string.
+    # ``kpi-{accent}`` allows the centralized theme to control the
+    # visual accent without putting CSS directly into this component.
     #
-    # Streamlit's Markdown parser can interpret indented HTML as
-    # code blocks. Building the markup without leading indentation
-    # prevents the raw HTML from appearing visibly on the page.
+    # Existing pages do not need to provide ``accent`` because blue
+    # remains the safe default.
 
     html = (
-        '<div class="kpi-card">'
+        f'<div class="kpi-card kpi-{accent}">'
+
+        '<div class="kpi-card-top">'
+
+        '<div class="kpi-card-content">'
+
         '<div class="kpi-label">'
         f"{safe_label}"
         "</div>"
+
         '<div class="kpi-value">'
         f"{safe_value}"
         "</div>"
+
         f"{delta_html}"
+
+        "</div>"
+
+        f"{icon_html}"
+
+        "</div>"
+
         "</div>"
     )
 
@@ -167,3 +244,12 @@ def kpi_card(
         html,
         unsafe_allow_html=True,
     )
+
+
+# ============================================================================
+# PUBLIC API
+# ============================================================================
+
+__all__ = [
+    "kpi_card",
+]

@@ -20,44 +20,64 @@ from __future__ import annotations
 import pandas as pd
 import streamlit as st
 
+
+# ============================================================================
+# REUSABLE COMPONENTS
+# ============================================================================
+
 from dashboards.components.alerts import (
     insight_card,
 )
+
 from dashboards.components.charts import (
+    bar_chart,
     donut_chart,
     forecast_chart,
     line_chart,
 )
+
 from dashboards.components.containers import (
     panel,
     two_column_layout,
 )
+
 from dashboards.components.exports import (
     export_buttons,
 )
+
 from dashboards.components.kpi_cards import (
     kpi_card,
 )
-from dashboards.components.metric_badges import (
-    positive_badge,
-    warning_badge,
-)
+
 from dashboards.components.section_headers import (
     page_header,
     section_header,
 )
+
 from dashboards.components.status_indicators import (
     live_status,
 )
+
 from dashboards.components.tooltips import (
     metric_help,
 )
+
+
+# ============================================================================
+# DATA LAYER
+# ============================================================================
 
 from dashboards.data.loader import (
     load_customer_segments,
     load_master_data,
     load_revenue_forecast,
 )
+
+
+# ============================================================================
+# TRANSFORMATION LAYER
+# ============================================================================
+
 from dashboards.data.transformations import (
     calculate_customer_segment_summary,
     calculate_executive_kpis,
@@ -122,8 +142,7 @@ page_header(
     ),
 )
 
-# Live status is intentionally kept separate from the page header
-# so the page remains flexible if the status presentation changes.
+
 live_status(
     "LIVE ANALYTICS"
 )
@@ -152,9 +171,9 @@ kpi_columns = st.columns(
 )
 
 
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Revenue
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 with kpi_columns[0]:
 
@@ -168,9 +187,9 @@ with kpi_columns[0]:
     )
 
 
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Orders
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 with kpi_columns[1]:
 
@@ -184,9 +203,9 @@ with kpi_columns[1]:
     )
 
 
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Customers
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 with kpi_columns[2]:
 
@@ -200,9 +219,9 @@ with kpi_columns[2]:
     )
 
 
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Average Order Value
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 with kpi_columns[3]:
 
@@ -216,9 +235,9 @@ with kpi_columns[3]:
     )
 
 
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Repeat Customer Rate
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 with kpi_columns[4]:
 
@@ -238,9 +257,9 @@ with kpi_columns[4]:
     )
 
 
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Average Review
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 with kpi_columns[5]:
 
@@ -290,9 +309,9 @@ left_column, right_column = two_column_layout(
 )
 
 
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Revenue Trend
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 with left_column:
 
@@ -315,9 +334,9 @@ with left_column:
         )
 
 
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Order Trend
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 with right_column:
 
@@ -379,19 +398,20 @@ with panel(
 section_header(
     title="Customer Intelligence",
     description=(
-        "Customer base composition based on the RFM segmentation results."
+        "Customer base composition and segment concentration "
+        "based on the RFM segmentation results."
     ),
 )
 
 
-customer_column, customer_summary_column = two_column_layout(
+customer_column, customer_ranking_column = two_column_layout(
     ratio=(1.0, 1.0),
 )
 
 
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Segment Distribution
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 with customer_column:
 
@@ -410,52 +430,43 @@ with customer_column:
         )
 
 
-# ---------------------------------------------------------------------------
-# Segment Summary Table
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+# Segment Ranking
+# ----------------------------------------------------------------------------
 
-with customer_summary_column:
+with customer_ranking_column:
 
     with panel(
-        title="Segment Summary",
+        title="Customer Segment Ranking",
         description=(
-            "Customer count and percentage contribution by segment."
+            "Rank segments by the number of customers they contain."
         ),
     ):
 
-        display_segments = (
-            customer_segment_summary
+        segment_ranking = (
+            customer_segment_summary[
+                [
+                    "segment",
+                    "customers",
+                ]
+            ]
             .copy()
+            .sort_values(
+                "customers",
+                ascending=True,
+            )
         )
 
-        if not display_segments.empty:
+        if not segment_ranking.empty:
 
-            display_segments[
-                "percentage"
-            ] = (
-                display_segments[
-                    "percentage"
-                ]
-                .mul(100)
-                .round(1)
-                .astype(str)
-                + "%"
-            )
-
-            display_segments = (
-                display_segments.rename(
-                    columns={
-                        "segment": "Segment",
-                        "customers": "Customers",
-                        "percentage": "Share",
-                    }
-                )
-            )
-
-            st.dataframe(
-                display_segments,
-                use_container_width=True,
-                hide_index=True,
+            bar_chart(
+                dataframe=segment_ranking,
+                x="customers",
+                y="segment",
+                title=None,
+                x_title="Customers",
+                y_title="Segment",
+                height=380,
             )
 
         else:
@@ -463,6 +474,79 @@ with customer_summary_column:
             st.info(
                 "No customer segment data is available."
             )
+
+
+# ============================================================================
+# CUSTOMER SEGMENT DETAIL
+# ============================================================================
+
+section_header(
+    title="Segment Detail",
+    description=(
+        "Customer count and percentage contribution for each segment."
+    ),
+)
+
+
+display_segments = (
+    customer_segment_summary
+    .copy()
+)
+
+
+if not display_segments.empty:
+
+    display_segments[
+        "percentage"
+    ] = (
+        display_segments[
+            "percentage"
+        ]
+        .mul(100)
+        .round(1)
+    )
+
+
+    display_segments = (
+        display_segments.rename(
+            columns={
+                "segment": "Segment",
+                "customers": "Customers",
+                "percentage": "Share (%)",
+            }
+        )
+    )
+
+
+    st.dataframe(
+        display_segments,
+        use_container_width=True,
+        hide_index=True,
+        height=220,
+        column_config={
+
+            "Segment": st.column_config.TextColumn(
+                "Segment",
+                width="large",
+            ),
+
+            "Customers": st.column_config.NumberColumn(
+                "Customers",
+                format="%,d",
+            ),
+
+            "Share (%)": st.column_config.NumberColumn(
+                "Share (%)",
+                format="%.1f%%",
+            ),
+        },
+    )
+
+else:
+
+    st.info(
+        "No customer segment data is available."
+    )
 
 
 # ============================================================================
@@ -483,9 +567,9 @@ insight_columns = st.columns(
 )
 
 
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Retention Insight
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 with insight_columns[0]:
 
@@ -524,9 +608,9 @@ with insight_columns[0]:
         )
 
 
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Customer Satisfaction Insight
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 with insight_columns[1]:
 
@@ -565,9 +649,9 @@ with insight_columns[1]:
         )
 
 
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Forecast Insight
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 with insight_columns[2]:
 
@@ -582,16 +666,6 @@ with insight_columns[2]:
         )
 
         if not forecast_rows.empty:
-
-            latest_forecast = (
-                forecast_rows.iloc[-1]
-            )
-
-            latest_prediction = float(
-                latest_forecast[
-                    "predicted_revenue"
-                ]
-            )
 
             insight_card(
                 label="FORECAST",
