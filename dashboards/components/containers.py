@@ -133,25 +133,8 @@ def content_container(
     require a title or description.
     """
 
-    safe_css_class = escape(
-        str(css_class)
-    )
-
-    st.markdown(
-        f'<div class="{safe_css_class}">',
-        unsafe_allow_html=True,
-    )
-
-    try:
-
+    with st.container(border=True):
         yield
-
-    finally:
-
-        st.markdown(
-            "</div>",
-            unsafe_allow_html=True,
-        )
 
 
 # ============================================================================

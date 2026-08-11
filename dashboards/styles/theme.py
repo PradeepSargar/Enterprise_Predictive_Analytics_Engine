@@ -463,25 +463,13 @@ def inject_global_styles() -> None:
                 border-box !important;
 
             padding:
-                0.75rem 0.85rem 0.65rem 0.85rem !important;
+                0.75rem 0.85rem 0.75rem 0.85rem !important;
 
-            overflow:
-                hidden !important;
+            overflow-y:
+                auto !important;
 
             overflow-x:
                 hidden !important;
-
-            overflow-y:
-                hidden !important;
-
-            display:
-                flex !important;
-
-            flex-direction:
-                column !important;
-
-            justify-content:
-                space-between !important;
 
             background:
                 transparent !important;
@@ -495,12 +483,9 @@ def inject_global_styles() -> None:
 
         [data-testid="stSidebar"] [data-testid="stVerticalBlock"]:first-child {{
             height:
-                100% !important;
+                auto !important;
 
             min-height:
-                100% !important;
-
-            max-height:
                 100% !important;
 
             width:
@@ -516,104 +501,13 @@ def inject_global_styles() -> None:
                 column !important;
 
             justify-content:
-                space-between !important;
-
-            gap:
-                0 !important;
-
-            overflow:
-                hidden !important;
-
-            overflow-x:
-                hidden !important;
-
-            overflow-y:
-                hidden !important;
-
-            scrollbar-width:
-                none !important;
-
-            -ms-overflow-style:
-                none !important;
-
-            box-sizing:
-                border-box !important;
-        }}
-
-        /* REGION A: BRAND HEADER (FIXED TOP) */
-        [data-testid="stSidebar"] [data-testid="stVerticalBlock"]:first-child > div:first-child,
-        .sidebar-header-region {{
-            flex:
-                0 0 auto !important;
-
-            width:
-                100% !important;
-
-            margin:
-                0 !important;
-
-            padding:
-                0 !important;
-        }}
-
-        /* REGION B: SCROLLABLE NAVIGATION (MIDDLE FLEX CONTAINER) */
-        [data-testid="stSidebar"] [data-testid="stVerticalBlock"]:first-child > div:nth-child(2),
-        [data-testid="stSidebar"] [data-testid="stVerticalBlock"]:first-child > div[data-testid="stVerticalBlockBorderWrapper"],
-        [data-testid="stSidebar"] [data-testid="stVerticalBlock"]:first-child > div:nth-child(2) [data-testid="stVerticalBlock"] {{
-            flex:
-                1 1 auto !important;
-
-            min-height:
-                0 !important;
-
-            max-height:
-                100% !important;
-
-            overflow-y:
-                auto !important;
-
-            overflow-x:
-                hidden !important;
-
-            width:
-                100% !important;
-
-            max-width:
-                100% !important;
-
-            box-sizing:
-                border-box !important;
-
-            scrollbar-width:
-                none !important;
-
-            -ms-overflow-style:
-                none !important;
-
-            display:
-                flex !important;
-
-            flex-direction:
-                column !important;
+                flex-start !important;
 
             gap:
                 0.1rem !important;
-        }}
 
-        /* REGION C: BOTTOM FOOTER (FIXED BOTTOM, PINNED, NEVER CLIPPED) */
-        [data-testid="stSidebar"] [data-testid="stVerticalBlock"]:first-child > div:last-child,
-        .sidebar-footer-region {{
-            flex:
-                0 0 auto !important;
-
-            margin-top:
-                auto !important;
-
-            width:
-                100% !important;
-
-            padding-top:
-                0.25rem !important;
+            box-sizing:
+                border-box !important;
         }}
 
         [data-testid="stSidebar"] [data-testid="element-container"],
@@ -635,6 +529,14 @@ def inject_global_styles() -> None:
 
             display:
                 block !important;
+        }}
+
+        [data-testid="stSidebar"] [data-testid="element-container"]:last-child {{
+            margin-top:
+                auto !important;
+
+            padding-top:
+                0.5rem !important;
         }}
 
         [data-testid="stSidebar"] * {{
@@ -2232,53 +2134,58 @@ def inject_global_styles() -> None:
 
 
         /* ==================================================================
-           CHART CONTAINERS
+        /* ==================================================================
+           CHART & CONTENT CONTAINERS (GLASSMORPHISM ENTERPRISE PANELS)
            ================================================================== */
 
         .dashboard-panel,
         .chart-card,
-        .dashboard-content-container {{
+        .dashboard-content-container,
+        [data-testid="stVerticalBlockBorderWrapper"] {{
             background:
-                rgba(255, 255, 255, 0.85);
+                rgba(255, 255, 255, 0.94) !important;
 
             backdrop-filter:
-                blur(16px) saturate(180%);
+                blur(18px) saturate(180%) !important;
 
             -webkit-backdrop-filter:
-                blur(16px) saturate(180%);
+                blur(18px) saturate(180%) !important;
 
             border:
-                1px solid rgba(226, 232, 240, 0.85);
+                1px solid rgba(226, 232, 240, 0.95) !important;
 
             border-radius:
-                {RADIUS["lg"]};
+                14px !important;
 
             padding:
-                1rem;
+                1.15rem 1.25rem !important;
 
             margin-bottom:
-                1rem;
+                1.15rem !important;
 
             box-shadow:
-                0 6px 24px -2px rgba(14, 165, 233, 0.06),
-                0 2px 6px -1px rgba(15, 23, 42, 0.03);
+                0 4px 20px -2px rgba(14, 165, 233, 0.06),
+                0 1px 3px 0 rgba(15, 23, 42, 0.03) !important;
 
             overflow:
-                hidden;
+                hidden !important;
 
             transition:
-                border-color 0.2s ease,
-                box-shadow 0.2s ease;
+                all 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
         }}
 
         .dashboard-panel:hover,
-        .chart-card:hover {{
+        .chart-card:hover,
+        [data-testid="stVerticalBlockBorderWrapper"]:hover {{
+            transform:
+                translateY(-2px);
+
             border-color:
-                rgba(14, 165, 233, 0.35);
+                rgba(14, 165, 233, 0.40) !important;
 
             box-shadow:
                 0 12px 32px -4px rgba(14, 165, 233, 0.12),
-                0 4px 10px -2px rgba(15, 23, 42, 0.05);
+                0 4px 10px -2px rgba(15, 23, 42, 0.04) !important;
         }}
 
         .dashboard-panel-header,
@@ -2290,18 +2197,19 @@ def inject_global_styles() -> None:
                 column;
 
             gap:
-                0.2rem;
+                0.25rem;
 
             padding:
                 0.2rem
-                0.35rem
-                0.75rem;
+                0.2rem
+                0.75rem
+                0.2rem;
 
             margin-bottom:
-                0.65rem;
+                0.85rem;
 
             border-bottom:
-                1px solid rgba(226, 232, 240, 0.65);
+                1px solid rgba(226, 232, 240, 0.80);
         }}
 
         .dashboard-panel-title,
@@ -2310,13 +2218,13 @@ def inject_global_styles() -> None:
                 #0F172A;
 
             font-size:
-                13.5px;
+                14.5px;
 
             font-weight:
                 850;
 
             letter-spacing:
-                -0.01em;
+                -0.015em;
 
             line-height:
                 1.25;
@@ -2330,22 +2238,26 @@ def inject_global_styles() -> None:
                 center;
 
             background:
-                rgba(14, 165, 233, 0.12);
+                linear-gradient(
+                    135deg,
+                    rgba(14, 165, 233, 0.12) 0%,
+                    rgba(99, 102, 241, 0.08) 100%
+                );
 
             color:
                 #0284C7;
 
             border:
-                1px solid rgba(14, 165, 233, 0.25);
+                1px solid rgba(14, 165, 233, 0.28);
 
             border-radius:
                 999px;
 
             padding:
-                0.22rem 0.6rem;
+                0.22rem 0.65rem;
 
             font-size:
-                7.5px;
+                8px;
 
             font-weight:
                 850;
@@ -2366,10 +2278,10 @@ def inject_global_styles() -> None:
                 #64748B;
 
             font-size:
-                10px;
+                10.5px;
 
             line-height:
-                1.5;
+                1.55;
 
             margin-top:
                 0.15rem;
@@ -2377,19 +2289,23 @@ def inject_global_styles() -> None:
 
         .dashboard-panel-footer {{
             margin-top:
-                0.85rem;
+                1rem;
 
             padding:
-                0.6rem 0.8rem;
+                0.65rem 0.9rem;
 
             background:
-                rgba(240, 249, 255, 0.80);
+                linear-gradient(
+                    135deg,
+                    rgba(240, 249, 255, 0.95) 0%,
+                    rgba(245, 243, 255, 0.85) 100%
+                );
 
             border:
-                1px solid rgba(186, 230, 253, 0.85);
+                1px solid rgba(186, 230, 253, 0.95);
 
             border-radius:
-                10px;
+                11px;
 
             display:
                 flex;
@@ -2398,12 +2314,15 @@ def inject_global_styles() -> None:
                 center;
 
             gap:
-                0.55rem;
+                0.6rem;
+
+            box-shadow:
+                0 2px 8px rgba(14, 165, 233, 0.04);
         }}
 
         .dashboard-panel-footer-icon {{
             font-size:
-                13px;
+                14px;
 
             flex-shrink:
                 0;
@@ -2414,10 +2333,10 @@ def inject_global_styles() -> None:
                 #0369A1;
 
             font-size:
-                9.5px;
+                10px;
 
             font-weight:
-                700;
+                750;
 
             line-height:
                 1.45;
@@ -2432,31 +2351,31 @@ def inject_global_styles() -> None:
                 relative;
 
             padding:
-                1.1rem 1.2rem;
+                1.15rem 1.25rem;
 
             background:
-                rgba(255, 255, 255, 0.85);
+                rgba(255, 255, 255, 0.94);
 
             backdrop-filter:
-                blur(14px) saturate(180%);
+                blur(16px) saturate(180%);
 
             -webkit-backdrop-filter:
-                blur(14px) saturate(180%);
+                blur(16px) saturate(180%);
 
             border:
-                1px solid rgba(226, 232, 240, 0.85);
+                1px solid rgba(226, 232, 240, 0.95);
 
             border-radius:
-                {RADIUS["lg"]};
+                14px;
 
             box-shadow:
-                0 6px 20px -2px rgba(14, 165, 233, 0.05),
+                0 4px 20px -2px rgba(14, 165, 233, 0.05),
                 0 1px 3px 0 rgba(15, 23, 42, 0.03);
 
             transition:
-                transform 0.2s ease,
-                border-color 0.2s ease,
-                box-shadow 0.2s ease;
+                transform 0.22s ease,
+                border-color 0.22s ease,
+                box-shadow 0.22s ease;
         }}
 
         .insight-card:hover {{
@@ -2475,19 +2394,19 @@ def inject_global_styles() -> None:
                 inline-block;
 
             padding:
-                0.2rem 0.55rem;
+                0.22rem 0.65rem;
 
             border-radius:
-                {RADIUS["pill"]};
+                999px;
 
             font-size:
-                9px;
+                8.5px;
 
             font-weight:
-                800;
+                850;
 
             letter-spacing:
-                0.07em;
+                0.08em;
 
             text-transform:
                 uppercase;
@@ -2545,10 +2464,10 @@ def inject_global_styles() -> None:
                 #0F172A;
 
             font-size:
-                13px;
+                13.5px;
 
             font-weight:
-                800;
+                850;
 
             line-height:
                 1.35;
@@ -2878,28 +2797,27 @@ def inject_global_styles() -> None:
            ================================================================== */
 
         [data-testid="stMetric"],
-        [data-testid="stExpander"],
-        [data-testid="stVerticalBlockBorderWrapper"] {{
+        [data-testid="stExpander"] {{
             padding:
-                0.9rem;
+                1rem 1.15rem;
 
             background:
-                rgba(255, 255, 255, 0.85) !important;
+                rgba(255, 255, 255, 0.94) !important;
 
             backdrop-filter:
-                blur(14px) saturate(180%) !important;
+                blur(16px) saturate(180%) !important;
 
             -webkit-backdrop-filter:
-                blur(14px) saturate(180%) !important;
+                blur(16px) saturate(180%) !important;
 
             border:
-                1px solid rgba(226, 232, 240, 0.85) !important;
+                1px solid rgba(226, 232, 240, 0.95) !important;
 
             border-radius:
-                {RADIUS["lg"]} !important;
+                14px !important;
 
             box-shadow:
-                0 4px 16px -2px rgba(14, 165, 233, 0.05) !important;
+                0 4px 18px -2px rgba(14, 165, 233, 0.05) !important;
         }}
 
         [data-testid="stMetricLabel"] {{

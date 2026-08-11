@@ -50,6 +50,7 @@ if str(PROJECT_ROOT) not in sys.path:
 # ============================================================================
 
 from dashboards.styles.theme import inject_global_styles
+from dashboards.utils.html import render_html
 
 
 # ============================================================================
@@ -210,20 +211,14 @@ with st.sidebar:
     # BRAND
     # ========================================================================
 
-    # Keep the HTML on one line.
-    #
-    # This prevents Streamlit Markdown from interpreting the markup
-    # as a code block because of indentation.
-
-    st.markdown(
+    render_html(
         '<div class="custom-sidebar-brand">'
         '<div class="sidebar-brand-mark">◈</div>'
         '<div class="sidebar-brand-text">'
         '<div class="sidebar-brand-title">ENTERPRISE</div>'
         '<div class="sidebar-brand-subtitle">PREDICTIVE ENGINE</div>'
         '</div>'
-        '</div>',
-        unsafe_allow_html=True,
+        '</div>'
     )
 
 
@@ -231,20 +226,14 @@ with st.sidebar:
     # DIVIDER
     # ========================================================================
 
-    st.markdown(
-        '<div class="sidebar-divider"></div>',
-        unsafe_allow_html=True,
-    )
+    render_html('<div class="sidebar-divider"></div>')
 
 
     # ========================================================================
     # OVERVIEW
     # ========================================================================
 
-    st.markdown(
-        '<div class="sidebar-section-label">Overview</div>',
-        unsafe_allow_html=True,
-    )
+    render_html('<div class="sidebar-section-label">Overview</div>')
 
     st.page_link(
         executive_page,
@@ -257,10 +246,7 @@ with st.sidebar:
     # CUSTOMER INTELLIGENCE
     # ========================================================================
 
-    st.markdown(
-        '<div class="sidebar-section-label">Customer Intelligence</div>',
-        unsafe_allow_html=True,
-    )
+    render_html('<div class="sidebar-section-label">Customer Intelligence</div>')
 
     st.page_link(
         customer_analytics_page,
@@ -285,10 +271,7 @@ with st.sidebar:
     # PREDICTIVE INTELLIGENCE
     # ========================================================================
 
-    st.markdown(
-        '<div class="sidebar-section-label">Predictive Intelligence</div>',
-        unsafe_allow_html=True,
-    )
+    render_html('<div class="sidebar-section-label">Predictive Intelligence</div>')
 
     st.page_link(
         revenue_forecast_page,
@@ -307,10 +290,7 @@ with st.sidebar:
     # DATA & INSIGHTS
     # ========================================================================
 
-    st.markdown(
-        '<div class="sidebar-section-label">Data & Insights</div>',
-        unsafe_allow_html=True,
-    )
+    render_html('<div class="sidebar-section-label">Data & Insights</div>')
 
     st.page_link(
         data_explorer_page,
@@ -323,10 +303,7 @@ with st.sidebar:
     # APPLICATION
     # ========================================================================
 
-    st.markdown(
-        '<div class="sidebar-section-label">Application</div>',
-        unsafe_allow_html=True,
-    )
+    render_html('<div class="sidebar-section-label">Application</div>')
 
     st.page_link(
         about_page,
@@ -339,7 +316,7 @@ with st.sidebar:
     # SIDEBAR FOOTER
     # ========================================================================
 
-    st.markdown(
+    render_html(
         '<div class="sidebar-footer">'
         '<div class="sidebar-footer-status">'
         '<span class="sidebar-status-dot"></span>'
@@ -348,8 +325,7 @@ with st.sidebar:
         '<div class="sidebar-footer-text">'
         'Enterprise Predictive Analytics'
         '</div>'
-        '</div>',
-        unsafe_allow_html=True,
+        '</div>'
     )
 
 
