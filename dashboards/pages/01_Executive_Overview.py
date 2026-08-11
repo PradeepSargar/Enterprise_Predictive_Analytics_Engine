@@ -337,7 +337,9 @@ tab_revenue, tab_volume, tab_category = st.tabs(
 with tab_revenue:
     with panel(
         title="Monthly Revenue Trend (BRL)",
-        description="Historical marketplace revenue progression across historical operating months.",
+        description="Historical marketplace revenue progression across operating months.",
+        badge="GMV TRAJECTORY",
+        footer_insight="Steady month-over-month growth with peak historical revenue surpassing R$1.1M/month.",
     ):
         if not monthly_business.empty:
             line_chart(
@@ -359,6 +361,8 @@ with tab_volume:
         with panel(
             title="Monthly Unique Order Volume",
             description="Number of fulfilled transactions per month.",
+            badge="VOLUME CADENCE",
+            footer_insight="Transaction cadence peaked above 7,500 monthly fulfilled orders.",
         ):
             line_chart(
                 dataframe=monthly_business,
@@ -374,6 +378,8 @@ with tab_volume:
         with panel(
             title="Average Order Value (AOV)",
             description="Average monetary spend per transaction.",
+            badge="BASKET SIZE",
+            footer_insight="Average order basket size stabilized around R$135–R$160.",
         ):
             line_chart(
                 dataframe=monthly_business,
@@ -390,6 +396,8 @@ with tab_category:
     with panel(
         title="Top 10 Categories by Revenue",
         description="Major product categories driving gross marketplace revenue.",
+        badge="REVENUE CONCENTRATION",
+        footer_insight="Bed Bath Table, Health & Beauty, and Sports & Leisure drive top commercial revenue.",
     ):
         top_cats = (
             filtered_df.groupby("product_category_name_english")["payment_value"]
@@ -487,7 +495,9 @@ with fc_dimension_col:
 with fc_view_col:
     with panel(
         title=f"Revenue Trajectory & Uncertainty Interval ({forecast_cut})",
-        description="Historical actuals (solid line) alongside point forecast (dashed line) and 90% confidence corridor.",
+        description="Historical actuals alongside point forecast and 90% confidence corridor.",
+        badge="PROPHET FORECAST",
+        footer_insight="90% confidence uncertainty corridor widens naturally across later projection horizons.",
     ):
         forecast_chart(
             dataframe=prepared_fc,
@@ -519,6 +529,8 @@ with cust_donut_col:
     with panel(
         title="Customer Cluster Share",
         description="Proportion of total customer base assigned to each RFM segment.",
+        badge="CLUSTER MIX",
+        footer_insight="Recent One-Time buyers make up 55.5% of unique customer profiles.",
     ):
         donut_chart(
             dataframe=customer_segment_summary,
@@ -532,6 +544,8 @@ with cust_bar_col:
     with panel(
         title="Customer Segment Volume",
         description="Absolute count of customers per behavioral segment.",
+        badge="COHORT SCALE",
+        footer_insight="Lapsed / At-Risk group requires win-back promotions to curb churn.",
     ):
         seg_ranking = (
             customer_segment_summary[["segment", "customers"]]

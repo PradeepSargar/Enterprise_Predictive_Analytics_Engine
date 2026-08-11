@@ -309,7 +309,7 @@ def inject_global_styles() -> None:
         [data-testid="stSidebar"],
         [data-testid="stSidebarContent"],
         [data-testid="stSidebarUserContent"],
-        [data-testid="stSidebar"] > div {
+        [data-testid="stSidebar"] > div {{
             min-width:
                 275px !important;
 
@@ -340,35 +340,35 @@ def inject_global_styles() -> None:
             box-shadow:
                 4px 0 24px -2px rgba(14, 165, 233, 0.08),
                 8px 0 36px -4px rgba(168, 85, 247, 0.05) !important;
-        }
+        }}
 
-        [data-testid="stSidebar"] > div:first-child {
+        [data-testid="stSidebar"] > div:first-child {{
             background:
                 transparent !important;
-        }
+        }}
 
-        [data-testid="stSidebar"] * {
+        [data-testid="stSidebar"] * {{
             box-sizing:
                 border-box;
 
             color:
                 #0F172A;
-        }
+        }}
 
         [data-testid="stSidebar"] .stMarkdown,
         [data-testid="stSidebar"] .stMarkdown p,
         [data-testid="stSidebar"] p,
-        [data-testid="stSidebar"] span {
+        [data-testid="stSidebar"] span {{
             color:
                 #0F172A;
-        }
+        }}
 
 
         /* ==================================================================
            CUSTOM SIDEBAR BRAND (FUTURISTIC 3D GLOW)
            ================================================================== */
 
-        .custom-sidebar-brand {
+        .custom-sidebar-brand {{
             display:
                 flex;
 
@@ -403,9 +403,9 @@ def inject_global_styles() -> None:
             box-shadow:
                 0 4px 16px rgba(14, 165, 233, 0.08),
                 0 1px 3px rgba(15, 23, 42, 0.04);
-        }
+        }}
 
-        .sidebar-brand-mark {
+        .sidebar-brand-mark {{
             width:
                 44px;
 
@@ -449,14 +449,14 @@ def inject_global_styles() -> None:
             box-shadow:
                 0 4px 14px rgba(14, 165, 233, 0.40),
                 0 0 10px rgba(139, 92, 246, 0.28);
-        }
+        }}
 
-        .sidebar-brand-text {
+        .sidebar-brand-text {{
             min-width:
                 0;
-        }
+        }}
 
-        .sidebar-brand-title {
+        .sidebar-brand-title {{
             color:
                 #0F172A !important;
 
@@ -471,9 +471,9 @@ def inject_global_styles() -> None:
 
             line-height:
                 1.15;
-        }
+        }}
 
-        .sidebar-brand-subtitle {
+        .sidebar-brand-subtitle {{
             margin-top:
                 3px;
 
@@ -491,14 +491,14 @@ def inject_global_styles() -> None:
 
             line-height:
                 1.3;
-        }
+        }}
 
 
         /* ==================================================================
            SIDEBAR DIVIDER
            ================================================================== */
 
-        .sidebar-divider {
+        .sidebar-divider {{
             height:
                 1px;
 
@@ -514,14 +514,14 @@ def inject_global_styles() -> None:
                     rgba(168, 85, 247, 0.15),
                     transparent
                 );
-        }
+        }}
 
 
         /* ==================================================================
            SIDEBAR SECTION LABELS
            ================================================================== */
 
-        .sidebar-section-label {
+        .sidebar-section-label {{
             margin:
                 1.15rem
                 0.2rem
@@ -553,9 +553,9 @@ def inject_global_styles() -> None:
 
             gap:
                 6px;
-        }
+        }}
 
-        .sidebar-section-label::before {
+        .sidebar-section-label::before {{
             content:
                 "";
 
@@ -576,19 +576,19 @@ def inject_global_styles() -> None:
 
             box-shadow:
                 0 0 6px #0EA5E9;
-        }
+        }}
 
-        .sidebar-section-label:first-of-type {
+        .sidebar-section-label:first-of-type {{
             margin-top:
                 0.2rem;
-        }
+        }}
 
 
         /* ==================================================================
            CUSTOM PAGE-LINK NAVIGATION (HIGH CONTRAST & FUTURISTIC)
            ================================================================== */
 
-        [data-testid="stSidebar"] .stPageLink {
+        [data-testid="stSidebar"] .stPageLink {{
             width:
                 100% !important;
 
@@ -597,14 +597,14 @@ def inject_global_styles() -> None:
 
             padding:
                 0 !important;
-        }
+        }}
 
-        [data-testid="stSidebar"] .stPageLink > div {
+        [data-testid="stSidebar"] .stPageLink > div {{
             width:
                 100% !important;
-        }
+        }}
 
-        [data-testid="stSidebar"] .stPageLink a {
+        [data-testid="stSidebar"] .stPageLink a {{
             display:
                 flex !important;
 
@@ -661,10 +661,10 @@ def inject_global_styles() -> None:
 
             transition:
                 all 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        }
+        }}
 
         [data-testid="stSidebar"] .stPageLink a span,
-        [data-testid="stSidebar"] .stPageLink a p {
+        [data-testid="stSidebar"] .stPageLink a p {{
             color:
                 #0F172A !important;
 
@@ -673,9 +673,9 @@ def inject_global_styles() -> None:
 
             font-size:
                 11.5px !important;
-        }
+        }}
 
-        [data-testid="stSidebar"] .stPageLink a:hover {
+        [data-testid="stSidebar"] .stPageLink a:hover {{
             background:
                 #FFFFFF !important;
 
@@ -690,27 +690,27 @@ def inject_global_styles() -> None:
 
             box-shadow:
                 0 4px 14px rgba(14, 165, 233, 0.14) !important;
-        }
+        }}
 
         [data-testid="stSidebar"] .stPageLink a:hover span,
-        [data-testid="stSidebar"] .stPageLink a:hover p {
+        [data-testid="stSidebar"] .stPageLink a:hover p {{
             color:
                 #0284C7 !important;
-        }
+        }}
 
-        [data-testid="stSidebar"] .stPageLink a:focus-visible {
+        [data-testid="stSidebar"] .stPageLink a:focus-visible {{
             outline:
                 2px solid #0EA5E9 !important;
 
             outline-offset:
                 2px !important;
-        }
+        }}
 
         /*
          * Active page - High-Impact Glowing Gradient
          */
 
-        [data-testid="stSidebar"] .stPageLink a[aria-current="page"] {
+        [data-testid="stSidebar"] .stPageLink a[aria-current="page"] {{
             background:
                 linear-gradient(
                     135deg,
@@ -730,18 +730,18 @@ def inject_global_styles() -> None:
             box-shadow:
                 0 6px 18px rgba(14, 165, 233, 0.35),
                 0 0 12px rgba(99, 102, 241, 0.25) !important;
-        }
+        }}
 
         [data-testid="stSidebar"] .stPageLink a[aria-current="page"] span,
-        [data-testid="stSidebar"] .stPageLink a[aria-current="page"] p {
+        [data-testid="stSidebar"] .stPageLink a[aria-current="page"] p {{
             color:
                 #FFFFFF !important;
 
             font-weight:
                 850 !important;
-        }
+        }}
 
-        [data-testid="stSidebar"] .stPageLink a > span:first-child {
+        [data-testid="stSidebar"] .stPageLink a > span:first-child {{
             width:
                 24px !important;
 
@@ -762,14 +762,14 @@ def inject_global_styles() -> None:
 
             font-size:
                 14px !important;
-        }
+        }}
 
 
         /* ==================================================================
            SIDEBAR FOOTER (FUTURISTIC FROSTED GLASS)
            ================================================================== */
 
-        .sidebar-footer {
+        .sidebar-footer {{
             margin-top:
                 1.5rem;
 
@@ -793,9 +793,9 @@ def inject_global_styles() -> None:
 
             box-shadow:
                 0 4px 16px rgba(14, 165, 233, 0.08);
-        }
+        }}
 
-        .sidebar-footer-status {
+        .sidebar-footer-status {{
             display:
                 flex;
 
@@ -816,9 +816,9 @@ def inject_global_styles() -> None:
 
             letter-spacing:
                 0.08em;
-        }
+        }}
 
-        .sidebar-status-dot {
+        .sidebar-status-dot {{
             width:
                 7px;
 
@@ -840,24 +840,24 @@ def inject_global_styles() -> None:
 
             animation:
                 status-pulse 2s infinite;
-        }
+        }}
 
-        @keyframes status-pulse {
-            0% {
+        @keyframes status-pulse {{
+            0% {{
                 transform: scale(0.95);
                 box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5);
-            }
-            70% {
+            }}
+            70% {{
                 transform: scale(1);
                 box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
-            }
-            100% {
+            }}
+            100% {{
                 transform: scale(0.95);
                 box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
-            }
-        }
+            }}
+        }}
 
-        .sidebar-footer-text {
+        .sidebar-footer-text {{
             margin-top:
                 0.3rem;
 
@@ -875,7 +875,7 @@ def inject_global_styles() -> None:
 
             letter-spacing:
                 0.03em;
-        }
+        }}
 
 
         /* ==================================================================
@@ -1990,25 +1990,117 @@ def inject_global_styles() -> None:
         .dashboard-panel-title,
         .chart-card-title {{
             color:
-                {COLORS["text"]};
+                #0F172A;
 
             font-size:
-                13px;
+                13.5px;
 
             font-weight:
-                800;
+                850;
 
             letter-spacing:
                 -0.01em;
+
+            line-height:
+                1.25;
+        }}
+
+        .dashboard-panel-badge {{
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            background:
+                rgba(14, 165, 233, 0.12);
+
+            color:
+                #0284C7;
+
+            border:
+                1px solid rgba(14, 165, 233, 0.25);
+
+            border-radius:
+                999px;
+
+            padding:
+                0.22rem 0.6rem;
+
+            font-size:
+                7.5px;
+
+            font-weight:
+                850;
+
+            text-transform:
+                uppercase;
+
+            letter-spacing:
+                0.08em;
+
+            white-space:
+                nowrap;
         }}
 
         .dashboard-panel-description,
         .chart-card-description {{
             color:
-                {COLORS["text_muted"]};
+                #64748B;
 
             font-size:
                 10px;
+
+            line-height:
+                1.5;
+
+            margin-top:
+                0.15rem;
+        }}
+
+        .dashboard-panel-footer {{
+            margin-top:
+                0.85rem;
+
+            padding:
+                0.6rem 0.8rem;
+
+            background:
+                rgba(240, 249, 255, 0.80);
+
+            border:
+                1px solid rgba(186, 230, 253, 0.85);
+
+            border-radius:
+                10px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                0.55rem;
+        }}
+
+        .dashboard-panel-footer-icon {{
+            font-size:
+                13px;
+
+            flex-shrink:
+                0;
+        }}
+
+        .dashboard-panel-footer-text {{
+            color:
+                #0369A1;
+
+            font-size:
+                9.5px;
+
+            font-weight:
+                700;
 
             line-height:
                 1.45;

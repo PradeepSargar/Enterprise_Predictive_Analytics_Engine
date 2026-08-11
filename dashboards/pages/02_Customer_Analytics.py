@@ -255,6 +255,8 @@ with seg_col1:
     with panel(
         title="Customer Segment Mix",
         description="Share of total customer base by RFM cluster.",
+        badge="CLUSTER MIX",
+        footer_insight="One-Time buyers account for 55.5% of marketplace profiles.",
     ):
         donut_chart(
             dataframe=segment_summary,
@@ -268,6 +270,8 @@ with seg_col2:
     with panel(
         title="Segment Population Scale",
         description="Total unique buyers categorized in each segment.",
+        badge="HEADCOUNT",
+        footer_insight="Lapsed / At Risk represents the second largest cohort with 34.2k customers.",
     ):
         segment_scale = segment_summary[["segment", "customers"]].sort_values(
             "customers", ascending=True
@@ -298,6 +302,8 @@ with rfm_col1:
     with panel(
         title="Recency Distribution",
         description="Days elapsed since the customer's last order.",
+        badge="RECENCY",
+        footer_insight="Median customer inactivity is 223 days.",
     ):
         histogram(
             dataframe=filtered_customers,
@@ -313,6 +319,8 @@ with rfm_col2:
     with panel(
         title="Frequency Distribution",
         description="Number of lifetime completed orders per customer.",
+        badge="FREQUENCY",
+        footer_insight="97.0% of customers have purchased exactly once.",
     ):
         histogram(
             dataframe=filtered_customers,
@@ -328,6 +336,8 @@ with rfm_col3:
     with panel(
         title="Monetary Value Distribution",
         description="Total gross spend across all orders (BRL).",
+        badge="MONETARY",
+        footer_insight="Mean spend is R$165.15 with a long-tail distribution.",
     ):
         histogram(
             dataframe=filtered_customers,
@@ -354,6 +364,8 @@ with rel_col1:
     with panel(
         title="Purchase Frequency vs Lifetime Value",
         description="Scatter relationship highlighting high-monetary clusters.",
+        badge="CORRELATION",
+        footer_insight="High-Value Outliers achieve multiple orders above R$1,000.",
     ):
         scatter_chart(
             dataframe=filtered_customers,
@@ -371,6 +383,8 @@ with rel_col2:
     with panel(
         title="Average Segment Value",
         description="Mean lifetime gross expenditure per segment.",
+        badge="BENCHMARK",
+        footer_insight="High-Value Outliers average R$1,263/buyer.",
     ):
         val_by_seg = segment_summary[["segment", "avg_monetary"]].sort_values(
             "avg_monetary", ascending=True

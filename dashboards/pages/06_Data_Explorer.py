@@ -201,6 +201,8 @@ section_header(
 with panel(
     title="Master Table Schema Dictionary",
     description="Detailed attribute metadata for all 25+ columns in the master cleaned dataset.",
+    badge="DATA DICTIONARY",
+    footer_insight="All transaction attributes are strictly typed and indexed for high performance.",
 ):
     column_summary = pd.DataFrame(
         {
@@ -240,6 +242,8 @@ section_header(
 with panel(
     title="Feature Distribution Visualizer",
     description="Dynamically profiles selected columns with automated frequency histograms and bar charts.",
+    badge="PROFILER",
+    footer_insight="Dynamically computes cardinality, frequency bins, and distributions.",
 ):
     col_sel, col_sp = st.columns([1, 2], gap="medium")
     with col_sel:

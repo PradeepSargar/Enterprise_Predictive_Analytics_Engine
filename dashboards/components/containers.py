@@ -45,92 +45,81 @@ DEFAULT_GAP = "medium"
 def panel(
     title: str | None = None,
     description: str | None = None,
+    badge: str | None = None,
+    footer_insight: str | None = None,
     css_class: str = "dashboard-panel",
 ) -> Iterator[None]:
     """
-    Create a reusable dashboard content panel.
+    Create a reusable dashboard content panel with glassmorphism styling.
 
     Parameters
     ----------
     title:
         Optional panel title.
-
     description:
         Optional supporting description.
-
+    badge:
+        Optional uppercase category/tag badge.
+    footer_insight:
+        Optional key analytical takeaway footer callout.
     css_class:
         CSS class applied to the panel container.
-
-    Example
-    -------
-    with panel(
-        title="Revenue Performance",
-        description="Monthly revenue trend."
-    ):
-        line_chart(...)
     """
 
-    safe_css_class = escape(
-        str(css_class)
-    )
+    with st.container(border=True):
 
-    header_html = ""
+        if badge or title:
 
-    if title:
+            safe_title = escape(str(title)) if title else ""
+            safe_desc = escape(str(description)) if description else ""
+            safe_badge = escape(str(badge)) if badge else ""
 
-        safe_title = escape(
-            str(title)
-        )
-
-        description_html = ""
-
-        if description:
-
-            safe_description = escape(
-                str(description)
+            badge_html = (
+                f'<span class="dashboard-panel-badge">{safe_badge}</span>'
+                if safe_badge
+                else ""
             )
 
-            description_html = (
-                '<div class="dashboard-panel-description">'
-                f"{safe_description}"
-                "</div>"
+            title_html = (
+                f'<div class="dashboard-panel-title">{safe_title}</div>'
+                if safe_title
+                else ""
             )
 
-        header_html = (
-            '<div class="dashboard-panel-header">'
-            '<div class="dashboard-panel-title">'
-            f"{safe_title}"
-            "</div>"
-            f"{description_html}"
-            "</div>"
-        )
+            desc_html = (
+                f'<div class="dashboard-panel-description">{safe_desc}</div>'
+                if safe_desc
+                else ""
+            )
 
-    # Streamlit's container provides the actual content boundary.
-    # The CSS class is attached through a lightweight wrapper so the
-    # centralized theme can control the panel appearance.
-
-    st.markdown(
-        f'<div class="{safe_css_class}">',
-        unsafe_allow_html=True,
-    )
-
-    if header_html:
-
-        st.markdown(
-            header_html,
-            unsafe_allow_html=True,
-        )
-
-    try:
+            st.markdown(
+                f"""
+                <div class="dashboard-panel-header">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.2rem;">
+                        {title_html}
+                        {badge_html}
+                    </div>
+                    {desc_html}
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
         yield
 
-    finally:
+        if footer_insight:
 
-        st.markdown(
-            "</div>",
-            unsafe_allow_html=True,
-        )
+            safe_footer = escape(str(footer_insight))
+
+            st.markdown(
+                f"""
+                <div class="dashboard-panel-footer">
+                    <span class="dashboard-panel-footer-icon">💡</span>
+                    <span class="dashboard-panel-footer-text">{safe_footer}</span>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
 
 # ============================================================================

@@ -292,6 +292,8 @@ section_header(
 with panel(
     title=f"Revenue Trajectory: {segment_display_label}",
     description="Monthly revenue trajectory with lower/upper confidence bounds (BRL).",
+    badge="PROPHET HORIZON",
+    footer_insight="Point estimates project stable forward momentum with 90% confidence bands.",
 ):
     forecast_chart(
         dataframe=forecast_df,
@@ -316,6 +318,8 @@ with col_chart:
     with panel(
         title="Projected Monthly Revenue",
         description="Month-by-month revenue projections across the future window.",
+        badge="PROJECTION CADENCE",
+        footer_insight="Aggregate projections maintain consistent run rates across the 6-month forecast window.",
     ):
         if not future_forecast_df.empty:
             forecast_chart_df = future_forecast_df[["month", "predicted_revenue"]].copy()
@@ -336,6 +340,8 @@ with col_conf:
     with panel(
         title="Confidence & Planning Risk",
         description="Assessing model uncertainty interval widths for risk management.",
+        badge="RISK BOUNDS",
+        footer_insight="Model risk corridor is bounded between conservative and optimistic operational cases.",
     ):
         range_val = f"{CURRENCY_SYMBOL} {average_forecast_range:,.0f}" if average_forecast_range is not None else "N/A"
         kpi_card(

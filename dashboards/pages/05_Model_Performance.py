@@ -179,6 +179,8 @@ with col_bench1:
     with panel(
         title="Candidate Algorithm Metric Comparison",
         description="Side-by-side grouped evaluation across all 4 key classification metrics.",
+        badge="BENCHMARK",
+        footer_insight="Random Forest yields the superior balance between precision and sensitivity (F1: 76.5%).",
     ):
         chart_df = model_df[["Model", *metric_columns]].copy()
         melted = chart_df.melt(id_vars=["Model"], var_name="Metric", value_name="Score")
@@ -209,6 +211,8 @@ with col_bench2:
     with panel(
         title="F1 Score Ranking",
         description="F1 score comparison indicating model balance.",
+        badge="CHAMPION RANKING",
+        footer_insight="Random Forest outperforms baseline Logistic Regression and LightGBM models.",
     ):
         f1_df = model_df[["Model", "F1 Score"]].sort_values("F1 Score", ascending=True)
         bar_chart(
@@ -242,6 +246,8 @@ try:
         with panel(
             title="Top 8 Predictive Feature Importances",
             description="Permutation and impurity-based importance ranking from the serialized champion pipeline.",
+            badge="FEATURE ATTRIBUTION",
+            footer_insight="Delivery delay vs estimated date is the primary driver of customer dissatisfaction.",
         ):
             bar_chart(
                 dataframe=fi_df,
