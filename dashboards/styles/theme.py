@@ -254,13 +254,13 @@ def inject_global_styles() -> None:
         [data-testid="stMain"],
         .stMain {{
             margin-left:
-                320px !important;
+                280px !important;
 
             width:
-                calc(100% - 320px) !important;
+                calc(100% - 280px) !important;
 
             max-width:
-                calc(100% - 320px) !important;
+                calc(100% - 280px) !important;
 
             background:
                 linear-gradient(
@@ -342,7 +342,7 @@ def inject_global_styles() -> None:
 
 
         /* ==================================================================
-           SIDEBAR (FIXED 320PX ENTERPRISE NAVIGATION PANEL - ZERO SCROLLBARS)
+           SIDEBAR (FIXED 280PX LIGHT SKY BLUE PANEL & NAVIGATION CONTAINERS)
            ================================================================== */
 
         section[data-testid="stSidebar"],
@@ -360,13 +360,13 @@ def inject_global_styles() -> None:
                 0 !important;
 
             width:
-                320px !important;
+                280px !important;
 
             min-width:
-                320px !important;
+                280px !important;
 
             max-width:
-                320px !important;
+                280px !important;
 
             height:
                 100vh !important;
@@ -380,14 +380,14 @@ def inject_global_styles() -> None:
             background:
                 linear-gradient(
                     180deg,
-                    #F0F9FF 0%,
-                    #E0F2FE 35%,
-                    #F5F3FF 75%,
-                    #F8FAFC 100%
+                    #E0F2FE 0%,
+                    #BAE6FD 40%,
+                    #E0F2FE 80%,
+                    #F0F9FF 100%
                 ) !important;
 
             background-color:
-                #F0F9FF !important;
+                #E0F2FE !important;
 
             backdrop-filter:
                 blur(20px) !important;
@@ -396,11 +396,10 @@ def inject_global_styles() -> None:
                 blur(20px) !important;
 
             border-right:
-                1px solid rgba(186, 230, 253, 0.9) !important;
+                1px solid rgba(14, 165, 233, 0.45) !important;
 
             box-shadow:
-                4px 0 24px -2px rgba(14, 165, 233, 0.08),
-                8px 0 36px -4px rgba(168, 85, 247, 0.05) !important;
+                4px 0 20px rgba(14, 165, 233, 0.08) !important;
 
             overflow:
                 hidden !important;
@@ -421,14 +420,11 @@ def inject_global_styles() -> None:
                 100 !important;
         }}
 
-        /* Completely suppress all scrollbars and sliders across sidebar elements */
+        /* Suppress all scrollbars in sidebar */
         section[data-testid="stSidebar"]::-webkit-scrollbar,
         [data-testid="stSidebarContent"]::-webkit-scrollbar,
         [data-testid="stSidebarUserContent"]::-webkit-scrollbar,
-        [data-testid="stSidebar"]::-webkit-scrollbar,
-        [data-testid="stSidebar"] *::-webkit-scrollbar,
-        .sidebar-header-region::-webkit-scrollbar,
-        .sidebar-footer-region::-webkit-scrollbar {{
+        [data-testid="stSidebar"] *::-webkit-scrollbar {{
             display:
                 none !important;
 
@@ -463,7 +459,7 @@ def inject_global_styles() -> None:
                 border-box !important;
 
             padding:
-                0.75rem 0.85rem 0.75rem 0.85rem !important;
+                1.35rem 1.05rem 1.35rem 1.05rem !important;
 
             overflow-y:
                 auto !important;
@@ -504,7 +500,7 @@ def inject_global_styles() -> None:
                 flex-start !important;
 
             gap:
-                0.1rem !important;
+                0.65rem !important;
 
             box-sizing:
                 border-box !important;
@@ -536,7 +532,7 @@ def inject_global_styles() -> None:
                 auto !important;
 
             padding-top:
-                0.5rem !important;
+                1.5rem !important;
         }}
 
         [data-testid="stSidebar"] * {{
@@ -545,22 +541,11 @@ def inject_global_styles() -> None:
 
             max-width:
                 100% !important;
-
-            color:
-                #0F172A;
-        }}
-
-        [data-testid="stSidebar"] .stMarkdown,
-        [data-testid="stSidebar"] .stMarkdown p,
-        [data-testid="stSidebar"] p,
-        [data-testid="stSidebar"] span {{
-            color:
-                #0F172A;
         }}
 
 
         /* ==================================================================
-           CUSTOM SIDEBAR BRAND (FUTURISTIC 3D GLOW)
+           CUSTOM SIDEBAR BRAND (FROSTED WHITE CARD ON SKY BLUE)
            ================================================================== */
 
         .custom-sidebar-brand {{
@@ -580,17 +565,16 @@ def inject_global_styles() -> None:
                 center;
 
             gap:
-                0.75rem;
+                0.85rem;
 
             padding:
-                0.6rem
-                0.8rem;
+                0.8rem 0.95rem;
 
             margin-bottom:
-                0.25rem;
+                0.45rem;
 
             background:
-                rgba(255, 255, 255, 0.95);
+                rgba(255, 255, 255, 0.90);
 
             backdrop-filter:
                 blur(16px);
@@ -599,22 +583,22 @@ def inject_global_styles() -> None:
                 blur(16px);
 
             border:
-                1px solid rgba(186, 230, 253, 0.95);
+                1px solid rgba(255, 255, 255, 0.95);
 
             border-radius:
-                13px;
+                12px;
 
             box-shadow:
-                0 4px 16px rgba(14, 165, 233, 0.08),
+                0 4px 16px rgba(14, 165, 233, 0.10),
                 0 1px 3px rgba(15, 23, 42, 0.04);
         }}
 
         .sidebar-brand-mark {{
             width:
-                40px;
+                38px;
 
             height:
-                40px;
+                38px;
 
             flex-shrink:
                 0;
@@ -629,13 +613,13 @@ def inject_global_styles() -> None:
                 center;
 
             border-radius:
-                11px;
+                10px;
 
             background:
                 linear-gradient(
                     135deg,
                     #0EA5E9 0%,
-                    #8B5CF6 100%
+                    #6366F1 100%
                 );
 
             border:
@@ -651,8 +635,7 @@ def inject_global_styles() -> None:
                 900;
 
             box-shadow:
-                0 4px 14px rgba(14, 165, 233, 0.40),
-                0 0 10px rgba(139, 92, 246, 0.28);
+                0 4px 12px rgba(14, 165, 233, 0.35);
         }}
 
         .sidebar-brand-text {{
@@ -665,7 +648,7 @@ def inject_global_styles() -> None:
                 #0F172A !important;
 
             font-size:
-                15px !important;
+                14.5px !important;
 
             font-weight:
                 900 !important;
@@ -674,7 +657,7 @@ def inject_global_styles() -> None:
                 0.05em;
 
             line-height:
-                1.15;
+                1.2;
         }}
 
         .sidebar-brand-subtitle {{
@@ -685,13 +668,13 @@ def inject_global_styles() -> None:
                 #0284C7 !important;
 
             font-size:
-                9px !important;
+                9.5px !important;
 
             font-weight:
-                800 !important;
+                750 !important;
 
             letter-spacing:
-                0.07em;
+                0.03em;
 
             line-height:
                 1.3;
@@ -707,36 +690,37 @@ def inject_global_styles() -> None:
                 1px;
 
             margin:
-                0.25rem
-                0.2rem
+                0.45rem
+                0.35rem
+                0.85rem
                 0.35rem;
 
             background:
                 linear-gradient(
                     90deg,
                     rgba(14, 165, 233, 0.35),
-                    rgba(168, 85, 247, 0.15),
+                    rgba(99, 102, 241, 0.20),
                     transparent
                 );
         }}
 
 
         /* ==================================================================
-           SIDEBAR SECTION LABELS (PERFECT ALIGNMENT & SPACING)
+           SIDEBAR SECTION LABELS (HIGH CONTRAST OCEAN BLUE)
            ================================================================== */
 
         .sidebar-section-label {{
             margin-top:
-                0.45rem !important;
+                1.35rem !important;
 
             margin-bottom:
-                0.15rem !important;
+                0.55rem !important;
 
             margin-left:
-                0.35rem !important;
+                0.5rem !important;
 
             margin-right:
-                0.35rem !important;
+                0.5rem !important;
 
             padding:
                 0 !important;
@@ -745,7 +729,7 @@ def inject_global_styles() -> None:
                 #0369A1 !important;
 
             font-size:
-                8.5px !important;
+                10px !important;
 
             font-weight:
                 850 !important;
@@ -766,13 +750,7 @@ def inject_global_styles() -> None:
                 center !important;
 
             gap:
-                5px !important;
-
-            position:
-                relative !important;
-
-            z-index:
-                10 !important;
+                6px !important;
         }}
 
         .sidebar-section-label::before {{
@@ -792,10 +770,10 @@ def inject_global_styles() -> None:
                 50% !important;
 
             background:
-                #38BDF8 !important;
+                #0284C7 !important;
 
             box-shadow:
-                0 0 6px #0EA5E9 !important;
+                0 0 6px rgba(2, 132, 199, 0.5) !important;
 
             flex-shrink:
                 0 !important;
@@ -803,12 +781,12 @@ def inject_global_styles() -> None:
 
         .sidebar-section-label:first-of-type {{
             margin-top:
-                0.1rem !important;
+                0.2rem !important;
         }}
 
 
         /* ==================================================================
-           CUSTOM PAGE-LINK NAVIGATION (HIGH CONTRAST & PERFECT FIT)
+           CUSTOM PAGE-LINK NAVIGATION (FROSTED WHITE PAGE CONTAINERS)
            ================================================================== */
 
         [data-testid="stSidebar"] .stPageLink {{
@@ -830,6 +808,7 @@ def inject_global_styles() -> None:
                 100% !important;
         }}
 
+        /* Page Container for Inside Navigation Pages */
         [data-testid="stSidebar"] .stPageLink a {{
             display:
                 flex !important;
@@ -841,22 +820,22 @@ def inject_global_styles() -> None:
                 100% !important;
 
             min-height:
-                35px !important;
+                40px !important;
 
             height:
-                35px !important;
+                40px !important;
 
             margin:
-                0.1rem 0 !important;
+                5px 0 !important;
 
             padding:
-                0.35rem 0.8rem !important;
+                0.5rem 0.95rem !important;
 
             border-radius:
-                9px !important;
+                10px !important;
 
             background:
-                rgba(255, 255, 255, 0.85) !important;
+                rgba(255, 255, 255, 0.84) !important;
 
             backdrop-filter:
                 blur(12px) !important;
@@ -865,13 +844,13 @@ def inject_global_styles() -> None:
                 blur(12px) !important;
 
             border:
-                1px solid rgba(226, 232, 240, 0.95) !important;
+                1px solid rgba(255, 255, 255, 0.95) !important;
 
             color:
                 #0F172A !important;
 
             font-size:
-                11.5px !important;
+                12.5px !important;
 
             font-weight:
                 750 !important;
@@ -886,16 +865,13 @@ def inject_global_styles() -> None:
                 none !important;
 
             box-shadow:
-                0 1px 3px rgba(15, 23, 42, 0.02) !important;
+                0 1px 4px rgba(14, 165, 233, 0.06) !important;
 
             transition:
                 all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
 
             position:
                 relative !important;
-
-            z-index:
-                5 !important;
         }}
 
         [data-testid="stSidebar"] .stPageLink a span,
@@ -907,9 +883,10 @@ def inject_global_styles() -> None:
                 750 !important;
 
             font-size:
-                11.5px !important;
+                12.5px !important;
         }}
 
+        /* Navigation Container Hover State */
         [data-testid="stSidebar"] .stPageLink a:hover {{
             background:
                 #FFFFFF !important;
@@ -918,39 +895,34 @@ def inject_global_styles() -> None:
                 #0284C7 !important;
 
             padding-left:
-                1rem !important;
+                1.1rem !important;
 
             border-color:
-                rgba(14, 165, 233, 0.55) !important;
+                rgba(14, 165, 233, 0.60) !important;
 
             box-shadow:
-                0 4px 14px rgba(14, 165, 233, 0.14) !important;
+                0 4px 14px rgba(14, 165, 233, 0.18) !important;
+
+            transform:
+                translateX(2px) !important;
         }}
 
         [data-testid="stSidebar"] .stPageLink a:hover span,
         [data-testid="stSidebar"] .stPageLink a:hover p {{
             color:
                 #0284C7 !important;
+
+            font-weight:
+                800 !important;
         }}
 
-        [data-testid="stSidebar"] .stPageLink a:focus-visible {{
-            outline:
-                2px solid #0EA5E9 !important;
-
-            outline-offset:
-                2px !important;
-        }}
-
-        /*
-         * Active page - High-Impact Glowing Gradient
-         */
-
+        /* Active Navigation Container (Ocean Blue Glowing Pill) */
         [data-testid="stSidebar"] .stPageLink a[aria-current="page"] {{
             background:
                 linear-gradient(
                     135deg,
-                    #0EA5E9 0%,
-                    #6366F1 100%
+                    #0284C7 0%,
+                    #0369A1 100%
                 ) !important;
 
             color:
@@ -963,8 +935,10 @@ def inject_global_styles() -> None:
                 1px solid rgba(255, 255, 255, 0.45) !important;
 
             box-shadow:
-                0 6px 18px rgba(14, 165, 233, 0.35),
-                0 0 12px rgba(99, 102, 241, 0.25) !important;
+                0 6px 18px rgba(2, 132, 199, 0.38) !important;
+
+            transform:
+                none !important;
         }}
 
         [data-testid="stSidebar"] .stPageLink a[aria-current="page"] span,
@@ -993,15 +967,23 @@ def inject_global_styles() -> None:
                 center !important;
 
             margin-right:
-                0.45rem !important;
+                0.55rem !important;
 
             font-size:
-                13.5px !important;
+                15px !important;
+
+            color:
+                #0284C7 !important;
+        }}
+
+        [data-testid="stSidebar"] .stPageLink a[aria-current="page"] > span:first-child {{
+            color:
+                #FFFFFF !important;
         }}
 
 
         /* ==================================================================
-           SIDEBAR FOOTER (FUTURISTIC FROSTED GLASS)
+           SIDEBAR FOOTER (FROSTED WHITE CARD PINNED AT BOTTOM)
            ================================================================== */
 
         .sidebar-footer {{
@@ -1021,25 +1003,25 @@ def inject_global_styles() -> None:
                 0 !important;
 
             padding:
-                0.55rem 0.85rem !important;
+                0.85rem 1rem !important;
 
             border:
-                1px solid rgba(186, 230, 253, 0.95);
+                1px solid rgba(255, 255, 255, 0.95) !important;
 
             border-radius:
-                12px;
+                12px !important;
 
             background:
-                rgba(255, 255, 255, 0.92);
+                rgba(255, 255, 255, 0.92) !important;
 
             backdrop-filter:
-                blur(16px);
+                blur(16px) !important;
 
             -webkit-backdrop-filter:
-                blur(16px);
+                blur(16px) !important;
 
             box-shadow:
-                0 4px 16px rgba(14, 165, 233, 0.08);
+                0 4px 16px rgba(14, 165, 233, 0.10) !important;
         }}
 
         .sidebar-footer-status {{
@@ -1056,7 +1038,7 @@ def inject_global_styles() -> None:
                 #0F172A;
 
             font-size:
-                8.5px;
+                9.5px;
 
             font-weight:
                 900;
@@ -1084,24 +1066,6 @@ def inject_global_styles() -> None:
             box-shadow:
                 0 0 0 3px rgba(16, 185, 129, 0.25),
                 0 0 8px rgba(16, 185, 129, 0.5);
-
-            animation:
-                status-pulse 2s infinite;
-        }}
-
-        @keyframes status-pulse {{
-            0% {{
-                transform: scale(0.95);
-                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5);
-            }}
-            70% {{
-                transform: scale(1);
-                box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
-            }}
-            100% {{
-                transform: scale(0.95);
-                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
-            }}
         }}
 
         .sidebar-footer-text {{
@@ -1112,7 +1076,7 @@ def inject_global_styles() -> None:
                 #0284C7;
 
             font-size:
-                8px;
+                8.5px;
 
             font-weight:
                 700;

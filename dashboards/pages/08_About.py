@@ -241,6 +241,83 @@ for column, (icon, title, description) in zip(tech_columns, technologies):
         )
 
 # ============================================================================
+# PROJECT SUBMISSION & AUTHORSHIP
+# ============================================================================
+
+section_header(
+    title="Project Submission & Authorship",
+    description="Official project registration and developer credentials.",
+)
+
+render_html(
+    """
+    <div style="
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 0.85rem;
+        margin-bottom: 1.5rem;
+    ">
+        <div class="chart-card" style="padding: 1rem 1.15rem; display: flex; align-items: center; gap: 0.85rem;">
+            <div style="
+                width: 40px;
+                height: 40px;
+                border-radius: 10px;
+                background: linear-gradient(135deg, rgba(14, 165, 233, 0.15), rgba(99, 102, 241, 0.15));
+                border: 1px solid rgba(14, 165, 233, 0.3);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 19px;
+                flex-shrink: 0;
+            ">📊</div>
+            <div>
+                <div style="font-size: 8.5px; font-weight: 850; text-transform: uppercase; letter-spacing: 0.08em; color: #0284C7;">Project Topic</div>
+                <div style="font-size: 13px; font-weight: 850; color: #0F172A; margin-top: 1px;">Enterprise Predictive Analytics Engine</div>
+            </div>
+        </div>
+
+        <div class="chart-card" style="padding: 1rem 1.15rem; display: flex; align-items: center; gap: 0.85rem;">
+            <div style="
+                width: 40px;
+                height: 40px;
+                border-radius: 10px;
+                background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.15));
+                border: 1px solid rgba(16, 185, 129, 0.3);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 19px;
+                flex-shrink: 0;
+            ">👤</div>
+            <div>
+                <div style="font-size: 8.5px; font-weight: 850; text-transform: uppercase; letter-spacing: 0.08em; color: #059669;">Submitted By</div>
+                <div style="font-size: 13px; font-weight: 850; color: #0F172A; margin-top: 1px;">Pradeep Bhagvat Sargar</div>
+            </div>
+        </div>
+
+        <div class="chart-card" style="padding: 1rem 1.15rem; display: flex; align-items: center; gap: 0.85rem;">
+            <div style="
+                width: 40px;
+                height: 40px;
+                border-radius: 10px;
+                background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(99, 102, 241, 0.15));
+                border: 1px solid rgba(139, 92, 246, 0.3);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 19px;
+                flex-shrink: 0;
+            ">✉️</div>
+            <div>
+                <div style="font-size: 8.5px; font-weight: 850; text-transform: uppercase; letter-spacing: 0.08em; color: #7C3AED;">Registered Email ID</div>
+                <div style="font-size: 13px; font-weight: 850; color: #0F172A; margin-top: 1px;">pbsargar15@gmail.com</div>
+            </div>
+        </div>
+    </div>
+    """
+)
+
+# ============================================================================
 # FOOTER STATEMENT
 # ============================================================================
 
