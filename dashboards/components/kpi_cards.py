@@ -22,6 +22,8 @@ from typing import Literal
 
 import streamlit as st
 
+from dashboards.utils.html import render_html
+
 
 # ============================================================================
 # TYPE DEFINITIONS
@@ -211,39 +213,18 @@ def kpi_card(
 
     html = (
         f'<div class="kpi-card kpi-{accent}">'
-
         '<div class="kpi-card-top">'
-
         '<div class="kpi-card-content">'
-
-        '<div class="kpi-label">'
-        f"{safe_label}"
-        "</div>"
-
-        '<div class="kpi-value">'
-        f"{safe_value}"
-        "</div>"
-
+        f'<div class="kpi-label">{safe_label}</div>'
+        f'<div class="kpi-value">{safe_value}</div>'
         f"{delta_html}"
-
-        "</div>"
-
+        '</div>'
         f"{icon_html}"
-
-        "</div>"
-
-        "</div>"
+        '</div>'
+        '</div>'
     )
 
-
-    # ------------------------------------------------------------------------
-    # Render
-    # ------------------------------------------------------------------------
-
-    st.markdown(
-        html,
-        unsafe_allow_html=True,
-    )
+    render_html(html)
 
 
 # ============================================================================

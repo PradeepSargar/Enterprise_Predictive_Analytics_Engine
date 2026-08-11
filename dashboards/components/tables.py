@@ -277,27 +277,6 @@ def render_segment_performance_table(
 
 
     # =========================================================================
-    # TABLE CONTAINER
-    # =========================================================================
-
-    st.markdown(
-        """
-        <div
-            style="
-                border: 1px solid #E2E8F0;
-                border-radius: 12px;
-                overflow: hidden;
-                margin-top: 8px;
-                margin-bottom: 12px;
-                background: #FFFFFF;
-            "
-        >
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-    # =========================================================================
     # RENDER TABLE
     # =========================================================================
 
@@ -306,16 +285,6 @@ def render_segment_performance_table(
         width="stretch",
         hide_index=True,
         height=245,
-    )
-
-
-    # =========================================================================
-    # CLOSE CONTAINER
-    # =========================================================================
-
-    st.markdown(
-        "</div>",
-        unsafe_allow_html=True,
     )
 
 

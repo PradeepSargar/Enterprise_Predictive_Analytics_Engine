@@ -237,15 +237,31 @@ def inject_global_styles() -> None:
 
 
         /* ==================================================================
-           MAIN CONTENT CANVAS
+           MAIN CONTENT CANVAS (OFFSET BY FIXED 320PX SIDEBAR)
            ================================================================== */
 
         [data-testid="stAppViewContainer"] {{
             background:
                 {COLORS["background"]} !important;
+
+            overflow-x:
+                hidden !important;
+
+            max-width:
+                100% !important;
         }}
 
-        [data-testid="stMain"] {{
+        [data-testid="stMain"],
+        .stMain {{
+            margin-left:
+                320px !important;
+
+            width:
+                calc(100% - 320px) !important;
+
+            max-width:
+                calc(100% - 320px) !important;
+
             background:
                 linear-gradient(
                     180deg,
@@ -253,31 +269,55 @@ def inject_global_styles() -> None:
                     {COLORS["background"]} 48%,
                     #F1F5F9 100%
                 ) !important;
+
+            overflow-x:
+                hidden !important;
+
+            box-sizing:
+                border-box !important;
         }}
 
         [data-testid="stMainBlockContainer"] {{
             background:
                 transparent !important;
+
+            overflow-x:
+                hidden !important;
+
+            max-width:
+                100% !important;
         }}
 
         [data-testid="block-container"] {{
             max-width:
-                1520px;
+                1440px !important;
+
+            width:
+                100% !important;
+
+            margin:
+                0 auto !important;
 
             background:
                 transparent !important;
 
             padding-top:
-                2rem;
+                1.5rem !important;
 
             padding-right:
-                2.25rem;
+                2rem !important;
 
             padding-bottom:
-                3rem;
+                3rem !important;
 
             padding-left:
-                2.25rem;
+                2rem !important;
+
+            overflow-x:
+                hidden !important;
+
+            box-sizing:
+                border-box !important;
         }}
 
 
@@ -302,19 +342,40 @@ def inject_global_styles() -> None:
 
 
         /* ==================================================================
-           SIDEBAR (FUTURISTIC LIGHT SKY BLUE & HIGH-CONTRAST TEXT)
+           SIDEBAR (FIXED 320PX ENTERPRISE NAVIGATION PANEL - ZERO SCROLLBARS)
            ================================================================== */
 
         section[data-testid="stSidebar"],
-        [data-testid="stSidebar"],
-        [data-testid="stSidebarContent"],
-        [data-testid="stSidebarUserContent"],
-        [data-testid="stSidebar"] > div {{
+        [data-testid="stSidebar"] {{
+            position:
+                fixed !important;
+
+            top:
+                0 !important;
+
+            left:
+                0 !important;
+
+            bottom:
+                0 !important;
+
+            width:
+                320px !important;
+
             min-width:
-                275px !important;
+                320px !important;
 
             max-width:
-                275px !important;
+                320px !important;
+
+            height:
+                100vh !important;
+
+            min-height:
+                100vh !important;
+
+            max-height:
+                100vh !important;
 
             background:
                 linear-gradient(
@@ -340,16 +401,248 @@ def inject_global_styles() -> None:
             box-shadow:
                 4px 0 24px -2px rgba(14, 165, 233, 0.08),
                 8px 0 36px -4px rgba(168, 85, 247, 0.05) !important;
+
+            overflow:
+                hidden !important;
+
+            overflow-x:
+                hidden !important;
+
+            overflow-y:
+                hidden !important;
+
+            scrollbar-width:
+                none !important;
+
+            -ms-overflow-style:
+                none !important;
+
+            z-index:
+                100 !important;
         }}
 
-        [data-testid="stSidebar"] > div:first-child {{
+        /* Completely suppress all scrollbars and sliders across sidebar elements */
+        section[data-testid="stSidebar"]::-webkit-scrollbar,
+        [data-testid="stSidebarContent"]::-webkit-scrollbar,
+        [data-testid="stSidebarUserContent"]::-webkit-scrollbar,
+        [data-testid="stSidebar"]::-webkit-scrollbar,
+        [data-testid="stSidebar"] *::-webkit-scrollbar,
+        .sidebar-header-region::-webkit-scrollbar,
+        .sidebar-footer-region::-webkit-scrollbar {{
+            display:
+                none !important;
+
+            width:
+                0px !important;
+
+            height:
+                0px !important;
+
             background:
                 transparent !important;
         }}
 
+        [data-testid="stSidebarContent"],
+        [data-testid="stSidebarUserContent"] {{
+            height:
+                100vh !important;
+
+            min-height:
+                100vh !important;
+
+            max-height:
+                100vh !important;
+
+            width:
+                100% !important;
+
+            max-width:
+                100% !important;
+
+            box-sizing:
+                border-box !important;
+
+            padding:
+                0.75rem 0.85rem 0.65rem 0.85rem !important;
+
+            overflow:
+                hidden !important;
+
+            overflow-x:
+                hidden !important;
+
+            overflow-y:
+                hidden !important;
+
+            display:
+                flex !important;
+
+            flex-direction:
+                column !important;
+
+            justify-content:
+                space-between !important;
+
+            background:
+                transparent !important;
+
+            scrollbar-width:
+                none !important;
+
+            -ms-overflow-style:
+                none !important;
+        }}
+
+        [data-testid="stSidebar"] [data-testid="stVerticalBlock"]:first-child {{
+            height:
+                100% !important;
+
+            min-height:
+                100% !important;
+
+            max-height:
+                100% !important;
+
+            width:
+                100% !important;
+
+            max-width:
+                100% !important;
+
+            display:
+                flex !important;
+
+            flex-direction:
+                column !important;
+
+            justify-content:
+                space-between !important;
+
+            gap:
+                0 !important;
+
+            overflow:
+                hidden !important;
+
+            overflow-x:
+                hidden !important;
+
+            overflow-y:
+                hidden !important;
+
+            scrollbar-width:
+                none !important;
+
+            -ms-overflow-style:
+                none !important;
+
+            box-sizing:
+                border-box !important;
+        }}
+
+        /* REGION A: BRAND HEADER (FIXED TOP) */
+        [data-testid="stSidebar"] [data-testid="stVerticalBlock"]:first-child > div:first-child,
+        .sidebar-header-region {{
+            flex:
+                0 0 auto !important;
+
+            width:
+                100% !important;
+
+            margin:
+                0 !important;
+
+            padding:
+                0 !important;
+        }}
+
+        /* REGION B: SCROLLABLE NAVIGATION (MIDDLE FLEX CONTAINER) */
+        [data-testid="stSidebar"] [data-testid="stVerticalBlock"]:first-child > div:nth-child(2),
+        [data-testid="stSidebar"] [data-testid="stVerticalBlock"]:first-child > div[data-testid="stVerticalBlockBorderWrapper"],
+        [data-testid="stSidebar"] [data-testid="stVerticalBlock"]:first-child > div:nth-child(2) [data-testid="stVerticalBlock"] {{
+            flex:
+                1 1 auto !important;
+
+            min-height:
+                0 !important;
+
+            max-height:
+                100% !important;
+
+            overflow-y:
+                auto !important;
+
+            overflow-x:
+                hidden !important;
+
+            width:
+                100% !important;
+
+            max-width:
+                100% !important;
+
+            box-sizing:
+                border-box !important;
+
+            scrollbar-width:
+                none !important;
+
+            -ms-overflow-style:
+                none !important;
+
+            display:
+                flex !important;
+
+            flex-direction:
+                column !important;
+
+            gap:
+                0.1rem !important;
+        }}
+
+        /* REGION C: BOTTOM FOOTER (FIXED BOTTOM, PINNED, NEVER CLIPPED) */
+        [data-testid="stSidebar"] [data-testid="stVerticalBlock"]:first-child > div:last-child,
+        .sidebar-footer-region {{
+            flex:
+                0 0 auto !important;
+
+            margin-top:
+                auto !important;
+
+            width:
+                100% !important;
+
+            padding-top:
+                0.25rem !important;
+        }}
+
+        [data-testid="stSidebar"] [data-testid="element-container"],
+        [data-testid="stSidebar"] .stMarkdown {{
+            width:
+                100% !important;
+
+            max-width:
+                100% !important;
+
+            box-sizing:
+                border-box !important;
+
+            margin:
+                0 !important;
+
+            padding:
+                0 !important;
+
+            display:
+                block !important;
+        }}
+
         [data-testid="stSidebar"] * {{
             box-sizing:
-                border-box;
+                border-box !important;
+
+            max-width:
+                100% !important;
 
             color:
                 #0F172A;
@@ -369,6 +662,15 @@ def inject_global_styles() -> None:
            ================================================================== */
 
         .custom-sidebar-brand {{
+            width:
+                100% !important;
+
+            max-width:
+                100% !important;
+
+            box-sizing:
+                border-box !important;
+
             display:
                 flex;
 
@@ -376,17 +678,17 @@ def inject_global_styles() -> None:
                 center;
 
             gap:
-                0.85rem;
+                0.75rem;
 
             padding:
-                0.75rem
-                0.85rem;
+                0.6rem
+                0.8rem;
 
             margin-bottom:
-                1.1rem;
+                0.25rem;
 
             background:
-                rgba(255, 255, 255, 0.88);
+                rgba(255, 255, 255, 0.95);
 
             backdrop-filter:
                 blur(16px);
@@ -398,7 +700,7 @@ def inject_global_styles() -> None:
                 1px solid rgba(186, 230, 253, 0.95);
 
             border-radius:
-                14px;
+                13px;
 
             box-shadow:
                 0 4px 16px rgba(14, 165, 233, 0.08),
@@ -407,10 +709,10 @@ def inject_global_styles() -> None:
 
         .sidebar-brand-mark {{
             width:
-                44px;
+                40px;
 
             height:
-                44px;
+                40px;
 
             flex-shrink:
                 0;
@@ -425,7 +727,7 @@ def inject_global_styles() -> None:
                 center;
 
             border-radius:
-                12px;
+                11px;
 
             background:
                 linear-gradient(
@@ -441,7 +743,7 @@ def inject_global_styles() -> None:
                 #FFFFFF;
 
             font-size:
-                19px;
+                18px;
 
             font-weight:
                 900;
@@ -461,7 +763,7 @@ def inject_global_styles() -> None:
                 #0F172A !important;
 
             font-size:
-                16px !important;
+                15px !important;
 
             font-weight:
                 900 !important;
@@ -475,13 +777,13 @@ def inject_global_styles() -> None:
 
         .sidebar-brand-subtitle {{
             margin-top:
-                3px;
+                2px;
 
             color:
                 #0284C7 !important;
 
             font-size:
-                10px !important;
+                9px !important;
 
             font-weight:
                 800 !important;
@@ -503,9 +805,9 @@ def inject_global_styles() -> None:
                 1px;
 
             margin:
-                0.4rem
+                0.25rem
                 0.2rem
-                0.9rem;
+                0.35rem;
 
             background:
                 linear-gradient(
@@ -518,14 +820,24 @@ def inject_global_styles() -> None:
 
 
         /* ==================================================================
-           SIDEBAR SECTION LABELS
+           SIDEBAR SECTION LABELS (PERFECT ALIGNMENT & SPACING)
            ================================================================== */
 
         .sidebar-section-label {{
-            margin:
-                1.15rem
-                0.2rem
-                0.35rem;
+            margin-top:
+                0.45rem !important;
+
+            margin-bottom:
+                0.15rem !important;
+
+            margin-left:
+                0.35rem !important;
+
+            margin-right:
+                0.35rem !important;
+
+            padding:
+                0 !important;
 
             color:
                 #0369A1 !important;
@@ -537,55 +849,64 @@ def inject_global_styles() -> None:
                 850 !important;
 
             letter-spacing:
-                0.12em;
+                0.09em !important;
 
             line-height:
-                1.3;
+                1.25 !important;
 
             text-transform:
-                uppercase;
+                uppercase !important;
 
             display:
-                flex;
+                flex !important;
 
             align-items:
-                center;
+                center !important;
 
             gap:
-                6px;
+                5px !important;
+
+            position:
+                relative !important;
+
+            z-index:
+                10 !important;
         }}
 
         .sidebar-section-label::before {{
             content:
-                "";
+                "" !important;
 
             display:
-                inline-block;
+                inline-block !important;
 
             width:
-                6px;
+                5px !important;
 
             height:
-                6px;
+                5px !important;
 
             border-radius:
-                50%;
+                50% !important;
 
             background:
-                #38BDF8;
+                #38BDF8 !important;
 
             box-shadow:
-                0 0 6px #0EA5E9;
+                0 0 6px #0EA5E9 !important;
+
+            flex-shrink:
+                0 !important;
         }}
 
         .sidebar-section-label:first-of-type {{
             margin-top:
-                0.2rem;
+                0.1rem !important;
         }}
 
 
         /* ==================================================================
-           CUSTOM PAGE-LINK NAVIGATION (HIGH CONTRAST & FUTURISTIC)
+           CUSTOM PAGE-LINK NAVIGATION (HIGH CONTRAST & PERFECT FIT)
            ================================================================== */
 
         [data-testid="stSidebar"] .stPageLink {{
@@ -597,6 +918,9 @@ def inject_global_styles() -> None:
 
             padding:
                 0 !important;
+
+            display:
+                block !important;
         }}
 
         [data-testid="stSidebar"] .stPageLink > div {{
@@ -615,19 +939,22 @@ def inject_global_styles() -> None:
                 100% !important;
 
             min-height:
-                42px !important;
+                35px !important;
+
+            height:
+                35px !important;
 
             margin:
-                0.22rem 0 !important;
+                0.1rem 0 !important;
 
             padding:
-                0.55rem 0.85rem !important;
+                0.35rem 0.8rem !important;
 
             border-radius:
-                11px !important;
+                9px !important;
 
             background:
-                rgba(255, 255, 255, 0.72) !important;
+                rgba(255, 255, 255, 0.85) !important;
 
             backdrop-filter:
                 blur(12px) !important;
@@ -636,7 +963,7 @@ def inject_global_styles() -> None:
                 blur(12px) !important;
 
             border:
-                1px solid rgba(226, 232, 240, 0.85) !important;
+                1px solid rgba(226, 232, 240, 0.95) !important;
 
             color:
                 #0F172A !important;
@@ -660,7 +987,13 @@ def inject_global_styles() -> None:
                 0 1px 3px rgba(15, 23, 42, 0.02) !important;
 
             transition:
-                all 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
+
+            position:
+                relative !important;
+
+            z-index:
+                5 !important;
         }}
 
         [data-testid="stSidebar"] .stPageLink a span,
@@ -682,11 +1015,11 @@ def inject_global_styles() -> None:
             color:
                 #0284C7 !important;
 
-            transform:
-                translateX(3px) !important;
+            padding-left:
+                1rem !important;
 
             border-color:
-                rgba(14, 165, 233, 0.50) !important;
+                rgba(14, 165, 233, 0.55) !important;
 
             box-shadow:
                 0 4px 14px rgba(14, 165, 233, 0.14) !important;
@@ -743,10 +1076,10 @@ def inject_global_styles() -> None:
 
         [data-testid="stSidebar"] .stPageLink a > span:first-child {{
             width:
-                24px !important;
+                22px !important;
 
             min-width:
-                24px !important;
+                22px !important;
 
             display:
                 inline-flex !important;
@@ -761,7 +1094,7 @@ def inject_global_styles() -> None:
                 0.45rem !important;
 
             font-size:
-                14px !important;
+                13.5px !important;
         }}
 
 
@@ -770,11 +1103,23 @@ def inject_global_styles() -> None:
            ================================================================== */
 
         .sidebar-footer {{
+            width:
+                100% !important;
+
+            max-width:
+                100% !important;
+
+            box-sizing:
+                border-box !important;
+
             margin-top:
-                1.5rem;
+                0 !important;
+
+            margin-bottom:
+                0 !important;
 
             padding:
-                0.85rem 0.95rem;
+                0.55rem 0.85rem !important;
 
             border:
                 1px solid rgba(186, 230, 253, 0.95);
@@ -783,7 +1128,7 @@ def inject_global_styles() -> None:
                 12px;
 
             background:
-                rgba(255, 255, 255, 0.88);
+                rgba(255, 255, 255, 0.92);
 
             backdrop-filter:
                 blur(16px);
@@ -859,7 +1204,7 @@ def inject_global_styles() -> None:
 
         .sidebar-footer-text {{
             margin-top:
-                0.3rem;
+                0.25rem;
 
             color:
                 #0284C7;
@@ -871,38 +1216,10 @@ def inject_global_styles() -> None:
                 700;
 
             line-height:
-                1.4;
+                1.35;
 
             letter-spacing:
                 0.03em;
-        }}
-
-
-        /* ==================================================================
-           SIDEBAR SCROLLBAR
-           ================================================================== */
-
-        [data-testid="stSidebar"] ::-webkit-scrollbar {{
-            width:
-                5px;
-        }}
-
-        [data-testid="stSidebar"] ::-webkit-scrollbar-track {{
-            background:
-                transparent;
-        }}
-
-        [data-testid="stSidebar"] ::-webkit-scrollbar-thumb {{
-            background:
-                rgba(148, 163, 184, 0.25);
-
-            border-radius:
-                999px;
-        }}
-
-        [data-testid="stSidebar"] ::-webkit-scrollbar-thumb:hover {{
-            background:
-                rgba(148, 163, 184, 0.40);
         }}
 
 
@@ -2622,9 +2939,12 @@ def inject_global_styles() -> None:
 
 
         /* ==================================================================
-           GLOBAL SCROLLBAR
+           GLOBAL SCROLLBAR (MAIN CONTENT)
            ================================================================== */
 
+        body::-webkit-scrollbar,
+        [data-testid="stMain"]::-webkit-scrollbar,
+        [data-testid="block-container"]::-webkit-scrollbar,
         ::-webkit-scrollbar {{
             width:
                 7px;
@@ -2649,6 +2969,39 @@ def inject_global_styles() -> None:
         ::-webkit-scrollbar-thumb:hover {{
             background:
                 #94A3B8;
+        }}
+
+        /* Completely suppress all scrollbars and sliders across sidebar elements */
+        section[data-testid="stSidebar"]::-webkit-scrollbar,
+        [data-testid="stSidebarContent"]::-webkit-scrollbar,
+        [data-testid="stSidebarUserContent"]::-webkit-scrollbar,
+        [data-testid="stSidebar"]::-webkit-scrollbar,
+        [data-testid="stSidebar"] *::-webkit-scrollbar,
+        .sidebar-header-region::-webkit-scrollbar,
+        .sidebar-footer-region::-webkit-scrollbar {{
+            display:
+                none !important;
+
+            width:
+                0px !important;
+
+            height:
+                0px !important;
+
+            background:
+                transparent !important;
+        }}
+
+        section[data-testid="stSidebar"],
+        [data-testid="stSidebar"],
+        [data-testid="stSidebarContent"],
+        [data-testid="stSidebarUserContent"],
+        [data-testid="stSidebar"] * {{
+            scrollbar-width:
+                none !important;
+
+            -ms-overflow-style:
+                none !important;
         }}
 
 

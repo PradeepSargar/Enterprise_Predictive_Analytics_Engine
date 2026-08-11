@@ -84,9 +84,9 @@ page_header(
         "Strategic cockpit tracking marketplace revenue, customer health, "
         "and 6-month predictive trajectory across the Olist ecosystem."
     ),
+    status="LIVE ANALYTICS",
+    status_type="live",
 )
-
-live_status("ENTERPRISE ANALYTICS • REAL-TIME INTELLIGENCE")
 
 
 # ============================================================================
@@ -249,19 +249,19 @@ section_header(
     ),
 )
 
-kpi_cols = st.columns(6, gap="small")
+kpi_r1 = st.columns(3, gap="medium")
 
-with kpi_cols[0]:
+with kpi_r1[0]:
     kpi_card(
         label="Total Revenue",
-        value=f"R${executive_kpis['total_revenue']:,.0f}",
+        value=f"R$ {executive_kpis['total_revenue']:,.0f}",
         delta="Order-level GMV",
         delta_type="positive",
         accent="blue",
         icon="💰",
     )
 
-with kpi_cols[1]:
+with kpi_r1[1]:
     kpi_card(
         label="Total Orders",
         value=f"{executive_kpis['total_orders']:,}",
@@ -271,7 +271,7 @@ with kpi_cols[1]:
         icon="📦",
     )
 
-with kpi_cols[2]:
+with kpi_r1[2]:
     kpi_card(
         label="Unique Buyers",
         value=f"{executive_kpis['total_customers']:,}",
@@ -281,17 +281,21 @@ with kpi_cols[2]:
         icon="👥",
     )
 
-with kpi_cols[3]:
+render_html("<div style='height: 10px;'></div>")
+
+kpi_r2 = st.columns(3, gap="medium")
+
+with kpi_r2[0]:
     kpi_card(
         label="Average Order Value",
-        value=f"R${executive_kpis['average_order_value']:,.0f}",
+        value=f"R$ {executive_kpis['average_order_value']:,.0f}",
         delta="Revenue per basket",
         delta_type="neutral",
         accent="amber",
         icon="🏷️",
     )
 
-with kpi_cols[4]:
+with kpi_r2[1]:
     repeat_rate = executive_kpis["repeat_customer_rate"]
     kpi_card(
         label="Repeat Buyer Rate",
@@ -302,7 +306,7 @@ with kpi_cols[4]:
         icon="🔄",
     )
 
-with kpi_cols[5]:
+with kpi_r2[2]:
     review_score = executive_kpis["average_review_score"]
     low_review_rate = executive_kpis["low_review_rate"]
     kpi_card(

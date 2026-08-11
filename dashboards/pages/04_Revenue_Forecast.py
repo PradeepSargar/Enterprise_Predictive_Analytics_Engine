@@ -351,7 +351,7 @@ with col_conf:
             delta_type="neutral",
         )
 
-        st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
+        render_html("<div style='height: 12px;'></div>")
 
         if not future_forecast_df.empty:
             lower_sum = future_forecast_df["lower_bound"].sum()

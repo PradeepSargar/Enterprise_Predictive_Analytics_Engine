@@ -293,7 +293,7 @@ with rfm_cols[2]:
         delta_type="positive",
     )
 
-st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
+render_html("<div style='height: 12px;'></div>")
 
 with panel(
     title="Frequency vs Customer Monetary Spend Scatter",

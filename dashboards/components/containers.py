@@ -29,6 +29,8 @@ from typing import Iterator, Sequence
 
 import streamlit as st
 
+from dashboards.utils.html import render_html
+
 
 # ============================================================================
 # CONSTANTS
@@ -92,17 +94,14 @@ def panel(
                 else ""
             )
 
-            st.markdown(
-                f"""
-                <div class="dashboard-panel-header">
-                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.2rem;">
-                        {title_html}
-                        {badge_html}
-                    </div>
-                    {desc_html}
-                </div>
-                """,
-                unsafe_allow_html=True,
+            render_html(
+                '<div class="dashboard-panel-header">'
+                '<div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.2rem;">'
+                f"{title_html}"
+                f"{badge_html}"
+                '</div>'
+                f"{desc_html}"
+                '</div>'
             )
 
         yield
@@ -111,14 +110,11 @@ def panel(
 
             safe_footer = escape(str(footer_insight))
 
-            st.markdown(
-                f"""
-                <div class="dashboard-panel-footer">
-                    <span class="dashboard-panel-footer-icon">💡</span>
-                    <span class="dashboard-panel-footer-text">{safe_footer}</span>
-                </div>
-                """,
-                unsafe_allow_html=True,
+            render_html(
+                '<div class="dashboard-panel-footer">'
+                '<span class="dashboard-panel-footer-icon">💡</span>'
+                f'<span class="dashboard-panel-footer-text">{safe_footer}</span>'
+                '</div>'
             )
 
 
@@ -351,9 +347,8 @@ def spacer(
             "Spacer height cannot be negative."
         )
 
-    st.markdown(
-        f'<div style="height:{int(height)}px;"></div>',
-        unsafe_allow_html=True,
+    render_html(
+        f'<div style="height:{int(height)}px;"></div>'
     )
 
 
@@ -392,12 +387,8 @@ def divider(
             f"Expected one of: {sorted(spacing_classes)}"
         )
 
-    st.markdown(
-        (
-            f'<div class="{spacing_classes[spacing]}" '
-            'aria-hidden="true"></div>'
-        ),
-        unsafe_allow_html=True,
+    render_html(
+        f'<div class="{spacing_classes[spacing]}" aria-hidden="true"></div>'
     )
 
 

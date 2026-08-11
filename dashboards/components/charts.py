@@ -36,6 +36,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
+from dashboards.utils.html import render_html
+
 
 # ============================================================================
 # DESIGN TOKENS
@@ -155,7 +157,7 @@ def _render_empty_state(
     Render a clean analytical empty state.
     """
 
-    st.markdown(
+    render_html(
         f"""
         <div style="
             min-height: 180px;
@@ -196,8 +198,7 @@ def _render_empty_state(
                 </div>
             </div>
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
 
