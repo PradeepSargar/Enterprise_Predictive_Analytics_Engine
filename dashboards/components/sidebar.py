@@ -150,7 +150,7 @@ def render_sidebar(
 
     with st.sidebar:
         # --------------------------------------------------------------------
-        # Premium Executive Brand Header
+        # Premium Compact Executive Brand Header
         # --------------------------------------------------------------------
         render_html(
             '<div class="custom-sidebar-brand">'
@@ -165,7 +165,7 @@ def render_sidebar(
             '</div>'
         )
 
-        # Prominent Active Module Status Card
+        # Compact Active Module Status Banner
         render_html(
             '<div class="sidebar-current-view-card">'
             '<div class="sidebar-current-view-tag">'
@@ -175,9 +175,6 @@ def render_sidebar(
             f'<div class="sidebar-current-view-title">{active_page_title}</div>'
             '</div>'
         )
-
-        # Divider
-        render_html('<div class="sidebar-divider"></div>')
 
         # --------------------------------------------------------------------
         # Data-Driven Section Rendering Loop
@@ -201,7 +198,7 @@ def render_sidebar(
                     )
 
         # --------------------------------------------------------------------
-        # Executive Telemetry Footer
+        # Executive Telemetry Footer (Natural Flow)
         # --------------------------------------------------------------------
         render_html(
             '<div class="sidebar-footer">'

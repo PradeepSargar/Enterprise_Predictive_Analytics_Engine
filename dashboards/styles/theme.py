@@ -369,32 +369,33 @@ def inject_global_styles() -> None:
             background: linear-gradient(180deg, #0F251C 0%, #153628 40%, #0C1E16 100%) !important;
             border-right: 1px solid rgba(255, 255, 255, 0.09) !important;
             box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.04), 4px 0 20px rgba(0, 0, 0, 0.16) !important;
-            min-width: 240px !important;
-            max-width: 260px !important;
-            width: 250px !important;
+            min-width: 275px !important;
+            max-width: 320px !important;
+            width: 285px !important;
         }}
 
         /* Subtle Dark Scrollbar for Sidebar */
         section[data-testid="stSidebar"] ::-webkit-scrollbar {{
-            width: 4px !important;
+            width: 5px !important;
         }}
         section[data-testid="stSidebar"] ::-webkit-scrollbar-track {{
             background: transparent !important;
         }}
         section[data-testid="stSidebar"] ::-webkit-scrollbar-thumb {{
-            background: rgba(255, 255, 255, 0.12) !important;
+            background: rgba(255, 255, 255, 0.16) !important;
             border-radius: 4px !important;
         }}
         section[data-testid="stSidebar"] ::-webkit-scrollbar-thumb:hover {{
-            background: rgba(255, 255, 255, 0.22) !important;
+            background: rgba(255, 255, 255, 0.28) !important;
         }}
 
         section[data-testid="stSidebar"] > div:first-child {{
             background: transparent !important;
-            padding-top: 0.85rem !important;
-            padding-left: 0.85rem !important;
-            padding-right: 0.85rem !important;
-            padding-bottom: 5.5rem !important;
+            padding-top: 0.75rem !important;
+            padding-left: 0.75rem !important;
+            padding-right: 0.75rem !important;
+            padding-bottom: 2rem !important;
+            overflow-y: auto !important;
         }}
 
         section[data-testid="stSidebar"] * {{
@@ -403,32 +404,32 @@ def inject_global_styles() -> None:
 
         section[data-testid="stSidebar"] hr {{
             border-color: rgba(255, 255, 255, 0.08) !important;
-            margin: 0.5rem 0 !important;
+            margin: 0.4rem 0 !important;
         }}
 
         /* Sidebar Navigation Items */
         .sidebar-nav-item,
         .sidebar-link-wrapper,
         [data-testid="stSidebar"] .stPageLink {{
-            margin-bottom: 0.25rem !important;
+            margin-bottom: 0.2rem !important;
             display: block !important;
         }}
 
         .sidebar-nav-item a,
         .sidebar-link-wrapper a,
         [data-testid="stSidebar"] .stPageLink a {{
-            background: transparent !important;
-            color: #D2DFD8 !important;
-            border: 1px solid transparent !important;
+            background: rgba(255, 255, 255, 0.035) !important;
+            color: #E2E8F0 !important;
+            border: 1px solid rgba(255, 255, 255, 0.06) !important;
             border-left: 3px solid transparent !important;
             border-radius: 8px !important;
-            padding: 0.55rem 0.8rem !important;
+            padding: 0.48rem 0.75rem !important;
             font-size: 13.5px !important;
             font-weight: 500 !important;
             display: flex !important;
             align-items: center !important;
             gap: 0.65rem !important;
-            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
             text-decoration: none !important;
             box-shadow: none !important;
         }}
@@ -439,7 +440,7 @@ def inject_global_styles() -> None:
         .sidebar-link-wrapper a p,
         [data-testid="stSidebar"] .stPageLink a span,
         [data-testid="stSidebar"] .stPageLink a p {{
-            color: #D2DFD8 !important;
+            color: #E2E8F0 !important;
             font-size: 13.5px !important;
             font-weight: 500 !important;
             letter-spacing: 0.01em !important;
@@ -450,12 +451,12 @@ def inject_global_styles() -> None:
         .sidebar-nav-item:not(.active) a:hover,
         .sidebar-link-wrapper a:hover:not([aria-current="page"]):not([data-active="true"]),
         [data-testid="stSidebar"] .stPageLink a:hover:not([aria-current="page"]):not([data-active="true"]) {{
-            background: rgba(255, 255, 255, 0.065) !important;
+            background: rgba(255, 255, 255, 0.09) !important;
             color: #FFFFFF !important;
-            border: 1px solid rgba(255, 255, 255, 0.08) !important;
-            border-left: 3px solid rgba(244, 162, 97, 0.45) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            border-left: 3.5px solid rgba(244, 162, 97, 0.6) !important;
             transform: translateX(2px) !important;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22) !important;
         }}
 
         .sidebar-nav-item:not(.active) a:hover span,
@@ -471,7 +472,7 @@ def inject_global_styles() -> None:
         .sidebar-nav-item[data-nav-active="true"],
         .sidebar-nav-item.active,
         .sidebar-active-link-wrapper {{
-            margin-bottom: 0.25rem !important;
+            margin-bottom: 0.2rem !important;
             display: block !important;
         }}
 
@@ -484,15 +485,15 @@ def inject_global_styles() -> None:
         [data-testid="stSidebar"] [data-testid="stPageLink-NavLink"] a[aria-current="page"],
         [data-testid="stSidebar"] .stPageLink a[aria-current="page"],
         [data-testid="stSidebar"] .stPageLink a.active {{
-            background: linear-gradient(90deg, rgba(244, 162, 97, 0.26) 0%, rgba(244, 162, 97, 0.06) 100%) !important;
+            background: linear-gradient(90deg, rgba(244, 162, 97, 0.25) 0%, rgba(244, 162, 97, 0.06) 100%) !important;
             color: #FFFFFF !important;
-            border: 1px solid rgba(244, 162, 97, 0.42) !important;
+            border: 1px solid rgba(244, 162, 97, 0.45) !important;
             border-left: 4.5px solid #F4A261 !important;
             border-radius: 8px !important;
-            padding: 0.55rem 0.8rem !important;
+            padding: 0.48rem 0.75rem !important;
             font-weight: 700 !important;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
-            transform: translateX(3px) !important;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
+            transform: translateX(2px) !important;
         }}
 
         .sidebar-nav-item[data-nav-active="true"] a span,
@@ -1499,16 +1500,16 @@ def inject_global_styles() -> None:
             background: linear-gradient(135deg, rgba(244, 162, 97, 0.16) 0%, rgba(45, 106, 79, 0.32) 100%);
             border: 1px solid rgba(244, 162, 97, 0.38);
             border-radius: 8px;
-            padding: 0.55rem 0.75rem;
-            margin: 0.35rem 0 0.55rem;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            padding: 0.4rem 0.65rem;
+            margin: 0.25rem 0 0.35rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }}
 
         .sidebar-current-view-tag {{
             display: flex;
             align-items: center;
             gap: 0.4rem;
-            font-size: 9.5px !important;
+            font-size: 9px !important;
             font-weight: 700 !important;
             color: #F4A261 !important;
             letter-spacing: 0.08em !important;
@@ -1526,18 +1527,18 @@ def inject_global_styles() -> None:
         }}
 
         .sidebar-current-view-title {{
-            font-size: 13px !important;
+            font-size: 12.5px !important;
             font-weight: 700 !important;
             color: #FFFFFF !important;
             letter-spacing: 0.02em !important;
-            margin-top: 2px;
-            line-height: 1.25;
+            margin-top: 1px;
+            line-height: 1.2;
         }}
 
         .sidebar-divider {{
             height: 1px;
             background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
-            margin: 0.5rem 0.2rem;
+            margin: 0.35rem 0.2rem;
         }}
 
         .sidebar-section-label {{
@@ -1546,10 +1547,10 @@ def inject_global_styles() -> None:
             gap: 0.45rem !important;
             font-size: 10.5px !important;
             font-weight: 700 !important;
-            color: #7EA28B !important;
+            color: #F4A261 !important;
             letter-spacing: 0.09em !important;
             text-transform: uppercase !important;
-            padding: 0.85rem 0.55rem 0.3rem !important;
+            padding: 0.55rem 0.45rem 0.2rem !important;
             margin: 0 !important;
         }}
 
@@ -1558,32 +1559,32 @@ def inject_global_styles() -> None:
             width: 4px;
             height: 4px;
             border-radius: 50%;
-            background: #52B788;
-            opacity: 0.85;
+            background: #F4A261;
+            box-shadow: 0 0 4px rgba(244, 162, 97, 0.6);
+            opacity: 0.95;
             flex-shrink: 0;
         }}
 
-        /* Executive Telemetry Status Footer */
+        /* Executive Telemetry Status Footer (Relative Flow - Never Blocks Page Links) */
         .sidebar-footer {{
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: var(--sidebar-width, 250px);
-            padding: 0.65rem 0.75rem;
-            background: linear-gradient(180deg, rgba(15, 37, 28, 0.96) 0%, #0C1E16 100%);
-            border-top: 1px solid rgba(255, 255, 255, 0.09);
-            backdrop-filter: blur(8px);
-            z-index: 99;
+            position: relative !important;
+            width: 100% !important;
+            margin-top: 0.85rem !important;
+            margin-bottom: 0.35rem !important;
+            padding: 0 !important;
+            background: transparent !important;
+            border: none !important;
+            z-index: 10 !important;
         }}
 
         .sidebar-footer-card {{
-            background: rgba(0, 0, 0, 0.26);
-            border: 1px solid rgba(255, 255, 255, 0.07);
-            border-radius: 8px;
-            padding: 0.5rem 0.65rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.2rem;
+            background: rgba(0, 0, 0, 0.28) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-radius: 8px !important;
+            padding: 0.45rem 0.6rem !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 0.15rem !important;
         }}
 
         .sidebar-footer-status {{
