@@ -39,7 +39,9 @@ MODELS_DIR = PROJECT_ROOT / "models"
 # =====================================================================
 
 MASTER_DATA_PATH = PROCESSED_DATA_DIR / "olist_master_cleaned.csv"
+MASTER_PARQUET_PATH = PROCESSED_DATA_DIR / "olist_master_cleaned.parquet"
 CUSTOMER_SEGMENTS_PATH = PROCESSED_DATA_DIR / "customer_segments.csv"
+CUSTOMER_SEGMENTS_PARQUET_PATH = PROCESSED_DATA_DIR / "customer_segments.parquet"
 REVENUE_FORECAST_PATH = PROCESSED_DATA_DIR / "revenue_forecast.csv"
 MODEL_COMPARISON_PATH = REPORTS_DIR / "model_comparison_results.csv"
 
@@ -75,18 +77,26 @@ def _validate_file_exists(file_path: Path) -> None:
 def load_master_data() -> pd.DataFrame:
     """
     Load the processed Olist master dataset.
+    Prioritizes fast columnar Parquet if available, falling back to CSV.
 
     Returns
     -------
     pandas.DataFrame
         Cleaned master dataset at order-item grain.
     """
-    _validate_file_exists(MASTER_DATA_PATH)
+    df = None
+    if MASTER_PARQUET_PATH.exists():
+        try:
+            df = pd.read_parquet(MASTER_PARQUET_PATH)
+        except Exception:
+            df = None
 
-    df = pd.read_csv(
-        MASTER_DATA_PATH,
-        low_memory=False,
-    )
+    if df is None:
+        _validate_file_exists(MASTER_DATA_PATH)
+        df = pd.read_csv(
+            MASTER_DATA_PATH,
+            low_memory=False,
+        )
 
     datetime_columns = [
         "order_purchase_timestamp",
@@ -98,7 +108,7 @@ def load_master_data() -> pd.DataFrame:
     ]
 
     for column in datetime_columns:
-        if column in df.columns:
+        if column in df.columns and not pd.api.types.is_datetime64_any_dtype(df[column]):
             df[column] = pd.to_datetime(
                 df[column],
                 errors="coerce",
@@ -115,12 +125,19 @@ def load_master_data() -> pd.DataFrame:
 def load_customer_segments() -> pd.DataFrame:
     """
     Load the customer RFM segmentation dataset.
+    Prioritizes fast columnar Parquet if available, falling back to CSV.
 
     Returns
     -------
     pandas.DataFrame
         Customer-level RFM and clustering results.
     """
+    if CUSTOMER_SEGMENTS_PARQUET_PATH.exists():
+        try:
+            return pd.read_parquet(CUSTOMER_SEGMENTS_PARQUET_PATH)
+        except Exception:
+            pass
+
     _validate_file_exists(CUSTOMER_SEGMENTS_PATH)
 
     df = pd.read_csv(

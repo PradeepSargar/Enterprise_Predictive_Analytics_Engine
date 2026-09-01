@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Predictive Analytics Engine - Modern Data Stack Plan</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap');
+        
+        :root {
+            --primary: #0F172A;
+            --accent: #2563EB;
+            --accent-light: #EFF6FF;
+            --text-main: #334155;
+            --text-muted: #64748B;
+            --bg: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --border: #E2E8F0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 48px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border);
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 28px;
+            font-weight: 800;
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: var(--accent);
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .divider {
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent) 0%, transparent 100%);
+            margin-bottom: 32px;
+            border: none;
+        }
+
+        h2 {
+            color: var(--primary);
+            font-size: 18px;
+            font-weight: 700;
+            margin-top: 32px;
+            margin-bottom: 14px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+        h3 {
+            color: var(--accent);
+            font-size: 15px;
+            font-weight: 600;
+            margin-top: 20px;
+            margin-bottom: 8px;
+        }
+
+        p, li {
+            font-size: 14px;
+            color: var(--text-main);
+        }
+
+        ul {
+            padding-left: 20px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 6px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 13.5px;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: #ffffff;
+            text-align: left;
+            padding: 10px 14px;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        tr:nth-child(even) td {
+            background-color: #F8FAFC;
+        }
+
+        .code-block {
+            background-color: #0F172A;
+            color: #F8FAFC;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Fira Code', monospace;
+            font-size: 12.5px;
+            overflow-x: auto;
+            margin: 16px 0;
+            line-height: 1.5;
+        }
+
+        .highlight-box {
+            background-color: var(--accent-light);
+            border-left: 4px solid var(--accent);
+            padding: 16px 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+
+        .highlight-box b {
+            color: var(--accent);
+        }
+
+        .badge {
+            display: inline-block;
+            background: #E0E7FF;
+            color: #3730A3;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-right: 6px;
+        }
+
+        @media print {
+            body {
+                background: none;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+                border: none;
+                padding: 0;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Enterprise Predictive Analytics Engine</h1>
+        <div class="subtitle">Modern Data Stack Architecture Plan & Portfolio Blueprint</div>
+        <hr class="divider">
+
+        <h2>1. Executive Summary</h2>
+        <p>
+            This plan outlines the enterprise-grade <b>Modern Data Stack (MDS)</b> architecture for the <b>Enterprise Predictive Analytics Engine</b>. 
+            Built on 113,425 e-commerce transactions across 9 relational tables from Olist Brazil, this design integrates 
+            <b>SQL Data Modeling (DuckDB)</b>, <b>Machine Learning (scikit-learn, Prophet)</b>, and an <b>Interactive 8-Page Streamlit Dashboard</b>.
+        </p>
+
+        <h2>2. Architecture Layers Overview</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Layer</th>
+                    <th>Technology</th>
+                    <th>Core Responsibility</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><b>1. Raw Storage</b></td>
+                    <td>9 Relational CSVs</td>
+                    <td>Transactional order items, payments, reviews, customers, sellers, and geolocation.</td>
+                </tr>
+                <tr>
+                    <td><b>2. SQL / In-Process OLAP</b></td>
+                    <td><b>DuckDB + SQL Layer</b></td>
+                    <td>Executes relational joins, multi-item order deduplication (ROW_NUMBER), and RFM CTE modeling.</td>
+                </tr>
+                <tr>
+                    <td><b>3. Machine Learning</b></td>
+                    <td><b>scikit-learn & Prophet</b></td>
+                    <td>Random Forest dissatisfaction classifier (83.5% Acc), K-Means RFM clustering (k=4), and 6-month revenue forecast.</td>
+                </tr>
+                <tr>
+                    <td><b>4. Caching & Access</b></td>
+                    <td><b>Parquet & Streamlit Cache</b></td>
+                    <td>High-performance columnar Parquet files and in-memory caches (@st.cache_data / @st.cache_resource).</td>
+                </tr>
+                <tr>
+                    <td><b>5. Business Intelligence</b></td>
+                    <td><b>Streamlit (8 Pages)</b></td>
+                    <td>Executive KPIs, real-time risk simulator, cohort retention heatmaps, and SQL data explorer.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>3. The 5 SQL Analytics Models (<code>sql/</code> Directory)</h2>
+        <ul>
+            <li><b><code>01_schema_and_views.sql</code>:</b> Unified transactional base view joining all 9 tables with NULL coalescing.</li>
+            <li><b><code>02_order_deduplication.sql</code>:</b> Uses <code>ROW_NUMBER() OVER (PARTITION BY order_id)</code> to eliminate duplicate payments and review scores from multi-item orders.</li>
+            <li><b><code>03_rfm_customer_segmentation.sql</code>:</b> Multi-CTE query calculating Recency, Frequency, and Monetary metrics per customer.</li>
+            <li><b><code>04_delivery_performance.sql</code>:</b> Extracts logistics SLA delay days and transit duration for ML risk classification.</li>
+            <li><b><code>05_monthly_kpis_and_mom.sql</code>:</b> Computes monthly revenue and uses <code>LAG() OVER (ORDER BY month)</code> for Month-over-Month growth rates.</li>
+        </ul>
+
+        <h3>Sample SQL Query (RFM Segmentation):</h3>
+        <div class="code-block">
+WITH customer_orders AS (
+    SELECT customer_unique_id, order_id, purchase_timestamp, total_payment_value
+    FROM v_orders_deduplicated
+)
+SELECT 
+    customer_unique_id,
+    DATEDIFF('day', MAX(purchase_timestamp), TIMESTAMP '2018-09-01 00:00:00') AS recency,
+    COUNT(DISTINCT order_id) AS frequency,
+    ROUND(SUM(total_payment_value), 2) AS monetary
+FROM customer_orders
+GROUP BY customer_unique_id;</div>
+
+        <h2>4. Machine Learning Benchmarks & Findings</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Model Task</th>
+                    <th>Algorithm</th>
+                    <th>Key Business Finding</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><b>Customer Segmentation</b></td>
+                    <td>K-Means (k=4)</td>
+                    <td><b>96.8% of customers buy once</b> (55.5% Recent, 41.3% Lapsed). Repeat buyers (3.1%) spend <b>2.1x more</b>.</td>
+                </tr>
+                <tr>
+                    <td><b>Dissatisfaction Classifier</b></td>
+                    <td>Random Forest (depth=10)</td>
+                    <td><b>83.5% Accuracy</b>, <b>0.430 F1</b>. Delivery delays drive <b>76.7% of all bad reviews</b>.</td>
+                </tr>
+                <tr>
+                    <td><b>Revenue Forecasting</b></td>
+                    <td>Prophet (90% CI)</td>
+                    <td>Projected <b>+19.4% revenue growth</b> over 6 months across total marketplace, categories, and states.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>5. Interview Elevator Pitch</h2>
+        <div class="highlight-box">
+            <b>The 30-Second Interview Pitch:</b><br>
+            <i>"I built an Enterprise Predictive Analytics Engine using a Modern Data Stack architecture on 113,000 marketplace transactions. 
+            I used SQL and DuckDB to model raw relational data, eliminating revenue double-counting and engineering RFM features. 
+            I built an 83.5% accurate Random Forest model that flags at-risk deliveries before bad reviews occur, and projected 6-month revenues using Prophet. 
+            I deployed the full solution in an 8-page Streamlit decision dashboard backed by automated Pytest suites."</i>
+        </div>
+
+        <h2>6. Rapid-Fire Technical Cheat Sheet</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Metric / Topic</th>
+                    <th>Value / Finding</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Total Dataset Size</td>
+                    <td>113,425 order items | 96,478 unique orders | 93,358 customers</td>
+                </tr>
+                <tr>
+                    <td>Retention Dynamic</td>
+                    <td>96.8% single-purchase churn | 3.1% repeat buyers (spend 2.1x more)</td>
+                </tr>
+                <tr>
+                    <td>Champion Classifier</td>
+                    <td>Random Forest: 83.5% Accuracy | 43.4% Precision | 42.6% Recall | 0.430 F1</td>
+                </tr>
+                <tr>
+                    <td>Top Dissatisfaction Factor</td>
+                    <td>Delivery Delay vs SLA (46.2%) + Transit Time (30.5%) = 76.7% Power</td>
+                </tr>
+                <tr>
+                    <td>Revenue Forecast Growth</td>
+                    <td>+19.4% forward growth (R$ 1.66M to R$ 1.98M/month)</td>
+                </tr>
+                <tr>
+                    <td>Data Architecture</td>
+                    <td>DuckDB, 5 Modular SQL scripts (CTEs, Window Functions), Parquet, Streamlit</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

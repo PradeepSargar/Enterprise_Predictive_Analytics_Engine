@@ -25,17 +25,15 @@ This platform solves these challenges end-to-end: transforming raw transactional
 
 ---
 
-## Dashboard Visual Tour
+## Visual Analytics Tour & Model Diagnostics
 
-Place dashboard screenshots into `outputs/figures/` (or `docs/images/`):
-
-| 1. Executive Overview | 2. Customer Intelligence & RFM |
+| 1. Marketplace Financial Trends | 2. RFM Customer Segmentation |
 |:---:|:---:|
-| ![Executive Overview](outputs/figures/01_executive_overview.png)<br><sub>*High-level marketplace KPIs, revenue trajectories, and risk trends*</sub> | ![Customer Intelligence](outputs/figures/02_customer_analytics.png)<br><sub>*RFM distributions and customer retention dynamics*</sub> |
+| ![Marketplace Trends](outputs/figures/eda_monthly_trends.png)<br><sub>*Monthly gross revenue, order volume, and average order value trajectory*</sub> | ![RFM Segmentation](outputs/figures/segment_boxplots.png)<br><sub>*Recency, Frequency, and Monetary distribution across K-Means clusters*</sub> |
 
-| 3. Churn & Low-Review Risk Engine | 4. Multi-Grain Revenue Forecast |
+| 3. Dissatisfaction Feature Importances | 4. Multi-Grain Revenue Forecast |
 |:---:|:---:|
-| ![Customer Risk](outputs/figures/03_customer_risk.png)<br><sub>*Dissatisfaction risk prediction & interactive feature simulator*</sub> | ![Revenue Forecast](outputs/figures/04_revenue_forecast.png)<br><sub>*Multi-grain forecasting across Total, Categories, and States*</sub> |
+| ![Feature Importance](outputs/figures/feature_importance.png)<br><sub>*Random Forest feature importances showing delivery delay SLA dominance*</sub> | ![Revenue Forecast](outputs/figures/revenue_forecast.png)<br><sub>*Prophet time-series projections with 90% confidence uncertainty intervals*</sub> |
 
 ---
 

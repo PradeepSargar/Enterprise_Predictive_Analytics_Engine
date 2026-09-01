@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Data Stack Detailed Build Plan</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap');
+        :root {
+            --primary: #0F172A;
+            --accent: #2563EB;
+            --accent-light: #EFF6FF;
+            --text: #334155;
+            --bg: #F8FAFC;
+            --card: #FFFFFF;
+            --border: #E2E8F0;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 40px 20px; line-height: 1.6; margin: 0; }
+        .container { max-width: 900px; margin: 0 auto; background: var(--card); padding: 48px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+        h1 { color: var(--primary); font-size: 26px; font-weight: 800; margin-top: 0; }
+        .subtitle { color: var(--accent); font-weight: 600; font-size: 14px; text-transform: uppercase; margin-bottom: 24px; letter-spacing: 0.5px; }
+        .divider { height: 2px; background: linear-gradient(90deg, var(--accent) 0%, transparent 100%); border: none; margin-bottom: 30px; }
+        h2 { color: var(--primary); font-size: 17px; font-weight: 700; margin-top: 30px; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+        table { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 13.5px; }
+        th { background: var(--primary); color: white; padding: 10px 12px; text-align: left; font-weight: 600; }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+        tr:nth-child(even) td { background: #F8FAFC; }
+        .code-block { background: #0F172A; color: #F8FAFC; padding: 14px 16px; border-radius: 8px; font-family: 'Fira Code', monospace; font-size: 12px; overflow-x: auto; margin: 14px 0; }
+        ul { padding-left: 20px; }
+        li { margin-bottom: 6px; font-size: 14px; }
+        .highlight-box { background: var(--accent-light); border-left: 4px solid var(--accent); padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 18px 0; font-size: 13.5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Enterprise Predictive Analytics Engine</h1>
+        <div class="subtitle">Complete Detailed Build Plan (SQL + DuckDB + Python + Streamlit)</div>
+        <hr class="divider">
+
+        <h2>1. Master Execution Roadmap</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Phase</th>
+                    <th>Module / Directory</th>
+                    <th>Core Deliverables</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><b>Phase 1</b></td>
+                    <td>Environment Setup</td>
+                    <td>Python 3.10+ virtual env, pinned <code>requirements.txt</code> (DuckDB, Streamlit, Prophet).</td>
+                </tr>
+                <tr>
+                    <td><b>Phase 2</b></td>
+                    <td><code>sql/</code> Layer</td>
+                    <td>5 modular SQL models: Relational joins, <code>ROW_NUMBER()</code> deduplication, RFM CTEs, MoM growth.</td>
+                </tr>
+                <tr>
+                    <td><b>Phase 3</b></td>
+                    <td><code>scripts/run_sql_pipeline.py</code></td>
+                    <td>DuckDB automated executor creating <code>analytics_engine.duckdb</code> and Parquet exports.</td>
+                </tr>
+                <tr>
+                    <td><b>Phase 4</b></td>
+                    <td><code>scripts/train_models.py</code></td>
+                    <td>Random Forest dissatisfaction classifier (F1=0.43), KMeans RFM (k=4), Prophet 6-mo forecaster.</td>
+                </tr>
+                <tr>
+                    <td><b>Phase 5</b></td>
+                    <td><code>dashboards/data/loader.py</code></td>
+                    <td>Parquet caching gateway (<code>@st.cache_data</code>) and real-time risk prediction inference function.</td>
+                </tr>
+                <tr>
+                    <td><b>Phase 6</b></td>
+                    <td><code>dashboards/pages/</code></td>
+                    <td>8 Streamlit analytics pages (Executive, Cohorts, Risk Simulator, Forecast, Data Explorer).</td>
+                </tr>
+                <tr>
+                    <td><b>Phase 7</b></td>
+                    <td><code>tests/</code> & CI/CD</td>
+                    <td>7 Pytest test suites, GitHub Actions workflow, and Docker containerization.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>2. Detailed SQL Analytics Models</h2>
+        <ul>
+            <li><b><code>sql/01_schema_and_views.sql</code>:</b> Unifies 9 raw relational tables into <code>v_master_transactions</code> with <code>COALESCE</code> category translations.</li>
+            <li><b><code>sql/02_order_deduplication.sql</code>:</b> Fixes multi-item duplicate payments using <code>ROW_NUMBER() OVER (PARTITION BY order_id)</code>.</li>
+            <li><b><code>sql/03_rfm_segmentation.sql</code>:</b> Computes Recency (<code>DATEDIFF</code>), Frequency (<code>COUNT DISTINCT</code>), and Monetary spend per customer.</li>
+            <li><b><code>sql/04_delivery_risk.sql</code>:</b> Extracts logistics SLA delay days and transit duration for machine learning.</li>
+            <li><b><code>sql/05_monthly_kpis_mom.sql</code>:</b> Calculates monthly gross revenue and uses <code>LAG() OVER (ORDER BY month)</code> for MoM growth.</li>
+        </ul>
+
+        <div class="code-block">
+-- 02_order_deduplication.sql
+CREATE OR REPLACE VIEW v_orders_deduplicated AS
+WITH ranked_orders AS (
+    SELECT order_id, customer_unique_id, purchase_timestamp, delivered_timestamp,
+           estimated_delivery_timestamp, review_score,
+           ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY order_item_id) AS rn
+    FROM v_master_transactions
+)
+SELECT r.*, p.total_payment_value
+FROM ranked_orders r
+JOIN (SELECT order_id, SUM(payment_value) AS total_payment_value FROM olist_order_payments GROUP BY order_id) p
+  ON r.order_id = p.order_id
+WHERE r.rn = 1;</div>
+
+        <h2>3. Machine Learning Benchmark Results</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Model Task</th>
+                    <th>Algorithm</th>
+                    <th>Key Finding / Metric</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><b>Customer RFM Clustering</b></td>
+                    <td>StandardScaler + KMeans (k=4)</td>
+                    <td><b>96.8% single-purchase churn rate</b>. Loyal repeat buyers (3.1%) spend <b>2.1x more</b>.</td>
+                </tr>
+                <tr>
+                    <td><b>Dissatisfaction Risk</b></td>
+                    <td>Random Forest (depth=10)</td>
+                    <td><b>83.5% Accuracy</b>, <b>0.430 F1</b>. Delivery delays drive <b>76.7% of all bad reviews</b>.</td>
+                </tr>
+                <tr>
+                    <td><b>Revenue Forecasting</b></td>
+                    <td>Prophet Additive (90% CI)</td>
+                    <td><b>+19.4% revenue growth</b> projected over 6 months across total marketplace, categories, and states.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>4. Execution & Verification Checklist</h2>
+        <div class="highlight-box">
+            <b>Commands to Run the Complete Stack:</b><br>
+            <code>1. pip install -r requirements.txt</code><br>
+            <code>2. python scripts/run_sql_pipeline.py</code> ➔ Executes DuckDB & generates Parquet<br>
+            <code>3. python scripts/train_models.py</code> ➔ Trains & serializes 3 ML models<br>
+            <code>4. pytest -v</code> ➔ Runs all 7 automated test suites<br>
+            <code>5. streamlit run app.py</code> ➔ Launches 8-page dashboard at http://localhost:8501
+        </div>
+    </div>
+</body>
+</html>

@@ -37,8 +37,14 @@ import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
-from sklearn.model_selection import train_test_split
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+)
+from sklearn.model_selection import StratifiedKFold, cross_val_score, train_test_split
 from sklearn.preprocessing import StandardScaler
 from prophet import Prophet
 
@@ -49,7 +55,9 @@ REPORTS_DIR = PROJECT_ROOT / "reports"
 MODELS_DIR = PROJECT_ROOT / "models"
 
 MASTER_DATA_PATH = DATA_PROCESSED / "olist_master_cleaned.csv"
+MASTER_PARQUET_PATH = DATA_PROCESSED / "olist_master_cleaned.parquet"
 SEGMENTS_DATA_PATH = DATA_PROCESSED / "customer_segments.csv"
+SEGMENTS_PARQUET_PATH = DATA_PROCESSED / "customer_segments.parquet"
 FORECAST_DATA_PATH = DATA_PROCESSED / "revenue_forecast.csv"
 MODEL_COMPARISON_PATH = REPORTS_DIR / "model_comparison_results.csv"
 
@@ -65,7 +73,7 @@ def ensure_directories():
 # ============================================================================
 
 def train_classification_models(df: pd.DataFrame):
-    print("\n--- 1. Training Classification Models (3 Models) ---")
+    print("\n--- 1. Training Classification Models (3 Models + 5-Fold CV) ---")
 
     # Define binary target: review_score <= 2 is low review (dissatisfied)
     df["low_review"] = (df["review_score"] <= 2).astype(int)
@@ -105,6 +113,7 @@ def train_classification_models(df: pd.DataFrame):
     lr = LogisticRegression(class_weight="balanced", max_iter=1000, random_state=42)
     lr.fit(X_train_scaled, y_train)
     y_pred_lr = lr.predict(X_test_scaled)
+    y_proba_lr = lr.predict_proba(X_test_scaled)[:, 1]
 
     # 2. Random Forest
     rf = RandomForestClassifier(
@@ -116,9 +125,9 @@ def train_classification_models(df: pd.DataFrame):
     )
     rf.fit(X_train, y_train)
     y_pred_rf = rf.predict(X_test)
+    y_proba_rf = rf.predict_proba(X_test)[:, 1]
 
     # 3. Gradient Boosting
-    # Scale positive class weight via sample_weight or tuning
     sample_weight = np.where(y_train == 1, 2.5, 1.0)
     gb = GradientBoostingClassifier(
         n_estimators=150,
@@ -128,6 +137,14 @@ def train_classification_models(df: pd.DataFrame):
     )
     gb.fit(X_train, y_train, sample_weight=sample_weight)
     y_pred_gb = gb.predict(X_test)
+    y_proba_gb = gb.predict_proba(X_test)[:, 1]
+
+    # 5-Fold Stratified Cross-Validation on Training Split
+    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    print("Running Stratified 5-Fold Cross-Validation...")
+    lr_cv_scores = cross_val_score(lr, X_train_scaled, y_train, cv=cv, scoring="f1", n_jobs=-1)
+    rf_cv_scores = cross_val_score(rf, X_train, y_train, cv=cv, scoring="f1", n_jobs=-1)
+    gb_cv_scores = cross_val_score(gb, X_train, y_train, cv=cv, scoring="f1", n_jobs=-1)
 
     results = [
         {
@@ -136,6 +153,9 @@ def train_classification_models(df: pd.DataFrame):
             "Precision": round(precision_score(y_test, y_pred_lr), 3),
             "Recall": round(recall_score(y_test, y_pred_lr), 3),
             "F1 Score": round(f1_score(y_test, y_pred_lr), 3),
+            "ROC-AUC": round(roc_auc_score(y_test, y_proba_lr), 3),
+            "CV F1 Mean": round(float(np.mean(lr_cv_scores)), 3),
+            "CV F1 Std": round(float(np.std(lr_cv_scores)), 3),
         },
         {
             "Model": "Random Forest",
@@ -143,6 +163,9 @@ def train_classification_models(df: pd.DataFrame):
             "Precision": round(precision_score(y_test, y_pred_rf), 3),
             "Recall": round(recall_score(y_test, y_pred_rf), 3),
             "F1 Score": round(f1_score(y_test, y_pred_rf), 3),
+            "ROC-AUC": round(roc_auc_score(y_test, y_proba_rf), 3),
+            "CV F1 Mean": round(float(np.mean(rf_cv_scores)), 3),
+            "CV F1 Std": round(float(np.std(rf_cv_scores)), 3),
         },
         {
             "Model": "Gradient Boosting",
@@ -150,6 +173,9 @@ def train_classification_models(df: pd.DataFrame):
             "Precision": round(precision_score(y_test, y_pred_gb), 3),
             "Recall": round(recall_score(y_test, y_pred_gb), 3),
             "F1 Score": round(f1_score(y_test, y_pred_gb), 3),
+            "ROC-AUC": round(roc_auc_score(y_test, y_proba_gb), 3),
+            "CV F1 Mean": round(float(np.mean(gb_cv_scores)), 3),
+            "CV F1 Std": round(float(np.std(gb_cv_scores)), 3),
         },
     ]
 
@@ -220,33 +246,51 @@ def train_clustering_model(segments_df: pd.DataFrame):
 # 3. MULTI-GRAIN TIME-SERIES FORECASTING
 # ============================================================================
 
-def run_prophet_forecast(series_df: pd.DataFrame, periods: int = 6) -> pd.DataFrame:
+def run_prophet_forecast(series_df: pd.DataFrame, periods: int = 6) -> tuple[pd.DataFrame, Any]:
     """
     Fits Prophet model with yearly_seasonality=False, interval_width=0.90
     and outputs full history + 6-month future forecast.
+    Includes robust fallback if Stan / Prophet encounters an environment error.
     """
-    # Series must have ds and y
     clean_series = series_df[series_df["ds"] >= "2017-01-01"].sort_values("ds").reset_index(drop=True)
-
-    # Ensure regular monthly index
     full_dates = pd.date_range(start="2017-01-01", end="2018-08-01", freq="MS")
     merged = pd.DataFrame({"ds": full_dates}).merge(clean_series, on="ds", how="left")
     merged["y"] = merged["y"].fillna(0.0)
 
-    model = Prophet(
-        yearly_seasonality=False,
-        weekly_seasonality=False,
-        daily_seasonality=False,
-        interval_width=0.90,
-    )
-    model.fit(merged)
+    try:
+        model = Prophet(
+            yearly_seasonality=False,
+            weekly_seasonality=False,
+            daily_seasonality=False,
+            interval_width=0.90,
+        )
+        model.fit(merged)
 
-    future = model.make_future_dataframe(periods=periods, freq="MS")
-    forecast = model.predict(future)
+        future = model.make_future_dataframe(periods=periods, freq="MS")
+        forecast = model.predict(future)
 
-    # Merge actuals
-    result = forecast[["ds", "yhat", "yhat_lower", "yhat_upper"]].copy()
-    result = result.merge(merged[["ds", "y"]], on="ds", how="left")
+        result = forecast[["ds", "yhat", "yhat_lower", "yhat_upper"]].copy()
+        result = result.merge(merged[["ds", "y"]], on="ds", how="left")
+    except Exception as exc:
+        print(f"  [Prophet fallback triggered: {exc}]")
+        # Robust linear trend + volatility interval fallback
+        future_dates = pd.date_range(start="2017-01-01", periods=len(full_dates) + periods, freq="MS")
+        y_vals = merged["y"].values
+        x_idx = np.arange(len(y_vals))
+        poly = np.polyfit(x_idx, y_vals, 1)
+        future_x = np.arange(len(future_dates))
+        yhat_raw = np.polyval(poly, future_x)
+        std_val = float(np.std(y_vals)) if len(y_vals) > 0 else 1000.0
+
+        forecast_data = {
+            "ds": future_dates,
+            "yhat": yhat_raw,
+            "yhat_lower": yhat_raw - (1.645 * std_val),
+            "yhat_upper": yhat_raw + (1.645 * std_val),
+        }
+        result = pd.DataFrame(forecast_data)
+        result = result.merge(merged[["ds", "y"]], on="ds", how="left")
+        model = "LinearTrendFallback"
 
     result.rename(
         columns={
@@ -259,7 +303,6 @@ def run_prophet_forecast(series_df: pd.DataFrame, periods: int = 6) -> pd.DataFr
         inplace=True,
     )
 
-    # Convert negative bounds to 0 if revenue
     result["lower_bound"] = result["lower_bound"].clip(lower=0.0)
     result["predicted_revenue"] = result["predicted_revenue"].clip(lower=0.0)
     result["upper_bound"] = result["upper_bound"].clip(lower=0.0)
@@ -387,6 +430,14 @@ def main():
     print("Loading processed datasets...")
     master_df = pd.read_csv(MASTER_DATA_PATH, low_memory=False)
     segments_df = pd.read_csv(SEGMENTS_DATA_PATH, low_memory=False)
+
+    print("Exporting high-performance Parquet format...")
+    try:
+        master_df.to_parquet(MASTER_PARQUET_PATH, index=False, compression="snappy")
+        segments_df.to_parquet(SEGMENTS_PARQUET_PATH, index=False, compression="snappy")
+        print(f"  Parquet exports saved: {MASTER_PARQUET_PATH.name}, {SEGMENTS_PARQUET_PATH.name}")
+    except Exception as exc:
+        print(f"  [Parquet export skipped: {exc}]")
 
     train_classification_models(master_df)
     train_clustering_model(segments_df)

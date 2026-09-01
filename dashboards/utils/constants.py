@@ -15,41 +15,42 @@ DEFAULT_DECIMAL_PLACES = 2
 LOW_REVIEW_THRESHOLD = 2
 RISK_PROBABILITY_THRESHOLD = 0.40
 
-# Color Palette (Sky Blue, Light Purple, Light Grey Canvas)
-PRIMARY_COLOR = "#0EA5E9"      # Modern Sky Blue
-PRIMARY_DARK = "#0284C7"       # Deep Sky Blue
-PRIMARY_LIGHT = "#E0F2FE"      # Soft Sky Tint
+# Color Palette (Forest Signal: Trust & Growth-Oriented Design System)
+PRIMARY_COLOR = "#1B4332"      # Deep Forest Green — Headers, Nav
+PRIMARY_DARK = "#143628"       # Deep Forest Dark
+PRIMARY_LIGHT = "#D8F3DC"      # Minty Light Tint
+PRIMARY_SOFT = "#E9F5ED"       # Pale Mint Soft
 
-SECONDARY_COLOR = "#A855F7"    # Light Purple / Violet
-SECONDARY_DARK = "#7E22CE"     # Deep Purple
-SECONDARY_LIGHT = "#F3E8FF"    # Soft Lavender Tint
+ACCENT_COLOR = "#F4A261"       # Warm Amber — Alerts, CTAs, Highlights
+ACCENT_DARK = "#E76F51"        # Terracotta Amber
+ACCENT_LIGHT = "#FFE5D0"       # Soft Amber Tint
 
-SUCCESS_COLOR = "#10B981"      # Emerald Teal
-WARNING_COLOR = "#F59E0B"      # Amber
-DANGER_COLOR = "#EF4444"       # Coral Red
-INFO_COLOR = "#38BDF8"         # Bright Sky Blue
+SECONDARY_COLOR = "#2D6A4F"    # Growth Emerald Forest
+SECONDARY_DARK = "#1B4332"     # Forest Dark
+SECONDARY_LIGHT = "#D8F3DC"    # Soft Mint Tint
 
-BG_LIGHT_GREY = "#F8FAFC"      # Clean Slate-50
-SURFACE_LIGHT_GREY = "#F1F5F9" # Muted Slate-100
-BORDER_LIGHT_GREY = "#E2E8F0"  # Subtle Border Slate-200
+SUCCESS_COLOR = "#2D6A4F"      # Growth Emerald
+WARNING_COLOR = "#F4A261"      # Warm Amber
+DANGER_COLOR = "#E63946"       # Crimson Coral Risk
+INFO_COLOR = "#457B9D"         # Steel Ocean Slate
 
-TEXT_PRIMARY = "#0F172A"       # Deep Slate 900
-TEXT_SECONDARY = "#475569"     # Muted Slate 600
-TEXT_COLOR = "#0F172A"
-MUTED_TEXT_COLOR = "#64748B"
-GRID_COLOR = "#E2E8F0"
+BG_LIGHT_GREY = "#F1FAEE"      # Pale Mint-White Canvas & Background
+SURFACE_LIGHT_GREY = "#E8F3E8" # Pale Mint Surface Panel
+BORDER_LIGHT_GREY = "#D0E3D5"  # Soft Mint-Slate Border
+
+TEXT_PRIMARY = "#112211"       # Deep Forest Text 900
+TEXT_SECONDARY = "#2D4A3E"     # Forest Slate 700
+TEXT_COLOR = "#112211"
+MUTED_TEXT_COLOR = "#52796F"   # Muted Sage Slate 500
+GRID_COLOR = "#D0E3D5"
 
 CHART_PALETTE = [
-    "#0EA5E9",  # Sky Blue
-    "#A855F7",  # Light Purple
-    "#38BDF8",  # Light Sky
-    "#C084FC",  # Soft Lavender
-    "#10B981",  # Emerald
-    "#F59E0B",  # Amber
-    "#EC4899",  # Pink
-    "#6366F1",  # Indigo
-    "#14B8A6",  # Teal
-    "#8B5CF6",  # Violet
+    "#1B4332",  # Deep Forest Green (Primary Series)
+    "#F4A261",  # Warm Amber (Accent / CTAs / Highlights)
+    "#2D6A4F",  # Growth Emerald (Secondary Series)
+    "#457B9D",  # Steel Ocean (Comparison Cohort)
+    "#E63946",  # Crimson Coral (Risk / Friction)
+    "#52796F",  # Muted Sage (Baseline / Benchmark)
 ]
 
 # Segment Profile Labels

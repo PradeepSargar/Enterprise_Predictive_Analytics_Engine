@@ -27,6 +27,7 @@ from dashboards.components.containers import panel
 from dashboards.components.exports import csv_download, excel_download
 from dashboards.components.kpi_cards import kpi_card
 from dashboards.components.section_headers import page_header, section_header
+from dashboards.components.tables import render_styled_table
 from dashboards.data.loader import load_master_data
 from dashboards.utils.constants import CHART_PALETTE, PRIMARY_COLOR, TEXT_COLOR
 from dashboards.utils.html import render_html
@@ -49,33 +50,58 @@ render_html(
     <div style="
         position: relative;
         overflow: hidden;
-        background: linear-gradient(135deg, #0284C7 0%, #0EA5E9 40%, #8B5CF6 100%);
+        background: linear-gradient(135deg, #1B4332 0%, #143628 50%, #0F281E 100%);
         border-radius: 16px;
         padding: 1.5rem 1.8rem;
         margin-bottom: 1.5rem;
-        box-shadow: 0 8px 24px -4px rgba(14, 165, 233, 0.25);
+        box-shadow: 0 10px 25px rgba(15, 40, 30, 0.20);
         color: #FFFFFF;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.10);
     ">
+        <div style="
+            position: absolute;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(244, 162, 97, 0.22) 0%, rgba(244, 162, 97, 0) 70%);
+            top: -70px;
+            right: 50px;
+            pointer-events: none;
+        "></div>
+        <div style="
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(82, 183, 136, 0.18) 0%, rgba(82, 183, 136, 0) 70%);
+            bottom: -50px;
+            right: -20px;
+            pointer-events: none;
+        "></div>
+
         <div style="position: relative; z-index: 2; max-width: 820px;">
             <div style="
-                display: inline-block;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
                 padding: 0.25rem 0.6rem;
                 border-radius: 999px;
-                background: rgba(255, 255, 255, 0.2);
-                border: 1px solid rgba(255, 255, 255, 0.3);
+                background: rgba(244, 162, 97, 0.18);
+                border: 1px solid rgba(244, 162, 97, 0.35);
                 font-size: 8.5px;
                 font-weight: 800;
                 letter-spacing: 0.08em;
                 text-transform: uppercase;
                 margin-bottom: 0.5rem;
+                color: #F4A261;
             ">
+                <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#F4A261;"></span>
                 DATA GOVERNANCE & SCHEMA PROFILER
             </div>
             <div style="font-size: 17px; font-weight: 900; line-height: 1.3; margin-bottom: 0.35rem; color: #FFFFFF;">
                 Master Dataset Catalog & Quality Inspection Workspace
             </div>
-            <div style="font-size: 11px; opacity: 0.95; line-height: 1.5; color: #F0F9FF;">
+            <div style="font-size: 11px; opacity: 0.95; line-height: 1.5; color: #F1FAEE;">
                 Verify dimensional structures, cardinality distributions, null-value completeness,
                 and underlying records powering the predictive modeling and forecasting pipelines.
             </div>
@@ -215,19 +241,15 @@ with panel(
         }
     )
 
-    st.dataframe(
+    render_styled_table(
         column_summary,
-        width="stretch",
-        hide_index=True,
-        height=340,
-        column_config={
-            "Column": st.column_config.TextColumn("Attribute Name", width="large"),
-            "Data Type": st.column_config.TextColumn("Data Type", width="medium"),
-            "Non-Null Count": st.column_config.NumberColumn("Non-Null Values", format="%,d"),
-            "Missing Count": st.column_config.NumberColumn("Missing Values", format="%,d"),
-            "Missing (%)": st.column_config.NumberColumn("Missing (%)", format="%.2f%%"),
-            "Unique Values": st.column_config.NumberColumn("Unique Values", format="%,d"),
+        column_formats={
+            "Non-Null Count": "{:,.0f}",
+            "Missing Count": "{:,.0f}",
+            "Missing (%)": "{:.2f}%",
+            "Unique Values": "{:,.0f}",
         },
+        max_height=340,
     )
 
 # ============================================================================
@@ -260,14 +282,13 @@ with panel(
             master_df,
             x=inspect_col,
             nbins=35,
-            title=f"Numerical Distribution: {inspect_col}",
             color_discrete_sequence=[PRIMARY_COLOR],
         )
         dist_fig.update_layout(
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
             font=dict(family="Inter, sans-serif", color=TEXT_COLOR, size=11),
-            margin=dict(l=30, r=20, t=35, b=30),
+            margin=dict(l=30, r=20, t=15, b=30),
             height=320,
         )
         st.plotly_chart(dist_fig, width="stretch")
@@ -278,14 +299,13 @@ with panel(
             top_cats,
             x=inspect_col,
             y="Count",
-            title=f"Top Categories / Frequencies: {inspect_col}",
             color_discrete_sequence=CHART_PALETTE,
         )
         cat_fig.update_layout(
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
             font=dict(family="Inter, sans-serif", color=TEXT_COLOR, size=11),
-            margin=dict(l=30, r=20, t=35, b=30),
+            margin=dict(l=30, r=20, t=15, b=30),
             height=320,
         )
         st.plotly_chart(cat_fig, width="stretch")
@@ -352,3 +372,140 @@ with panel(
             csv_download(preview_slice, filename="master_data_slice.csv", key="csv_data_exp")
         with col_exp2:
             excel_download(preview_slice, filename="master_data_slice.xlsx", key="excel_data_exp")
+
+# ============================================================================
+# INTERACTIVE DUCKDB SQL STUDIO (MODERN DATA STACK)
+# ============================================================================
+
+section_header(
+    title="Interactive DuckDB SQL Studio",
+    description="Execute custom SQL queries directly against the in-process OLAP analytics engine.",
+)
+
+with panel(
+    title="SQL Query Console & View Explorer",
+    description="Query registered analytical views: v_master_transactions, v_orders_deduplicated, v_customer_rfm, v_delivery_performance, v_monthly_kpis_mom.",
+):
+    import time
+    from pathlib import Path
+    try:
+        import duckdb
+        has_duckdb = True
+    except ImportError:
+        duckdb = None
+        has_duckdb = False
+
+    db_path = Path(__file__).resolve().parents[2] / "data" / "analytics_engine.duckdb"
+
+    preset_queries = {
+        "1. Monthly GMV & MoM Growth (v_monthly_kpis_mom)": """SELECT 
+    month,
+    monthly_revenue,
+    total_orders,
+    average_order_value,
+    prev_month_revenue,
+    mom_growth_pct
+FROM v_monthly_kpis_mom 
+ORDER BY month DESC 
+LIMIT 12;""",
+
+        "2. Customer RFM Distribution (v_customer_rfm)": """SELECT 
+    CASE 
+        WHEN frequency > 1 THEN 'Repeat Buyer'
+        WHEN recency <= 180 THEN 'Recent Buyer'
+        ELSE 'Lapsed Buyer'
+    END AS customer_type,
+    COUNT(*) AS total_customers,
+    ROUND(AVG(recency), 1) AS avg_recency_days,
+    ROUND(AVG(monetary), 2) AS avg_monetary_spend,
+    ROUND(SUM(monetary), 2) AS total_segment_revenue
+FROM v_customer_rfm
+GROUP BY 1
+ORDER BY total_segment_revenue DESC;""",
+
+        "3. Delivery SLA vs Customer Dissatisfaction (v_delivery_performance)": """SELECT 
+    is_delayed,
+    COUNT(*) AS total_orders,
+    ROUND(AVG(delivery_time_days), 1) AS avg_delivery_days,
+    ROUND(AVG(low_review) * 100, 2) AS low_review_rate_pct,
+    ROUND(AVG(review_score), 2) AS avg_review_score
+FROM v_delivery_performance
+GROUP BY is_delayed
+ORDER BY is_delayed ASC;""",
+
+        "4. Top 10 Product Categories by Revenue (v_master_transactions)": """SELECT 
+    product_category_name_english AS category,
+    COUNT(DISTINCT order_id) AS total_orders,
+    ROUND(SUM(price), 2) AS gross_sales_value,
+    ROUND(AVG(price), 2) AS avg_item_price,
+    ROUND(AVG(review_score), 2) AS avg_rating
+FROM v_master_transactions
+GROUP BY product_category_name_english
+ORDER BY gross_sales_value DESC
+LIMIT 10;""",
+
+        "5. Order-Level Deduplicated Payments (v_orders_deduplicated)": """SELECT 
+    order_id,
+    customer_state,
+    product_category_name_english,
+    total_order_value,
+    payment_installments,
+    review_score,
+    purchase_timestamp
+FROM v_orders_deduplicated
+ORDER BY total_order_value DESC
+LIMIT 15;"""
+    }
+
+    preset_name = st.selectbox(
+        "Select Preset SQL Query Template",
+        options=list(preset_queries.keys()),
+        index=0,
+    )
+
+    sql_query = st.text_area(
+        "SQL Query (DuckDB / SQL Dialect)",
+        value=preset_queries[preset_name],
+        height=180,
+        help="Write any valid SQL query. You can query any registered view or table.",
+    )
+
+    col_btn, col_info = st.columns([1, 4])
+    with col_btn:
+        run_query = st.button("▶ Run SQL Query", type="primary", use_container_width=True)
+
+    if run_query or "sql_result_df" in st.session_state:
+        if run_query:
+            try:
+                t_start = time.time()
+                if has_duckdb and duckdb is not None:
+                    if db_path.exists():
+                        con = duckdb.connect(str(db_path), read_only=True)
+                    else:
+                        con = duckdb.connect()
+                        con.register("v_master_transactions", master_df)
+                    
+                    result_df = con.execute(sql_query).fetchdf()
+                    con.close()
+                else:
+                    import sqlite3
+                    con = sqlite3.connect(":memory:")
+                    master_df.to_sql("v_master_transactions", con, index=False, if_exists="replace")
+                    result_df = pd.read_sql_query(sql_query, con)
+                    con.close()
+
+                query_time_ms = (time.time() - t_start) * 1000
+                st.session_state["sql_result_df"] = result_df
+                st.session_state["sql_query_time"] = query_time_ms
+            except Exception as e:
+                st.error(f"SQL Execution Error: {e}")
+                st.session_state.pop("sql_result_df", None)
+
+        if "sql_result_df" in st.session_state and st.session_state["sql_result_df"] is not None:
+            res_df = st.session_state["sql_result_df"]
+            q_time = st.session_state.get("sql_query_time", 0.0)
+
+            st.success(f"✓ Query executed in **{q_time:.1f} ms** — Returned **{len(res_df):,}** rows and **{len(res_df.columns)}** columns.")
+            st.dataframe(res_df, width="stretch", height=300)
+            
+            csv_download(res_df, filename="duckdb_query_result.csv", key="sql_export_csv")

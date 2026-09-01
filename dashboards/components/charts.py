@@ -43,33 +43,40 @@ from dashboards.utils.html import render_html
 # DESIGN TOKENS
 # ============================================================================
 
-PRIMARY_COLOR = "#0EA5E9"
-PRIMARY_DARK = "#0284C7"
-SECONDARY_COLOR = "#A855F7"
-SECONDARY_LIGHT = "#C084FC"
+PRIMARY_COLOR = "#1B4332"
+PRIMARY_DARK = "#143628"
+PRIMARY_LIGHT = "#D8F3DC"
 
-SUCCESS_COLOR = "#10B981"
-WARNING_COLOR = "#F59E0B"
-DANGER_COLOR = "#EF4444"
-INFO_COLOR = "#38BDF8"
+SECONDARY_COLOR = "#2D6A4F"
+SECONDARY_DARK = "#1B4332"
+SECONDARY_LIGHT = "#D8F3DC"
 
-NEUTRAL_COLOR = "#64748B"
+ACCENT_COLOR = "#F4A261"
+ACCENT_DARK = "#E76F51"
+ACCENT_LIGHT = "#FFE5D0"
 
-TEXT_COLOR = "#0F172A"
-MUTED_TEXT_COLOR = "#64748B"
-LIGHT_TEXT_COLOR = "#94A3B8"
+SUCCESS_COLOR = "#2D6A4F"
+WARNING_COLOR = "#F4A261"
+DANGER_COLOR = "#E63946"
+INFO_COLOR = "#457B9D"
 
-GRID_COLOR = "#F1F5F9"
-BORDER_COLOR = "#E2E8F0"
+NEUTRAL_COLOR = "#52796F"
+
+TEXT_COLOR = "#112211"
+MUTED_TEXT_COLOR = "#52796F"
+LIGHT_TEXT_COLOR = "#84A98C"
+
+GRID_COLOR = "#D0E3D5"
+BORDER_COLOR = "#D0E3D5"
 
 WHITE = "#FFFFFF"
 TRANSPARENT = "rgba(0,0,0,0)"
 
-SOFT_BLUE = "#F0F9FF"
-SOFT_PURPLE = "#FAF5FF"
-SOFT_GREEN = "#ECFDF5"
-SOFT_AMBER = "#FFFBEB"
-SOFT_RED = "#FEF2F2"
+SOFT_BLUE = "#E9F5ED"
+SOFT_PURPLE = "#F1FAEE"
+SOFT_GREEN = "#E8F5E9"
+SOFT_AMBER = "#FFF4EB"
+SOFT_RED = "#FFE8E8"
 
 
 # ============================================================================
@@ -77,16 +84,12 @@ SOFT_RED = "#FEF2F2"
 # ============================================================================
 
 CHART_PALETTE = [
-    "#0EA5E9",  # Sky Blue
-    "#A855F7",  # Light Purple
-    "#38BDF8",  # Light Sky
-    "#C084FC",  # Lavender Purple
-    "#10B981",  # Mint Green
-    "#F59E0B",  # Soft Amber
-    "#EC4899",  # Pink
-    "#6366F1",  # Indigo
-    "#14B8A6",  # Teal
-    "#8B5CF6",  # Violet
+    "#1B4332",  # Deep Forest Green (Primary Series)
+    "#F4A261",  # Warm Amber (Accent / CTAs / Highlights)
+    "#2D6A4F",  # Growth Emerald (Secondary Series)
+    "#457B9D",  # Steel Ocean (Comparison Cohort)
+    "#E63946",  # Crimson Coral (Risk / Friction)
+    "#52796F",  # Muted Sage (Baseline / Benchmark)
 ]
 
 

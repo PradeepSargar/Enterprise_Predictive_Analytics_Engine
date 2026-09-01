@@ -24,6 +24,7 @@ from dashboards.components.exports import csv_download, excel_download
 from dashboards.components.kpi_cards import kpi_card
 from dashboards.components.loading_states import loading_spinner
 from dashboards.components.section_headers import page_header, section_header
+from dashboards.components.tables import render_styled_table
 from dashboards.data.loader import get_available_forecast_segments, load_revenue_forecast
 from dashboards.data.transformations import prepare_revenue_forecast
 from dashboards.utils.html import render_html
@@ -53,33 +54,58 @@ render_html(
     <div style="
         position: relative;
         overflow: hidden;
-        background: linear-gradient(135deg, #0284C7 0%, #0EA5E9 40%, #8B5CF6 100%);
+        background: linear-gradient(135deg, #1B4332 0%, #143628 50%, #0F281E 100%);
         border-radius: 16px;
         padding: 1.5rem 1.8rem;
         margin-bottom: 1.5rem;
-        box-shadow: 0 8px 24px -4px rgba(14, 165, 233, 0.25);
+        box-shadow: 0 10px 25px rgba(15, 40, 30, 0.20);
         color: #FFFFFF;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.10);
     ">
+        <div style="
+            position: absolute;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(244, 162, 97, 0.22) 0%, rgba(244, 162, 97, 0) 70%);
+            top: -70px;
+            right: 50px;
+            pointer-events: none;
+        "></div>
+        <div style="
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(82, 183, 136, 0.18) 0%, rgba(82, 183, 136, 0) 70%);
+            bottom: -50px;
+            right: -20px;
+            pointer-events: none;
+        "></div>
+
         <div style="position: relative; z-index: 2; max-width: 820px;">
             <div style="
-                display: inline-block;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
                 padding: 0.25rem 0.6rem;
                 border-radius: 999px;
-                background: rgba(255, 255, 255, 0.2);
-                border: 1px solid rgba(255, 255, 255, 0.3);
+                background: rgba(244, 162, 97, 0.18);
+                border: 1px solid rgba(244, 162, 97, 0.35);
+                color: #F4A261;
                 font-size: 8.5px;
                 font-weight: 800;
                 letter-spacing: 0.08em;
                 text-transform: uppercase;
                 margin-bottom: 0.5rem;
             ">
+                <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#F4A261;"></span>
                 PROPHET TIME-SERIES ENGINE
             </div>
             <div style="font-size: 17px; font-weight: 900; line-height: 1.3; margin-bottom: 0.35rem; color: #FFFFFF;">
                 Multi-Grain Revenue Projections & Financial Planning
             </div>
-            <div style="font-size: 11px; opacity: 0.95; line-height: 1.5; color: #F0F9FF;">
+            <div style="font-size: 11px; opacity: 0.95; line-height: 1.5; color: #F1FAEE;">
                 Evaluate forward 6-month gross merchandise value projections across aggregate marketplace,
                 top 5 merchandise categories, and major Brazilian state territories with 90% confidence uncertainty bands.
             </div>
@@ -102,51 +128,56 @@ section_header(
 
 available_segments = get_available_forecast_segments()
 
-col_dim, col_val = st.columns([1, 1], gap="medium")
+with panel(
+    title="Forecast Grain & Slicing Toolbar",
+    description="Select analytical dimension cut to project future revenue across total, category, or regional horizons.",
+    badge="GRAIN SELECTOR",
+):
+    col_dim, col_val = st.columns([1, 1], gap="medium")
 
-with col_dim:
-    dimension_choice = st.selectbox(
-        "Forecast Dimension",
-        options=["Total Marketplace Revenue", "By Product Category", "By Regional State / Market"],
-        index=0,
-        help="Switch between aggregate marketplace projections and specific category or regional cuts.",
-    )
+    with col_dim:
+        dimension_choice = st.selectbox(
+            "Forecast Dimension",
+            options=["Total Marketplace Revenue", "By Product Category", "By Regional State / Market"],
+            index=0,
+            help="Switch between aggregate marketplace projections and specific category or regional cuts.",
+        )
 
-selected_segment_type = "total"
-selected_segment_value = "All"
-segment_display_label = "Total Marketplace"
-
-if dimension_choice == "Total Marketplace Revenue":
     selected_segment_type = "total"
     selected_segment_value = "All"
     segment_display_label = "Total Marketplace"
-    with col_val:
-        st.text_input("Segment Filter", value="All Marketplace Orders", disabled=True)
 
-elif dimension_choice == "By Product Category":
-    selected_segment_type = "category"
-    categories_list = available_segments.get("category", ["bed_bath_table"])
-    with col_val:
-        selected_segment_value = st.selectbox(
-            "Select Product Category",
-            options=categories_list,
-            index=0,
-            format_func=lambda x: x.replace("_", " ").title(),
-            help="Top 5 highest-revenue marketplace categories evaluated independently.",
-        )
-    segment_display_label = f"Category: {selected_segment_value.replace('_', ' ').title()}"
+    if dimension_choice == "Total Marketplace Revenue":
+        selected_segment_type = "total"
+        selected_segment_value = "All"
+        segment_display_label = "Total Marketplace"
+        with col_val:
+            st.text_input("Segment Filter", value="All Marketplace Orders", disabled=True)
 
-elif dimension_choice == "By Regional State / Market":
-    selected_segment_type = "region"
-    regions_list = available_segments.get("region", ["SP"])
-    with col_val:
-        selected_segment_value = st.selectbox(
-            "Select State / Region",
-            options=regions_list,
-            index=0,
-            help="Top 5 customer volume states in Brazil evaluated independently.",
-        )
-    segment_display_label = f"Region: {selected_segment_value}"
+    elif dimension_choice == "By Product Category":
+        selected_segment_type = "category"
+        categories_list = available_segments.get("category", ["bed_bath_table"])
+        with col_val:
+            selected_segment_value = st.selectbox(
+                "Select Product Category",
+                options=categories_list,
+                index=0,
+                format_func=lambda x: x.replace("_", " ").title(),
+                help="Top 5 highest-revenue marketplace categories evaluated independently.",
+            )
+        segment_display_label = f"Category: {selected_segment_value.replace('_', ' ').title()}"
+
+    elif dimension_choice == "By Regional State / Market":
+        selected_segment_type = "region"
+        regions_list = available_segments.get("region", ["SP"])
+        with col_val:
+            selected_segment_value = st.selectbox(
+                "Select State / Region",
+                options=regions_list,
+                index=0,
+                help="Top 5 customer volume states in Brazil evaluated independently.",
+            )
+        segment_display_label = f"Region: {selected_segment_value}"
 
 # ============================================================================
 # LOAD & FILTER FORECAST DATA
@@ -250,31 +281,22 @@ with kpi_cols[1]:
     kpi_card(
         label="6-Month Projected GMV",
         value=f"{CURRENCY_SYMBOL} {total_future_forecast:,.0f}",
-        delta="Point estimate projection",
+        delta=f"Terminal: {CURRENCY_SYMBOL} {final_forecast_revenue:,.0f}",
         delta_type="positive",
     )
 
 with kpi_cols[2]:
-    if forecast_growth is None:
-        growth_val = "N/A"
-        growth_type = "neutral"
-    elif forecast_growth >= 0:
-        growth_val = f"{forecast_growth:+.1f}%"
-        growth_type = "positive"
-    else:
-        growth_val = f"{forecast_growth:+.1f}%"
-        growth_type = "negative"
-
+    delta_str = f"{forecast_growth:+.1f}% vs last month" if forecast_growth is not None else "Baseline trajectory"
     kpi_card(
-        label="Initial Horizon Trajectory",
-        value=growth_val,
-        delta="First forecast vs latest actual",
-        delta_type=growth_type,
+        label="Horizon Trajectory",
+        value=f"{forecast_growth:+.1f}%" if forecast_growth is not None else "Steady",
+        delta=delta_str,
+        delta_type="positive" if (forecast_growth and forecast_growth > 0) else "neutral",
     )
 
 with kpi_cols[3]:
     kpi_card(
-        label="Forecast Horizon Duration",
+        label="Forecast Duration",
         value=f"{forecast_periods} Months",
         delta=f"{forecast_start.strftime('%b %Y') if forecast_start else ''} – {forecast_end.strftime('%b %Y') if forecast_end else ''}",
         delta_type="neutral",
@@ -302,7 +324,7 @@ with panel(
         forecast_column="predicted_revenue",
         lower_column="lower_bound",
         upper_column="upper_bound",
-        title=f"Revenue Trajectory: {segment_display_label}",
+        title=None,
         x_title="Month",
         y_title="Revenue (R$)",
         height=440,
@@ -329,7 +351,7 @@ with col_chart:
                 dataframe=forecast_chart_df,
                 x="period",
                 y="predicted_revenue",
-                title=f"Monthly Projections ({segment_display_label})",
+                title=None,
                 x_title="Forecast Period",
                 y_title="Predicted Revenue (R$)",
                 height=360,
@@ -354,15 +376,40 @@ with col_conf:
         render_html("<div style='height: 12px;'></div>")
 
         if not future_forecast_df.empty:
-            lower_sum = future_forecast_df["lower_bound"].sum()
-            upper_sum = future_forecast_df["upper_bound"].sum()
-            st.info(
-                f"**Financial Planning Guidance ({segment_display_label}):**  \n"
-                f"• Point Estimate: **{CURRENCY_SYMBOL} {total_future_forecast:,.0f}**  \n"
-                f"• Bear Case (Lower 90% Bound): **{CURRENCY_SYMBOL} {lower_sum:,.0f}**  \n"
-                f"• Bull Case (Upper 90% Bound): **{CURRENCY_SYMBOL} {upper_sum:,.0f}**",
-                icon="📊",
-            )
+            lower_sum = float(future_forecast_df["lower_bound"].sum())
+            upper_sum = float(future_forecast_df["upper_bound"].sum())
+            point_sum = float(total_future_forecast)
+            bear_diff_pct = ((lower_sum - point_sum) / point_sum * 100) if point_sum > 0 else 0.0
+            bull_diff_pct = ((upper_sum - point_sum) / point_sum * 100) if point_sum > 0 else 0.0
+
+            render_html(f"""
+            <div class="scenario-planning-card">
+                <div class="scenario-planning-header">
+                    <div class="scenario-planning-title">
+                        <span class="scenario-header-icon">📊</span>
+                        <span>Financial Planning Guidance</span>
+                    </div>
+                    <span class="scenario-segment-pill">{segment_display_label}</span>
+                </div>
+                <div class="scenario-grid">
+                    <div class="scenario-item scenario-bear">
+                        <div class="scenario-label">BEAR CASE (90% LOWER)</div>
+                        <div class="scenario-value">R$ {lower_sum:,.0f}</div>
+                        <div class="scenario-badge bear-badge">{bear_diff_pct:.1f}% vs Base</div>
+                    </div>
+                    <div class="scenario-item scenario-base">
+                        <div class="scenario-label">POINT ESTIMATE (BASE)</div>
+                        <div class="scenario-value">R$ {point_sum:,.0f}</div>
+                        <div class="scenario-badge base-badge">Core Budget Target</div>
+                    </div>
+                    <div class="scenario-item scenario-bull">
+                        <div class="scenario-label">BULL CASE (90% UPPER)</div>
+                        <div class="scenario-value">R$ {upper_sum:,.0f}</div>
+                        <div class="scenario-badge bull-badge">+{bull_diff_pct:.1f}% vs Base</div>
+                    </div>
+                </div>
+            </div>
+            """)
 
 # ============================================================================
 # FORECAST DETAIL TABLE & EXPORTS
@@ -391,15 +438,12 @@ with panel(
             ["Month", "Forecast Revenue (R$)", "Lower Bound 90% (R$)", "Upper Bound 90% (R$)"]
         ]
 
-        st.dataframe(
+        render_styled_table(
             display_table,
-            width="stretch",
-            hide_index=True,
-            column_config={
-                "Month": st.column_config.TextColumn("Forecast Period", width="medium"),
-                "Forecast Revenue (R$)": st.column_config.NumberColumn("Predicted Revenue", format="R$ %,.2f"),
-                "Lower Bound 90% (R$)": st.column_config.NumberColumn("Lower Bound (90% CI)", format="R$ %,.2f"),
-                "Upper Bound 90% (R$)": st.column_config.NumberColumn("Upper Bound (90% CI)", format="R$ %,.2f"),
+            column_formats={
+                "Forecast Revenue (R$)": "R$ {:,.2f}",
+                "Lower Bound 90% (R$)": "R$ {:,.2f}",
+                "Upper Bound 90% (R$)": "R$ {:,.2f}",
             },
         )
 

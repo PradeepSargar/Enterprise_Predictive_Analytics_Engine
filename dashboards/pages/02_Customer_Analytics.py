@@ -36,6 +36,7 @@ from dashboards.components.containers import panel
 from dashboards.components.exports import csv_download, excel_download
 from dashboards.components.kpi_cards import kpi_card
 from dashboards.components.section_headers import page_header, section_header
+from dashboards.components.tables import render_styled_table
 from dashboards.data.loader import load_customer_segments
 from dashboards.utils.html import render_html
 
@@ -75,33 +76,58 @@ render_html(
     <div style="
         position: relative;
         overflow: hidden;
-        background: linear-gradient(135deg, #0284C7 0%, #0EA5E9 40%, #8B5CF6 100%);
+        background: linear-gradient(135deg, #1B4332 0%, #143628 50%, #0F281E 100%);
         border-radius: 16px;
         padding: 1.5rem 1.8rem;
         margin-bottom: 1.5rem;
-        box-shadow: 0 8px 24px -4px rgba(14, 165, 233, 0.25);
+        box-shadow: 0 10px 25px rgba(15, 40, 30, 0.20);
         color: #FFFFFF;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.10);
     ">
+        <div style="
+            position: absolute;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(244, 162, 97, 0.22) 0%, rgba(244, 162, 97, 0) 70%);
+            top: -70px;
+            right: 50px;
+            pointer-events: none;
+        "></div>
+        <div style="
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(82, 183, 136, 0.18) 0%, rgba(82, 183, 136, 0) 70%);
+            bottom: -50px;
+            right: -20px;
+            pointer-events: none;
+        "></div>
+
         <div style="position: relative; z-index: 2; max-width: 820px;">
             <div style="
-                display: inline-block;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
                 padding: 0.25rem 0.6rem;
                 border-radius: 999px;
-                background: rgba(255, 255, 255, 0.2);
-                border: 1px solid rgba(255, 255, 255, 0.3);
+                background: rgba(244, 162, 97, 0.18);
+                border: 1px solid rgba(244, 162, 97, 0.35);
+                color: #F4A261;
                 font-size: 8.5px;
                 font-weight: 800;
                 letter-spacing: 0.08em;
                 text-transform: uppercase;
                 margin-bottom: 0.5rem;
             ">
+                <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#F4A261;"></span>
                 BEHAVIORAL RFM INTELLIGENCE
             </div>
             <div style="font-size: 17px; font-weight: 900; line-height: 1.3; margin-bottom: 0.35rem; color: #FFFFFF;">
                 Customer Lifetime Spend & Retention Dynamics
             </div>
-            <div style="font-size: 11px; opacity: 0.95; line-height: 1.5; color: #F0F9FF;">
+            <div style="font-size: 11px; opacity: 0.95; line-height: 1.5; color: #F1FAEE;">
                 Analyze Brazilian e-commerce customer concentration, repeat purchase frequency,
                 and recency decay across verified customer cohorts.
             </div>
@@ -134,32 +160,37 @@ available_segments = sorted(
 )
 segment_options = ["All Segments", *available_segments]
 
-col_filter, col_metric = st.columns([1, 1], gap="medium")
+with panel(
+    title="Cohort Slicer & Population Telemetry",
+    description="Select a behavioral segment to isolate RFM distributions and spend correlations.",
+    badge="FILTER CONTROLS",
+):
+    col_filter, col_metric = st.columns([1, 1], gap="medium")
 
-with col_filter:
-    selected_segment = st.selectbox(
-        "Segment Focus",
-        options=segment_options,
-        index=0,
-        help="Focus analytical distributions on a specific behavioral group.",
-    )
+    with col_filter:
+        selected_segment = st.selectbox(
+            "Segment Focus",
+            options=segment_options,
+            index=0,
+            help="Focus analytical distributions on a specific behavioral group.",
+        )
 
-if selected_segment == "All Segments":
-    filtered_customers = customer_df.copy()
-else:
-    filtered_customers = customer_df[
-        customer_df["segment"].astype(str) == selected_segment
-    ].copy()
+    if selected_segment == "All Segments":
+        filtered_customers = customer_df.copy()
+    else:
+        filtered_customers = customer_df[
+            customer_df["segment"].astype(str) == selected_segment
+        ].copy()
 
-if filtered_customers.empty:
-    st.warning("No customers are available for the selected segment.")
-    st.stop()
+    if filtered_customers.empty:
+        st.warning("No customers are available for the selected segment.")
+        st.stop()
 
-with col_metric:
-    st.info(
-        f"**Active Cohort:** {selected_segment} — "
-        f"**{len(filtered_customers):,}** active customer profiles analyzed."
-    )
+    with col_metric:
+        st.info(
+            f"**Active Cohort:** {selected_segment} — "
+            f"**{len(filtered_customers):,}** active customer profiles analyzed."
+        )
 
 # ============================================================================
 # KPI CALCULATIONS
@@ -262,7 +293,7 @@ with seg_col1:
             dataframe=segment_summary,
             names="segment",
             values="customers",
-            title="Customer Segment Distribution",
+            title=None,
             height=370,
         )
 
@@ -280,7 +311,7 @@ with seg_col2:
             dataframe=segment_scale,
             category="segment",
             value="customers",
-            title="Customer Count by Segment",
+            title=None,
             category_title="Segment",
             value_title="Customers",
             height=370,
@@ -308,7 +339,7 @@ with rfm_col1:
         histogram(
             dataframe=filtered_customers,
             column="recency",
-            title="Recency Distribution",
+            title=None,
             x_title="Days Inactive",
             y_title="Customers",
             bins=30,
@@ -325,7 +356,7 @@ with rfm_col2:
         histogram(
             dataframe=filtered_customers,
             column="frequency",
-            title="Order Frequency",
+            title=None,
             x_title="Lifetime Orders",
             y_title="Customers",
             bins=20,
@@ -342,7 +373,7 @@ with rfm_col3:
         histogram(
             dataframe=filtered_customers,
             column="monetary",
-            title="Monetary Spend",
+            title=None,
             x_title="Total Spend (R$)",
             y_title="Customers",
             bins=30,
@@ -372,7 +403,7 @@ with rel_col1:
             x="frequency",
             y="monetary",
             color="segment",
-            title="Order Frequency vs Customer Spend (R$)",
+            title=None,
             x_title="Lifetime Frequency",
             y_title="Monetary Value (R$)",
             height=400,
@@ -393,7 +424,7 @@ with rel_col2:
             dataframe=val_by_seg,
             category="segment",
             value="avg_monetary",
-            title="Avg Spend by Segment (R$)",
+            title=None,
             category_title="Segment",
             value_title="Avg Value (R$)",
             height=400,
@@ -492,38 +523,21 @@ with panel(
         }
     )
 
-    st.dataframe(
+    # Convert share from decimal to percentage if needed
+    if table_df["Marketplace Share"].max() <= 1.0:
+        table_df["Marketplace Share"] = table_df["Marketplace Share"] * 100.0
+
+    render_styled_table(
         table_df,
-        width="stretch",
-        hide_index=True,
-        column_config={
-            "Marketplace Share": st.column_config.ProgressColumn(
-                "Marketplace Share",
-                format="%.1f%%",
-                min_value=0.0,
-                max_value=1.0,
-            ),
-            "Avg Spend (R$)": st.column_config.NumberColumn(
-                "Avg Spend",
-                format="R$ %.2f",
-            ),
-            "Total GMV (R$)": st.column_config.NumberColumn(
-                "Total GMV",
-                format="R$ %.2f",
-            ),
-            "Avg Orders": st.column_config.NumberColumn(
-                "Avg Orders",
-                format="%.2f",
-            ),
-            "Avg Recency (Days)": st.column_config.NumberColumn(
-                "Avg Recency",
-                format="%.0f days",
-            ),
-            "Total Customers": st.column_config.NumberColumn(
-                "Customers",
-                format="%d",
-            ),
+        column_formats={
+            "Total Customers": "{:,.0f}",
+            "Marketplace Share": "{:.1f}%",
+            "Avg Recency (Days)": "{:.0f} days",
+            "Avg Orders": "{:.2f}",
+            "Avg Spend (R$)": "R$ {:,.2f}",
+            "Total GMV (R$)": "R$ {:,.2f}",
         },
+        progress_columns=["Marketplace Share"],
     )
 
     col_exp1, col_exp2, col_spacer = st.columns([1, 1, 2], gap="small")

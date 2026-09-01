@@ -24,6 +24,7 @@ from dashboards.components.containers import panel
 from dashboards.components.exports import csv_download, excel_download
 from dashboards.components.kpi_cards import kpi_card
 from dashboards.components.section_headers import page_header, section_header
+from dashboards.components.tables import render_styled_table
 from dashboards.data.loader import load_customer_segments
 from dashboards.data.transformations import (
     calculate_customer_segment_summary,
@@ -51,33 +52,58 @@ render_html(
     <div style="
         position: relative;
         overflow: hidden;
-        background: linear-gradient(135deg, #0284C7 0%, #0EA5E9 40%, #8B5CF6 100%);
+        background: linear-gradient(135deg, #1B4332 0%, #143628 50%, #0F281E 100%);
         border-radius: 16px;
         padding: 1.5rem 1.8rem;
         margin-bottom: 1.5rem;
-        box-shadow: 0 8px 24px -4px rgba(14, 165, 233, 0.25);
+        box-shadow: 0 10px 25px rgba(15, 40, 30, 0.20);
         color: #FFFFFF;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.10);
     ">
+        <div style="
+            position: absolute;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(244, 162, 97, 0.22) 0%, rgba(244, 162, 97, 0) 70%);
+            top: -70px;
+            right: 50px;
+            pointer-events: none;
+        "></div>
+        <div style="
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(82, 183, 136, 0.18) 0%, rgba(82, 183, 136, 0) 70%);
+            bottom: -50px;
+            right: -20px;
+            pointer-events: none;
+        "></div>
+
         <div style="position: relative; z-index: 2; max-width: 820px;">
             <div style="
-                display: inline-block;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
                 padding: 0.25rem 0.6rem;
                 border-radius: 999px;
-                background: rgba(255, 255, 255, 0.2);
-                border: 1px solid rgba(255, 255, 255, 0.3);
+                background: rgba(244, 162, 97, 0.18);
+                border: 1px solid rgba(244, 162, 97, 0.35);
                 font-size: 8.5px;
                 font-weight: 800;
                 letter-spacing: 0.08em;
                 text-transform: uppercase;
                 margin-bottom: 0.5rem;
+                color: #F4A261;
             ">
+                <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#F4A261;"></span>
                 BEHAVIORAL RFM & CLUSTERING
             </div>
             <div style="font-size: 17px; font-weight: 900; line-height: 1.3; margin-bottom: 0.35rem; color: #FFFFFF;">
                 Cohort Profiling & Strategic Revenue Allocation
             </div>
-            <div style="font-size: 11px; opacity: 0.95; line-height: 1.5; color: #F0F9FF;">
+            <div style="font-size: 11px; opacity: 0.95; line-height: 1.5; color: #F1FAEE;">
                 Evaluate Brazilian e-commerce buyer distributions across Recency (inactivity decay),
                 Frequency (lifetime orders), and Monetary Value (cumulative GMV) to tailor marketing interventions.
             </div>
@@ -192,7 +218,7 @@ with dist_col1:
             dataframe=segment_summary,
             names="segment",
             values="customers",
-            title="Customer Share by Segment",
+            title=None,
             height=370,
         )
 
@@ -207,7 +233,7 @@ with dist_col2:
             dataframe=segment_summary,
             x="segment",
             y="customers",
-            title="Customer Count by Segment",
+            title=None,
             x_title="Segment",
             y_title="Customers",
             height=370,
@@ -235,7 +261,7 @@ with perf_col1:
             dataframe=segment_performance,
             x="segment",
             y="avg_monetary",
-            title="Avg Spend by Segment (R$)",
+            title=None,
             x_title="Segment",
             y_title="Avg Spend (R$)",
             height=370,
@@ -252,7 +278,7 @@ with perf_col2:
             dataframe=segment_performance,
             x="segment",
             y="total_monetary",
-            title="Total Revenue by Segment (R$)",
+            title=None,
             x_title="Segment",
             y_title="Total GMV (R$)",
             height=370,
@@ -304,7 +330,7 @@ with panel(
         x="frequency",
         y="monetary",
         color="segment",
-        title="Purchase Frequency vs Monetary Value (R$)",
+        title=None,
         x_title="Lifetime Orders",
         y_title="Monetary Value (R$)",
         height=420,
@@ -336,24 +362,21 @@ with panel(
         }
     )
 
-    st.dataframe(
+    # Convert share to percentage if needed
+    if display_df["Marketplace Share"].max() <= 1.0:
+        display_df["Marketplace Share"] = display_df["Marketplace Share"] * 100.0
+
+    render_styled_table(
         display_df,
-        width="stretch",
-        hide_index=True,
-        column_config={
-            "Customer Segment": st.column_config.TextColumn("Customer Segment", width="large"),
-            "Customers": st.column_config.NumberColumn("Customers", format="%,d"),
-            "Marketplace Share": st.column_config.ProgressColumn(
-                "Marketplace Share",
-                format="%.1f%%",
-                min_value=0.0,
-                max_value=1.0,
-            ),
-            "Avg Recency (Days)": st.column_config.NumberColumn("Avg Recency", format="%.0f days"),
-            "Avg Frequency": st.column_config.NumberColumn("Avg Orders", format="%.2f"),
-            "Avg Value (R$)": st.column_config.NumberColumn("Avg Spend", format="R$ %.2f"),
-            "Total Value (R$)": st.column_config.NumberColumn("Total GMV", format="R$ %.2f"),
+        column_formats={
+            "Customers": "{:,.0f}",
+            "Marketplace Share": "{:.1f}%",
+            "Avg Recency (Days)": "{:.0f} days",
+            "Avg Frequency": "{:.2f}",
+            "Avg Value (R$)": "R$ {:,.2f}",
+            "Total Value (R$)": "R$ {:,.2f}",
         },
+        progress_columns=["Marketplace Share"],
     )
 
     col_exp1, col_exp2, col_sp = st.columns([1, 1, 2], gap="small")

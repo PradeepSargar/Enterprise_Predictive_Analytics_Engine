@@ -26,6 +26,7 @@ from dashboards.components.containers import panel
 from dashboards.components.exports import csv_download, excel_download
 from dashboards.components.kpi_cards import kpi_card
 from dashboards.components.section_headers import page_header, section_header
+from dashboards.components.tables import render_styled_table
 from dashboards.data.loader import load_classification_model, load_model_comparison
 from dashboards.utils.constants import (
     CHART_PALETTE,
@@ -53,34 +54,59 @@ render_html(
     <div style="
         position: relative;
         overflow: hidden;
-        background: linear-gradient(135deg, #0284C7 0%, #0EA5E9 40%, #8B5CF6 100%);
+        background: linear-gradient(135deg, #1B4332 0%, #143628 50%, #0F281E 100%);
         border-radius: 16px;
         padding: 1.5rem 1.8rem;
         margin-bottom: 1.5rem;
-        box-shadow: 0 8px 24px -4px rgba(14, 165, 233, 0.25);
+        box-shadow: 0 10px 25px rgba(15, 40, 30, 0.20);
         color: #FFFFFF;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.10);
     ">
+        <div style="
+            position: absolute;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(244, 162, 97, 0.22) 0%, rgba(244, 162, 97, 0) 70%);
+            top: -70px;
+            right: 50px;
+            pointer-events: none;
+        "></div>
+        <div style="
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(82, 183, 136, 0.18) 0%, rgba(82, 183, 136, 0) 70%);
+            bottom: -50px;
+            right: -20px;
+            pointer-events: none;
+        "></div>
+
         <div style="position: relative; z-index: 2; max-width: 820px;">
             <div style="
-                display: inline-block;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
                 padding: 0.25rem 0.6rem;
                 border-radius: 999px;
-                background: rgba(255, 255, 255, 0.2);
-                border: 1px solid rgba(255, 255, 255, 0.3);
+                background: rgba(244, 162, 97, 0.18);
+                border: 1px solid rgba(244, 162, 97, 0.35);
                 font-size: 8.5px;
                 font-weight: 800;
                 letter-spacing: 0.08em;
                 text-transform: uppercase;
                 margin-bottom: 0.5rem;
+                color: #F4A261;
             ">
+                <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#F4A261;"></span>
                 CLASSIFICATION BENCHMARK & MLOPS
             </div>
             <div style="font-size: 17px; font-weight: 900; line-height: 1.3; margin-bottom: 0.35rem; color: #FFFFFF;">
                 Algorithm Evaluation & Champion Model Selection
             </div>
-            <div style="font-size: 11px; opacity: 0.95; line-height: 1.5; color: #F0F9FF;">
-                Compare candidate classification architectures (Logistic Regression, LightGBM, Random Forest)
+            <div style="font-size: 11px; opacity: 0.95; line-height: 1.5; color: #F1FAEE;">
+                Compare candidate classification architectures (Logistic Regression, Random Forest, Gradient Boosting, XGBoost)
                 trained on Brazilian e-commerce logistics and fulfillment records to detect dissatisfaction risk.
             </div>
         </div>
@@ -219,7 +245,7 @@ with col_bench2:
             dataframe=f1_df,
             x="Model",
             y="F1 Score",
-            title="F1 Score Ranking",
+            title=None,
             x_title="Model",
             y_title="F1 Score",
             height=390,
@@ -253,7 +279,7 @@ try:
                 dataframe=fi_df,
                 x="Feature",
                 y="Importance (%)",
-                title="Top Predictive Features in Dissatisfaction Classification",
+                title=None,
                 x_title="Feature",
                 y_title="Relative Importance (%)",
                 height=380,
@@ -276,16 +302,13 @@ with panel(
 ):
     table_display = model_df[["Model", "Accuracy", "Precision", "Recall", "F1 Score"]].copy()
 
-    st.dataframe(
+    render_styled_table(
         table_display,
-        width="stretch",
-        hide_index=True,
-        column_config={
-            "Model": st.column_config.TextColumn("Algorithm / Architecture", width="large"),
-            "Accuracy": st.column_config.NumberColumn("Accuracy", format="%.2f%%"),
-            "Precision": st.column_config.NumberColumn("Precision", format="%.2f%%"),
-            "Recall": st.column_config.NumberColumn("Recall (Sensitivity)", format="%.2f%%"),
-            "F1 Score": st.column_config.NumberColumn("F1 Score", format="%.2f%%"),
+        column_formats={
+            "Accuracy": "{:.2f}%",
+            "Precision": "{:.2f}%",
+            "Recall": "{:.2f}%",
+            "F1 Score": "{:.2f}%",
         },
     )
 

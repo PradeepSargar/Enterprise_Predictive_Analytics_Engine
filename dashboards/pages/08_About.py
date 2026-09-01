@@ -34,33 +34,58 @@ render_html(
     <div style="
         position: relative;
         overflow: hidden;
-        background: linear-gradient(135deg, #0284C7 0%, #0EA5E9 40%, #8B5CF6 100%);
+        background: linear-gradient(135deg, #1B4332 0%, #143628 50%, #0F281E 100%);
         border-radius: 16px;
         padding: 1.6rem 2rem;
         margin-bottom: 1.5rem;
-        box-shadow: 0 8px 24px -4px rgba(14, 165, 233, 0.25);
+        box-shadow: 0 10px 25px rgba(15, 40, 30, 0.20);
         color: #FFFFFF;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.10);
     ">
+        <div style="
+            position: absolute;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(244, 162, 97, 0.22) 0%, rgba(244, 162, 97, 0) 70%);
+            top: -70px;
+            right: 50px;
+            pointer-events: none;
+        "></div>
+        <div style="
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(82, 183, 136, 0.18) 0%, rgba(82, 183, 136, 0) 70%);
+            bottom: -50px;
+            right: -20px;
+            pointer-events: none;
+        "></div>
+
         <div style="position: relative; z-index: 2; max-width: 840px;">
             <div style="
-                display: inline-block;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
                 padding: 0.25rem 0.6rem;
                 border-radius: 999px;
-                background: rgba(255, 255, 255, 0.2);
-                border: 1px solid rgba(255, 255, 255, 0.3);
+                background: rgba(244, 162, 97, 0.18);
+                border: 1px solid rgba(244, 162, 97, 0.35);
                 font-size: 8.5px;
                 font-weight: 800;
                 letter-spacing: 0.08em;
                 text-transform: uppercase;
                 margin-bottom: 0.5rem;
+                color: #F4A261;
             ">
+                <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#F4A261;"></span>
                 ENTERPRISE SYSTEM BLUEPRINT
             </div>
             <div style="font-size: 19px; font-weight: 900; line-height: 1.25; margin-bottom: 0.4rem; color: #FFFFFF;">
                 End-to-End Predictive Analytics & Business Intelligence Engine
             </div>
-            <div style="font-size: 11px; opacity: 0.95; line-height: 1.6; color: #F0F9FF;">
+            <div style="font-size: 11px; opacity: 0.95; line-height: 1.6; color: #F1FAEE;">
                 Built on the Brazilian Olist e-commerce dataset (100k+ transactions), integrating
                 Prophet time-series forecasting, Random Forest dissatisfaction risk classification,
                 and K-Means RFM customer segmentation into an enterprise SaaS dashboard.
@@ -77,10 +102,10 @@ render_html(
 snapshot_columns = st.columns(4, gap="medium")
 
 snapshot_items = [
-    ("08", "Analytics Modules", "Integrated dashboard pages", "#0EA5E9"),
-    ("05", "Architectural Layers", "From raw data to decisions", "#8B5CF6"),
-    ("96.5k", "Unique Orders Analyzed", "Verified transaction scale", "#10B981"),
-    ("27", "Automated Pytest Suite", "100% verified test coverage", "#F59E0B"),
+    ("08", "Analytics Modules", "Integrated dashboard pages", "#1B4332"),
+    ("05", "Architectural Layers", "From raw data to decisions", "#2D6A4F"),
+    ("96.5k", "Unique Orders Analyzed", "Verified transaction scale", "#F4A261"),
+    ("27", "Automated Pytest Suite", "100% verified test coverage", "#457B9D"),
 ]
 
 for column, (value, label, description, accent) in zip(snapshot_columns, snapshot_items):
@@ -91,10 +116,10 @@ for column, (value, label, description, accent) in zip(snapshot_columns, snapsho
                 <div style="color: {accent}; font-size: 22px; font-weight: 900; line-height: 1; margin-bottom: 0.35rem;">
                     {value}
                 </div>
-                <div style="color: #0F172A; font-size: 11.5px; font-weight: 850; margin-bottom: 0.15rem;">
+                <div style="color: #112211; font-size: 11.5px; font-weight: 850; margin-bottom: 0.15rem;">
                     {label}
                 </div>
-                <div style="color: #64748B; font-size: 9px;">
+                <div style="color: #52796F; font-size: 9px;">
                     {description}
                 </div>
             </div>
@@ -119,8 +144,8 @@ capabilities = [
         "Executive & Customer Health",
         "Understand sales velocity, order cadence, logistics SLAs, and customer retention recency decay.",
         "📊",
-        "#0EA5E9",
-        "rgba(14, 165, 233, 0.12)",
+        "#1B4332",
+        "rgba(27, 67, 50, 0.10)",
     ),
     (
         "02",
@@ -128,8 +153,8 @@ capabilities = [
         "Machine Learning Pipelines",
         "Multi-grain Prophet revenue forecasts with 90% confidence bands and Random Forest dissatisfaction risk scoring.",
         "🤖",
-        "#8B5CF6",
-        "rgba(139, 92, 246, 0.12)",
+        "#2D6A4F",
+        "rgba(45, 106, 79, 0.10)",
     ),
     (
         "03",
@@ -137,8 +162,8 @@ capabilities = [
         "Actionable Playbooks",
         "Proactive carrier SLA intervention, repeat buyer conversion triggers, and high-value customer nurturing.",
         "🎯",
-        "#10B981",
-        "rgba(16, 185, 129, 0.12)",
+        "#F4A261",
+        "rgba(244, 162, 97, 0.12)",
     ),
 ]
 
@@ -158,10 +183,10 @@ for column, (number, subtitle, title, description, icon, accent, background) in 
                 <div style="color: {accent}; font-size: 8px; font-weight: 850; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.25rem;">
                     {subtitle}
                 </div>
-                <div style="color: #0F172A; font-size: 13.5px; font-weight: 900; margin-bottom: 0.35rem;">
+                <div style="color: #112211; font-size: 13.5px; font-weight: 900; margin-bottom: 0.35rem;">
                     {title}
                 </div>
-                <div style="color: #64748B; font-size: 9.5px; line-height: 1.6;">
+                <div style="color: #52796F; font-size: 9.5px; line-height: 1.6;">
                     {description}
                 </div>
             </div>
@@ -178,11 +203,11 @@ section_header(
 )
 
 architecture_layers = [
-    ("PRESENTATION", "Streamlit Dashboard Pages (01 to 08)", "Independent analytical views with zero hardcoded business formulas.", "#0EA5E9"),
-    ("COMPONENTS", "Reusable UI Design System", "KPI scorecard cards, section headers, Plotly SVG charts, glass panels, exports.", "#8B5CF6"),
-    ("DATA LAYER", "Centralized Data Loader & Transformations", "Robust data validation, caching (@st.cache_data), and serialized ML pipelines.", "#10B981"),
-    ("STATE & PARAMS", "Session State & Filter Handlers", "Centralized multi-grain parameters and user filter management.", "#F59E0B"),
-    ("DESIGN SYSTEM", "CSS Tokens & Glassmorphism Theme", "Unified Sky Blue / Lavender palette, custom sidebar, and shimmer loading states.", "#6366F1"),
+    ("PRESENTATION", "Streamlit Dashboard Pages (01 to 08)", "Independent analytical views with zero hardcoded business formulas.", "#1B4332"),
+    ("COMPONENTS", "Reusable UI Design System", "KPI scorecard cards, section headers, Plotly SVG charts, glass panels, exports.", "#2D6A4F"),
+    ("DATA LAYER", "Centralized Data Loader & Transformations", "Robust data validation, caching (@st.cache_data), and serialized ML pipelines.", "#52796F"),
+    ("STATE & PARAMS", "Session State & Filter Handlers", "Centralized multi-grain parameters and user filter management.", "#F4A261"),
+    ("DESIGN SYSTEM", "CSS Tokens & Forest Signal Theme", "Unified Enterprise Design System, custom sidebar, and shimmer loading states.", "#457B9D"),
 ]
 
 for layer, title, description, accent in architecture_layers:
@@ -192,11 +217,11 @@ for layer, title, description, accent in architecture_layers:
             <div style="width: 125px; padding: 0.65rem 0.8rem; border-radius: 9px 0 0 9px; background: {accent}; color: white; font-size: 8.5px; font-weight: 900; letter-spacing: 0.06em;">
                 {layer}
             </div>
-            <div style="flex: 1; padding: 0.65rem 0.95rem; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(226, 232, 240, 0.85); border-left: none; border-radius: 0 9px 9px 0;">
-                <span style="color: #0F172A; font-size: 11px; font-weight: 850;">
+            <div style="flex: 1; padding: 0.65rem 0.95rem; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 2px solid #B7D5BF; border-left: none; border-radius: 0 9px 9px 0;">
+                <span style="color: #112211; font-size: 11px; font-weight: 850;">
                     {title}
                 </span>
-                <span style="color: #64748B; font-size: 9px; margin-left: 0.65rem;">
+                <span style="color: #52796F; font-size: 9px; margin-left: 0.65rem;">
                     {description}
                 </span>
             </div>
@@ -216,7 +241,7 @@ section_header(
 technologies = [
     ("🐍", "Python 3.13", "Core analytics, typed architecture, and execution engine."),
     ("⚡", "Streamlit 1.32+", "Reactive application shell and navigation runtime."),
-    ("📊", "Plotly 5.24+", "Interactive charts with unified sky-blue / lavender palette."),
+    ("📊", "Plotly 5.24+", "Interactive charts with Forest Signal analytics palette."),
     ("🧠", "Scikit-Learn & Prophet", "Serialized classification models and multi-grain time-series forecasting."),
 ]
 
@@ -230,10 +255,10 @@ for column, (icon, title, description) in zip(tech_columns, technologies):
                 <div style="font-size: 24px; margin-bottom: 0.4rem;">
                     {icon}
                 </div>
-                <div style="color: #0F172A; font-size: 12px; font-weight: 850; margin-bottom: 0.25rem;">
+                <div style="color: #112211; font-size: 12px; font-weight: 850; margin-bottom: 0.25rem;">
                     {title}
                 </div>
-                <div style="color: #64748B; font-size: 9px; line-height: 1.55;">
+                <div style="color: #52796F; font-size: 9px; line-height: 1.55;">
                     {description}
                 </div>
             </div>
@@ -262,8 +287,8 @@ render_html(
                 width: 40px;
                 height: 40px;
                 border-radius: 10px;
-                background: linear-gradient(135deg, rgba(14, 165, 233, 0.15), rgba(99, 102, 241, 0.15));
-                border: 1px solid rgba(14, 165, 233, 0.3);
+                background: linear-gradient(135deg, rgba(27, 67, 50, 0.15), rgba(45, 106, 79, 0.15));
+                border: 2px solid rgba(27, 67, 50, 0.4);
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -271,8 +296,8 @@ render_html(
                 flex-shrink: 0;
             ">📊</div>
             <div>
-                <div style="font-size: 8.5px; font-weight: 850; text-transform: uppercase; letter-spacing: 0.08em; color: #0284C7;">Project Topic</div>
-                <div style="font-size: 13px; font-weight: 850; color: #0F172A; margin-top: 1px;">Enterprise Predictive Analytics Engine</div>
+                <div style="font-size: 8.5px; font-weight: 850; text-transform: uppercase; letter-spacing: 0.08em; color: #1B4332;">Project Topic</div>
+                <div style="font-size: 13px; font-weight: 850; color: #112211; margin-top: 1px;">Enterprise Predictive Analytics Engine</div>
             </div>
         </div>
 
@@ -281,8 +306,8 @@ render_html(
                 width: 40px;
                 height: 40px;
                 border-radius: 10px;
-                background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.15));
-                border: 1px solid rgba(16, 185, 129, 0.3);
+                background: linear-gradient(135deg, rgba(45, 106, 79, 0.15), rgba(82, 183, 136, 0.15));
+                border: 2px solid rgba(45, 106, 79, 0.4);
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -290,8 +315,8 @@ render_html(
                 flex-shrink: 0;
             ">👤</div>
             <div>
-                <div style="font-size: 8.5px; font-weight: 850; text-transform: uppercase; letter-spacing: 0.08em; color: #059669;">Submitted By</div>
-                <div style="font-size: 13px; font-weight: 850; color: #0F172A; margin-top: 1px;">Pradeep Bhagvat Sargar</div>
+                <div style="font-size: 8.5px; font-weight: 850; text-transform: uppercase; letter-spacing: 0.08em; color: #2D6A4F;">Submitted By</div>
+                <div style="font-size: 13px; font-weight: 850; color: #112211; margin-top: 1px;">Pradeep Bhagvat Sargar</div>
             </div>
         </div>
 
@@ -300,8 +325,8 @@ render_html(
                 width: 40px;
                 height: 40px;
                 border-radius: 10px;
-                background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(99, 102, 241, 0.15));
-                border: 1px solid rgba(139, 92, 246, 0.3);
+                background: linear-gradient(135deg, rgba(244, 162, 97, 0.15), rgba(231, 111, 81, 0.15));
+                border: 2px solid rgba(244, 162, 97, 0.4);
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -309,8 +334,8 @@ render_html(
                 flex-shrink: 0;
             ">✉️</div>
             <div>
-                <div style="font-size: 8.5px; font-weight: 850; text-transform: uppercase; letter-spacing: 0.08em; color: #7C3AED;">Registered Email ID</div>
-                <div style="font-size: 13px; font-weight: 850; color: #0F172A; margin-top: 1px;">pbsargar15@gmail.com</div>
+                <div style="font-size: 8.5px; font-weight: 850; text-transform: uppercase; letter-spacing: 0.08em; color: #F4A261;">Registered Email ID</div>
+                <div style="font-size: 13px; font-weight: 850; color: #112211; margin-top: 1px;">pbsargar15@gmail.com</div>
             </div>
         </div>
     </div>
@@ -329,17 +354,17 @@ render_html(
         border-radius: 14px;
         background: rgba(255, 255, 255, 0.85);
         backdrop-filter: blur(16px);
-        border: 1px solid rgba(186, 230, 253, 0.9);
-        box-shadow: 0 4px 16px rgba(14, 165, 233, 0.06);
+        border: 2.5px solid #95BE9E;
+        box-shadow: 0 4px 16px rgba(27, 67, 50, 0.06);
         text-align: center;
     ">
-        <div style="color: #0284C7; font-size: 8.5px; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.35rem;">
+        <div style="color: #1B4332; font-size: 8.5px; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.35rem;">
             ENTERPRISE PREDICTIVE ANALYTICS PLATFORM • v2.4
         </div>
-        <div style="color: #0F172A; font-size: 15px; font-weight: 900; margin-bottom: 0.25rem;">
+        <div style="color: #112211; font-size: 15px; font-weight: 900; margin-bottom: 0.25rem;">
             Turning Raw E-Commerce Records into Actionable Executive Intelligence
         </div>
-        <div style="color: #64748B; font-size: 9.5px; line-height: 1.6;">
+        <div style="color: #52796F; font-size: 9.5px; line-height: 1.6;">
             Designed and engineered as a modern, portfolio-ready business intelligence platform.
         </div>
     </div>

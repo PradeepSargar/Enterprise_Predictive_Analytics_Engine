@@ -33,6 +33,7 @@ from dashboards.components.kpi_cards import kpi_card
 from dashboards.components.loading_states import loading_spinner
 from dashboards.components.section_headers import page_header, section_header
 from dashboards.components.status_indicators import live_status
+from dashboards.components.tables import render_styled_table
 from dashboards.utils.constants import (
     CURRENCY_SYMBOL,
     PRIMARY_COLOR,
@@ -102,19 +103,19 @@ render_html(
     <div style="
         position: relative;
         overflow: hidden;
-        background: linear-gradient(135deg, #0F172A 0%, #0369A1 50%, #6B21A8 100%);
+        background: linear-gradient(135deg, #1B4332 0%, #143628 50%, #0F281E 100%);
         border-radius: 14px;
         padding: 1.6rem 1.9rem;
         margin-bottom: 1.5rem;
-        box-shadow: 0 10px 25px rgba(14, 165, 233, 0.12);
-        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 10px 25px rgba(15, 40, 30, 0.20);
+        border: 1px solid rgba(255, 255, 255, 0.10);
     ">
         <div style="
             position: absolute;
             width: 240px;
             height: 240px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, rgba(56, 189, 248, 0) 70%);
+            background: radial-gradient(circle, rgba(244, 162, 97, 0.22) 0%, rgba(244, 162, 97, 0) 70%);
             top: -70px;
             right: 50px;
             pointer-events: none;
@@ -124,7 +125,7 @@ render_html(
             width: 180px;
             height: 180px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(192, 132, 252, 0.22) 0%, rgba(192, 132, 252, 0) 70%);
+            background: radial-gradient(circle, rgba(82, 183, 136, 0.18) 0%, rgba(82, 183, 136, 0) 70%);
             bottom: -50px;
             right: -20px;
             pointer-events: none;
@@ -137,16 +138,16 @@ render_html(
                 gap: 6px;
                 padding: 0.25rem 0.7rem;
                 border-radius: 999px;
-                background: rgba(255, 255, 255, 0.12);
-                border: 1px solid rgba(255, 255, 255, 0.20);
-                color: #BAE6FD;
+                background: rgba(244, 162, 97, 0.18);
+                border: 1px solid rgba(244, 162, 97, 0.35);
+                color: #F4A261;
                 font-size: 11px;
                 font-weight: 700;
                 letter-spacing: 0.08em;
                 text-transform: uppercase;
                 margin-bottom: 0.75rem;
             ">
-                <span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:#38BDF8;"></span>
+                <span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:#F4A261;"></span>
                 Marketplace Executive Intelligence
             </div>
 
@@ -157,11 +158,11 @@ render_html(
                 line-height: 1.3;
                 margin-bottom: 0.5rem;
             ">
-                Driving <span style="color: #38BDF8;">R$15.4M+</span> in Gross Volume across <span style="color: #C084FC;">96.5k Orders</span>
+                Driving <span style="color: #F4A261;">R$15.4M+</span> in Gross Volume across <span style="color: #52B788;">96.5k Orders</span>
             </div>
 
             <div style="
-                color: #E2E8F0;
+                color: #F1FAEE;
                 font-size: 13px;
                 line-height: 1.55;
                 max-width: 860px;
@@ -440,61 +441,66 @@ fc_dimension_col, fc_view_col = st.columns([1, 2])
 
 with fc_dimension_col:
     segments_map = get_available_forecast_segments()
-    forecast_cut = st.selectbox(
-        "Forecast Dimension Cut",
-        options=["Total Marketplace", "By Top Category", "By Top State"],
-        index=0,
-        help="Switch between total marketplace and granular category or regional state forecasts.",
-    )
-
-    if forecast_cut == "By Top Category":
-        selected_seg_val = st.selectbox(
-            "Select Product Category",
-            options=segments_map["category"],
+    with panel(
+        title="Forecast Controls",
+        description="Select dimension cut to forecast revenue at aggregate, category, or regional level.",
+        badge="SLICER",
+    ):
+        forecast_cut = st.selectbox(
+            "Forecast Dimension Cut",
+            options=["Total Marketplace", "By Top Category", "By Top State"],
             index=0,
-        )
-        current_fc_raw = load_revenue_forecast(
-            segment_type="category", segment_value=selected_seg_val
-        )
-    elif forecast_cut == "By Top State":
-        selected_seg_val = st.selectbox(
-            "Select State / Region",
-            options=segments_map["region"],
-            index=0,
-        )
-        current_fc_raw = load_revenue_forecast(
-            segment_type="region", segment_value=selected_seg_val
-        )
-    else:
-        selected_seg_val = "All"
-        current_fc_raw = load_revenue_forecast(
-            segment_type="total", segment_value="All"
+            help="Switch between total marketplace and granular category or regional state forecasts.",
         )
 
-    prepared_fc = prepare_revenue_forecast(current_fc_raw)
+        if forecast_cut == "By Top Category":
+            selected_seg_val = st.selectbox(
+                "Select Product Category",
+                options=segments_map["category"],
+                index=0,
+            )
+            current_fc_raw = load_revenue_forecast(
+                segment_type="category", segment_value=selected_seg_val
+            )
+        elif forecast_cut == "By Top State":
+            selected_seg_val = st.selectbox(
+                "Select State / Region",
+                options=segments_map["region"],
+                index=0,
+            )
+            current_fc_raw = load_revenue_forecast(
+                segment_type="region", segment_value=selected_seg_val
+            )
+        else:
+            selected_seg_val = "All"
+            current_fc_raw = load_revenue_forecast(
+                segment_type="total", segment_value="All"
+            )
 
-    # Forecast summary metrics
-    future_points = prepared_fc[prepared_fc["actual_revenue"].isna()]
-    if not future_points.empty:
-        next_month_pred = future_points.iloc[0]["predicted_revenue"]
-        terminal_month_pred = future_points.iloc[-1]["predicted_revenue"]
-        growth_pct = (terminal_month_pred - next_month_pred) / max(next_month_pred, 1)
+        prepared_fc = prepare_revenue_forecast(current_fc_raw)
 
-        render_html(
-            f"""
-            <div class="chart-card" style="padding: 1.1rem; margin-top: 0.8rem; background: #F8FAFC; border: 1px solid #E2E8F0;">
-                <div style="font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 0.4rem;">
-                    Forecast Summary ({selected_seg_val})
+        # Forecast summary metrics
+        future_points = prepared_fc[prepared_fc["actual_revenue"].isna()]
+        if not future_points.empty:
+            next_month_pred = future_points.iloc[0]["predicted_revenue"]
+            terminal_month_pred = future_points.iloc[-1]["predicted_revenue"]
+            growth_pct = (terminal_month_pred - next_month_pred) / max(next_month_pred, 1)
+
+            render_html(
+                f"""
+                <div class="chart-card" style="padding: 1.1rem; margin-top: 0.8rem; background: #E8F3E8; border: 2.5px solid #95BE9E;">
+                    <div style="font-size: 11px; font-weight: 700; color: #52796F; text-transform: uppercase; margin-bottom: 0.4rem;">
+                        Forecast Summary ({selected_seg_val})
+                    </div>
+                    <div style="font-size: 18px; font-weight: 800; color: #112211; margin-bottom: 0.25rem;">
+                        {format_currency(terminal_month_pred)} <span style="font-size: 12px; color: #2D6A4F; font-weight: 700;">(+{growth_pct:.1%})</span>
+                    </div>
+                    <div style="font-size: 11px; color: #2D4A3E; line-height: 1.4;">
+                        Projected 6-month exit velocity from {format_currency(next_month_pred)}.
+                    </div>
                 </div>
-                <div style="font-size: 18px; font-weight: 800; color: #0F172A; margin-bottom: 0.25rem;">
-                    {format_currency(terminal_month_pred)} <span style="font-size: 12px; color: #059669; font-weight: 700;">(+{growth_pct:.1%})</span>
-                </div>
-                <div style="font-size: 11px; color: #475569; line-height: 1.4;">
-                    Projected 6-month exit velocity from {format_currency(next_month_pred)}.
-                </div>
-            </div>
-            """
-        )
+                """
+            )
 
 with fc_view_col:
     with panel(
@@ -581,17 +587,20 @@ if not display_segments.empty:
         }
     )
 
-    st.dataframe(
-        display_segments,
-        width="stretch",
-        hide_index=True,
-        height=200,
-        column_config={
-            "Customer Segment": st.column_config.TextColumn("Customer Segment", width="large"),
-            "Customer Count": st.column_config.NumberColumn("Customer Count", format="%,d"),
-            "Share (%)": st.column_config.NumberColumn("Share (%)", format="%.1f%%"),
-        },
-    )
+    with panel(
+        title="Customer Segment Breakdown Matrix",
+        description="Tabular breakdown of customer distribution and percentage share across RFM clusters.",
+        badge="SEGMENT MATRIX",
+        footer_insight="Recent One-Time Buyers generate the core transactional base of the marketplace.",
+    ):
+        render_styled_table(
+            display_segments,
+            column_formats={
+                "Customer Count": "{:,.0f}",
+                "Share (%)": "{:.1f}%",
+            },
+            progress_columns=["Share (%)"],
+        )
 
 
 # ============================================================================

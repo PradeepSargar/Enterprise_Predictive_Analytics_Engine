@@ -1,27 +1,19 @@
 """
-Enterprise Dashboard Design System
------------------------------------
+Enterprise Dashboard Design System (Decision-Intelligence Control Room)
+========================================================================
+Enterprise Predictive Analytics Engine
 
-Centralized visual system for the Enterprise Predictive Analytics Engine.
+This module provides the centralized design system and global CSS injection for
+the entire Streamlit analytics engine.
 
-This module controls:
-
-- Global application styling
-- Typography
-- Sidebar navigation
-- Custom page-link navigation
-- KPI cards
-- Section headers
-- Charts
-- Tables
-- Buttons
-- Tabs
-- Alerts
-- Responsive behavior
-- Accessibility states
-
-The application uses a light analytical canvas with a dark,
-professional navigation sidebar.
+Design Direction:
+- Premium enterprise decision-intelligence dashboard (predictive analytics,
+  decision support, operational monitoring, forecasting, and risk awareness).
+- High visual hierarchy, clean analytical canvas, solid cards with subtle shadows.
+- Deep forest green executive sidebar navigation (#1B4332) with warm amber accents (#F4A261).
+- Strict semantic color discipline (Forest Green=primary, Emerald=growth/positive,
+  Amber=accent/alerts, Ocean=comparison, Crimson=risk/problem, Sage=neutral).
+- Zero breaking changes to existing components, page links, or Streamlit APIs.
 """
 
 from __future__ import annotations
@@ -30,82 +22,76 @@ import streamlit as st
 
 
 # ============================================================================
-# DESIGN TOKENS
+# 1. COLOR SYSTEM DESIGN TOKENS (FOREST SIGNAL PALETTE)
 # ============================================================================
 
 COLORS = {
-    # Application (Light Grey / Soft Canvas)
-    "background": "#F8FAFC",
-    "background_top": "#F0F9FF",
+    # Application (Pale Mint-White Canvas & Pure White / Soft Mint Surfaces)
+    "background": "#F1FAEE",
+    "background_top": "#F1FAEE",
     "surface": "#FFFFFF",
-    "surface_alt": "#F8FAFC",
-    "surface_soft": "#F1F5F9",
+    "surface_alt": "#E8F3E8",
+    "surface_soft": "#DEEFE2",
 
-    # Sidebar (Light Sky Blue Canvas)
-    "sidebar": "#F0F9FF",
-    "sidebar_surface": "#E0F2FE",
-    "sidebar_hover": "#BAE6FD",
-    "sidebar_active": "#0EA5E9",
+    # Sidebar (Deep Forest Green Executive Panel)
+    "sidebar": "#1B4332",
+    "sidebar_surface": "#143628",
+    "sidebar_hover": "#2D6A4F",
+    "sidebar_active": "#F4A261",
 
-    # Primary (Sky Blue)
-    "primary": "#0EA5E9",
-    "primary_dark": "#0284C7",
-    "primary_light": "#E0F2FE",
-    "primary_soft": "#F0F9FF",
+    # Primary (Deep Forest Green — Headers, Nav)
+    "primary": "#1B4332",
+    "primary_dark": "#143628",
+    "primary_light": "#D8F3DC",
+    "primary_soft": "#E9F5ED",
 
-    # Secondary (Light Purple / Lavender)
-    "secondary": "#A855F7",
-    "secondary_dark": "#7E22CE",
-    "secondary_light": "#F3E8FF",
-    "secondary_soft": "#FAF5FF",
+    # Accent (Warm Amber — Alerts, CTAs, Positive Highlights)
+    "accent": "#F4A261",
+    "accent_dark": "#E76F51",
+    "accent_light": "#FFE5D0",
+    "accent_soft": "#FFF4EB",
 
-    # Success
-    "success": "#10B981",
-    "success_dark": "#059669",
-    "success_light": "#D1FAE5",
-    "success_soft": "#ECFDF5",
+    # Secondary (Growth Emerald Forest)
+    "secondary": "#2D6A4F",
+    "secondary_dark": "#1B4332",
+    "secondary_light": "#D8F3DC",
+    "secondary_soft": "#E8F5E9",
 
-    # Warning
-    "warning": "#F59E0B",
-    "warning_dark": "#D97706",
-    "warning_light": "#FEF3C7",
-    "warning_soft": "#FFFBEB",
+    # Success (Emerald Growth)
+    "success": "#2D6A4F",
+    "success_dark": "#1B4332",
+    "success_light": "#D8F3DC",
+    "success_soft": "#E8F5E9",
 
-    # Danger
-    "danger": "#EF4444",
-    "danger_dark": "#DC2626",
-    "danger_light": "#FEE2E2",
-    "danger_soft": "#FEF2F2",
+    # Warning (Warm Amber Attention & Highlights)
+    "warning": "#F4A261",
+    "warning_dark": "#E76F51",
+    "warning_light": "#FFE5D0",
+    "warning_soft": "#FFF4EB",
 
-    # Information (Sky)
-    "info": "#38BDF8",
-    "info_dark": "#0284C7",
-    "info_light": "#E0F2FE",
-    "info_soft": "#F0F9FF",
+    # Danger (Coral Crimson Risk)
+    "danger": "#E63946",
+    "danger_dark": "#BA181B",
+    "danger_light": "#FFE3E3",
+    "danger_soft": "#FFF0F0",
 
-    # Text
-    "text": "#0F172A",
-    "text_secondary": "#334155",
-    "text_muted": "#64748B",
-    "text_light": "#94A3B8",
+    # Information (Steel Ocean Slate)
+    "info": "#457B9D",
+    "info_dark": "#1D3557",
+    "info_light": "#D9E8F5",
+    "info_soft": "#F0F6FA",
+
+    # Text (Deep Forest Hierarchy)
+    "text": "#112211",
+    "text_secondary": "#2D4A3E",
+    "text_muted": "#52796F",
+    "text_light": "#84A98C",
     "text_inverse": "#FFFFFF",
 
-    # Borders (Light Grey)
-    "border": "#E2E8F0",
-    "border_light": "#F1F5F9",
-    "border_strong": "#CBD5E1",
-
-    # Charts (Sky Blue, Light Purple, Mint, Amber, Rose)
-    "chart_blue": "#0EA5E9",
-    "chart_purple": "#A855F7",
-    "chart_green": "#10B981",
-    "chart_amber": "#F59E0B",
-    "chart_red": "#EF4444",
-    "chart_cyan": "#38BDF8",
-    "chart_pink": "#EC4899",
-    "chart_indigo": "#6366F1",
-    "chart_teal": "#14B8A6",
-    "chart_violet": "#C084FC",
+    # Borders (Harmonious Mint-Slate Borders)
+    "border": "#95BE9E",
+    "border_light": "#C3DFC9",
+    "border_strong": "#1B4332",
 
     # Miscellaneous
     "white": "#FFFFFF",
@@ -115,7 +101,21 @@ COLORS = {
 
 
 # ============================================================================
-# TYPOGRAPHY
+# 2. CHART PALETTE (FOREST SIGNAL ANALYTICAL PALETTE)
+# ============================================================================
+
+CHART_PALETTE = [
+    "#1B4332",  # Deep Forest Green (Primary Series)
+    "#F4A261",  # Warm Amber (Accent / CTAs / Highlights)
+    "#2D6A4F",  # Growth Emerald (Secondary Series)
+    "#457B9D",  # Steel Ocean (Comparison Cohort)
+    "#E63946",  # Coral Crimson (Risk / Friction)
+    "#52796F",  # Muted Sage (Baseline / Benchmark)
+]
+
+
+# ============================================================================
+# 3. TYPOGRAPHY
 # ============================================================================
 
 FONT_FAMILY = (
@@ -131,35 +131,23 @@ FONT_FAMILY = (
 
 
 # ============================================================================
-# SHADOWS
+# 4. SHADOWS & RADIUS
 # ============================================================================
 
 SHADOWS = {
     "none": "none",
-    "sm": "0 1px 2px rgba(15, 23, 42, 0.04)",
-    "card": "0 2px 8px rgba(15, 23, 42, 0.04)",
-    "card_hover": "0 8px 24px rgba(15, 23, 42, 0.08)",
-    "md": "0 8px 24px rgba(15, 23, 42, 0.08)",
-    "lg": "0 16px 40px rgba(15, 23, 42, 0.12)",
+    "sm": "0 1px 3px rgba(15, 23, 42, 0.04)",
+    "card": "0 2px 8px rgba(15, 23, 42, 0.05)",
+    "hover": "0 6px 16px rgba(15, 23, 42, 0.08)",
 }
-
-
-# ============================================================================
-# BORDER RADIUS
-# ============================================================================
 
 RADIUS = {
-    "sm": "6px",
-    "md": "10px",
-    "lg": "14px",
-    "xl": "18px",
+    "sm": "4px",
+    "md": "8px",
+    "lg": "10px",
+    "xl": "12px",
     "pill": "999px",
 }
-
-
-# ============================================================================
-# SPACING
-# ============================================================================
 
 SPACING = {
     "xs": "0.25rem",
@@ -168,36 +156,17 @@ SPACING = {
     "lg": "1rem",
     "xl": "1.5rem",
     "xxl": "2rem",
-    "section": "2.25rem",
+    "section": "2rem",
 }
 
 
 # ============================================================================
-# CHART PALETTE
-# ============================================================================
-
-CHART_PALETTE = [
-    COLORS["chart_blue"],
-    COLORS["chart_purple"],
-    COLORS["chart_green"],
-    COLORS["chart_amber"],
-    COLORS["chart_red"],
-    COLORS["chart_cyan"],
-    COLORS["chart_pink"],
-    COLORS["chart_indigo"],
-    COLORS["chart_teal"],
-    COLORS["chart_violet"],
-]
-
-
-# ============================================================================
-# GLOBAL STYLE INJECTION
+# 5. GLOBAL STYLE INJECTION
 # ============================================================================
 
 def inject_global_styles() -> None:
     """
-    Inject the centralized dashboard design system.
-
+    Inject the centralized enterprise decision-intelligence design system.
     Call this once from dashboards/app.py before rendering pages.
     """
 
@@ -206,1365 +175,804 @@ def inject_global_styles() -> None:
         <style>
 
         /* ==================================================================
-           ROOT APPLICATION
+           CSS VARIABLES (:ROOT DESIGN TOKENS)
            ================================================================== */
 
-        html,
-        body {{
-            background:
-                {COLORS["background"]} !important;
-        }}
+        :root {{
+            --color-primary: {COLORS["primary"]};
+            --color-primary-dark: {COLORS["primary_dark"]};
+            --color-primary-light: {COLORS["primary_light"]};
+            --color-primary-soft: {COLORS["primary_soft"]};
+            --color-accent: {COLORS["accent"]};
+            --color-accent-dark: {COLORS["accent_dark"]};
+            --color-accent-light: {COLORS["accent_light"]};
+            --color-accent-soft: {COLORS["accent_soft"]};
+            --color-secondary: {COLORS["secondary"]};
+            --color-secondary-dark: {COLORS["secondary_dark"]};
+            --color-secondary-light: {COLORS["secondary_light"]};
+            --color-secondary-soft: {COLORS["secondary_soft"]};
+            --color-success: {COLORS["success"]};
+            --color-success-dark: {COLORS["success_dark"]};
+            --color-success-light: {COLORS["success_light"]};
+            --color-success-soft: {COLORS["success_soft"]};
+            --color-warning: {COLORS["warning"]};
+            --color-warning-dark: {COLORS["warning_dark"]};
+            --color-warning-light: {COLORS["warning_light"]};
+            --color-warning-soft: {COLORS["warning_soft"]};
+            --color-danger: {COLORS["danger"]};
+            --color-danger-dark: {COLORS["danger_dark"]};
+            --color-danger-light: {COLORS["danger_light"]};
+            --color-danger-soft: {COLORS["danger_soft"]};
+            --color-info: {COLORS["info"]};
+            --color-info-dark: {COLORS["info_dark"]};
+            --color-info-light: {COLORS["info_light"]};
+            --color-info-soft: {COLORS["info_soft"]};
+            
+            --bg-canvas: {COLORS["background"]};
+            --bg-canvas-top: {COLORS["background_top"]};
+            --bg-surface: {COLORS["surface"]};
+            --bg-surface-alt: {COLORS["surface_alt"]};
+            --bg-surface-soft: {COLORS["surface_soft"]};
+            
+            --bg-sidebar: {COLORS["sidebar"]};
+            --bg-sidebar-surface: {COLORS["sidebar_surface"]};
+            --bg-sidebar-hover: {COLORS["sidebar_hover"]};
+            --bg-sidebar-active: {COLORS["sidebar_active"]};
+            --sidebar-width: 250px;
+            
+            --text-primary: {COLORS["text"]};
+            --text-secondary: {COLORS["text_secondary"]};
+            --text-muted: {COLORS["text_muted"]};
+            --text-light: {COLORS["text_light"]};
+            --text-inverse: {COLORS["text_inverse"]};
+            
+            --border-color: {COLORS["border"]};
+            --border-light: {COLORS["border_light"]};
+            --border-strong: {COLORS["border_strong"]};
+            
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --radius-xl: 18px;
+            --radius-pill: 9999px;
+            
+            --shadow-sm: 0 1px 2px 0 rgba(17, 34, 17, 0.05);
+            --shadow-card: 0 1px 3px 0 rgba(17, 34, 17, 0.06), 0 1px 2px -1px rgba(17, 34, 17, 0.04);
+            --shadow-hover: 0 10px 25px -5px rgba(17, 34, 17, 0.08), 0 8px 10px -6px rgba(17, 34, 17, 0.04);
+            --shadow-glow: 0 0 20px -3px rgba(244, 162, 97, 0.35);
+            --transition-smooth: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 
-        html,
-        body,
-        [class*="css"] {{
-            font-family:
-                {FONT_FAMILY};
-        }}
+            /* Glide Data Grid & Streamlit Table Palette Variables */
+            --gdg-accent-color: #1B4332;
+            --gdg-accent-fg: #FFFFFF;
+            --gdg-accent-light: rgba(27, 67, 50, 0.12);
+            --gdg-text-dark: #112211;
+            --gdg-text-medium: #2D4A3E;
+            --gdg-text-light: #52796F;
+            --gdg-text-bubble: #FFFFFF;
+            --gdg-bg-icon-header: #D8F3DC;
+            --gdg-fg-icon-header: #1B4332;
+            --gdg-text-header: #F1FAEE;
+            --gdg-text-header-selected: #FFFFFF;
+            --gdg-bg-cell: #FFFFFF;
+            --gdg-bg-cell-medium: #F8FCF9;
+            --gdg-bg-header: #1B4332;
+            --gdg-bg-header-has-focus: #143628;
+            --gdg-bg-header-hovered: #2D6A4F;
+            --gdg-bg-bubble: #1B4332;
+            --gdg-bg-bubble-selected: #143628;
+            --gdg-bg-search-result: #FFE5D0;
+            --gdg-border-color: #C3DFC9;
+            --gdg-drilldown-border: #95BE9E;
+            --gdg-link-color: #1B4332;
+            --gdg-cell-horizontal-padding: 12px;
+            --gdg-cell-vertical-padding: 8px;
+            --gdg-header-font-style: 700 12px {FONT_FAMILY};
+            --gdg-base-font-style: 500 12.5px {FONT_FAMILY};
 
-        .stApp {{
-            background:
-                linear-gradient(
-                    180deg,
-                    {COLORS["background_top"]} 0%,
-                    {COLORS["background"]} 48%,
-                    #F1F5F9 100%
-                ) !important;
-
-            color:
-                {COLORS["text"]};
+            --st-dataframe-header-background: #1B4332;
+            --st-dataframe-header-color: #F1FAEE;
+            --st-dataframe-border-color: #C3DFC9;
+            --st-dataframe-cell-color: #112211;
+            --st-dataframe-cell-background: #FFFFFF;
+            --st-dataframe-cell-alternate-background: #F8FCF9;
+            --st-dataframe-accent-color: #F4A261;
         }}
 
 
         /* ==================================================================
-           MAIN CONTENT CANVAS (OFFSET BY FIXED 320PX SIDEBAR)
+           GLOBAL SCROLLBAR & TYPOGRAPHY SMOOTHING
            ================================================================== */
 
+        html, body, .stApp {{
+            -webkit-font-smoothing: antialiased !important;
+            -moz-osx-font-smoothing: grayscale !important;
+            text-rendering: optimizeLegibility !important;
+            font-feature-settings: "cv02", "cv03", "cv04", "cv11", "tnum" !important;
+        }}
+
+        ::-webkit-scrollbar {{
+            width: 6px;
+            height: 6px;
+        }}
+
+        ::-webkit-scrollbar-track {{
+            background: transparent;
+        }}
+
+        ::-webkit-scrollbar-thumb {{
+            background: rgba(148, 163, 184, 0.35);
+            border-radius: 999px;
+        }}
+
+        ::-webkit-scrollbar-thumb:hover {{
+            background: var(--color-primary);
+        }}
+
+
+        /* ==================================================================
+           ROOT APPLICATION CANVAS
+           ================================================================== */
+
+        .stApp,
         [data-testid="stAppViewContainer"] {{
-            background:
-                {COLORS["background"]} !important;
-
-            overflow-x:
-                hidden !important;
-
-            max-width:
-                100% !important;
+            background-color: var(--bg-canvas) !important;
+            color: var(--text-primary);
+            font-family: {FONT_FAMILY};
         }}
 
-        [data-testid="stMain"],
-        .stMain {{
-            margin-left:
-                280px !important;
-
-            width:
-                calc(100% - 280px) !important;
-
-            max-width:
-                calc(100% - 280px) !important;
-
-            background:
-                linear-gradient(
-                    180deg,
-                    {COLORS["background_top"]} 0%,
-                    {COLORS["background"]} 48%,
-                    #F1F5F9 100%
-                ) !important;
-
-            overflow-x:
-                hidden !important;
-
-            box-sizing:
-                border-box !important;
+        .main .block-container {{
+            max-width: 1400px;
+            padding-top: 1.25rem !important;
+            padding-bottom: 3.5rem !important;
+            padding-left: 2rem !important;
+            padding-right: 2rem !important;
         }}
 
-        [data-testid="stMainBlockContainer"] {{
-            background:
-                transparent !important;
-
-            overflow-x:
-                hidden !important;
-
-            max-width:
-                100% !important;
-        }}
-
-        [data-testid="block-container"] {{
-            max-width:
-                1440px !important;
-
-            width:
-                100% !important;
-
-            margin:
-                0 auto !important;
-
-            background:
-                transparent !important;
-
-            padding-top:
-                1.5rem !important;
-
-            padding-right:
-                2rem !important;
-
-            padding-bottom:
-                3rem !important;
-
-            padding-left:
-                2rem !important;
-
-            overflow-x:
-                hidden !important;
-
-            box-sizing:
-                border-box !important;
+        [data-testid="stHeader"] {{
+            background-color: transparent !important;
         }}
 
 
         /* ==================================================================
-           MAIN CONTENT TYPOGRAPHY
+           TYPOGRAPHY & HIERARCHY
            ================================================================== */
 
-        .stApp p {{
-            color:
-                {COLORS["text_secondary"]};
+        h1, h2, h3, h4, h5, h6 {{
+            font-family: {FONT_FAMILY};
+            color: var(--color-primary) !important;
+            font-weight: 750;
+            letter-spacing: -0.025em;
         }}
 
-        .stApp h1,
-        .stApp h2,
-        .stApp h3,
-        .stApp h4,
-        .stApp h5,
-        .stApp h6 {{
-            color:
-                {COLORS["text"]};
+        h1 {{ font-size: 26px !important; line-height: 1.2 !important; }}
+        h2 {{ font-size: 18px !important; line-height: 1.3 !important; }}
+        h3 {{ font-size: 15px !important; font-weight: 650 !important; }}
+
+        p, span, div {{
+            font-family: {FONT_FAMILY};
+        }}
+
+        p {{
+            font-size: 13px;
+            line-height: 1.55;
+            color: var(--text-secondary);
         }}
 
 
         /* ==================================================================
-           SIDEBAR (FIXED 280PX LIGHT SKY BLUE PANEL & NAVIGATION CONTAINERS)
+           FOREST EXECUTIVE SIDEBAR NAVIGATION (PREMIUM ELEVATED PANEL)
            ================================================================== */
 
         section[data-testid="stSidebar"],
         [data-testid="stSidebar"] {{
-            position:
-                fixed !important;
-
-            top:
-                0 !important;
-
-            left:
-                0 !important;
-
-            bottom:
-                0 !important;
-
-            width:
-                280px !important;
-
-            min-width:
-                280px !important;
-
-            max-width:
-                280px !important;
-
-            height:
-                100vh !important;
-
-            min-height:
-                100vh !important;
-
-            max-height:
-                100vh !important;
-
-            background:
-                linear-gradient(
-                    180deg,
-                    #E0F2FE 0%,
-                    #BAE6FD 40%,
-                    #E0F2FE 80%,
-                    #F0F9FF 100%
-                ) !important;
-
-            background-color:
-                #E0F2FE !important;
-
-            backdrop-filter:
-                blur(20px) !important;
-
-            -webkit-backdrop-filter:
-                blur(20px) !important;
-
-            border-right:
-                1px solid rgba(14, 165, 233, 0.45) !important;
-
-            box-shadow:
-                4px 0 20px rgba(14, 165, 233, 0.08) !important;
-
-            overflow:
-                hidden !important;
-
-            overflow-x:
-                hidden !important;
-
-            overflow-y:
-                hidden !important;
-
-            scrollbar-width:
-                none !important;
-
-            -ms-overflow-style:
-                none !important;
-
-            z-index:
-                100 !important;
+            background: linear-gradient(180deg, #0F251C 0%, #153628 40%, #0C1E16 100%) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.09) !important;
+            box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.04), 4px 0 20px rgba(0, 0, 0, 0.16) !important;
+            min-width: 240px !important;
+            max-width: 260px !important;
+            width: 250px !important;
         }}
 
-        /* Suppress all scrollbars in sidebar */
-        section[data-testid="stSidebar"]::-webkit-scrollbar,
-        [data-testid="stSidebarContent"]::-webkit-scrollbar,
-        [data-testid="stSidebarUserContent"]::-webkit-scrollbar,
-        [data-testid="stSidebar"] *::-webkit-scrollbar {{
-            display:
-                none !important;
-
-            width:
-                0px !important;
-
-            height:
-                0px !important;
-
-            background:
-                transparent !important;
+        /* Subtle Dark Scrollbar for Sidebar */
+        section[data-testid="stSidebar"] ::-webkit-scrollbar {{
+            width: 4px !important;
+        }}
+        section[data-testid="stSidebar"] ::-webkit-scrollbar-track {{
+            background: transparent !important;
+        }}
+        section[data-testid="stSidebar"] ::-webkit-scrollbar-thumb {{
+            background: rgba(255, 255, 255, 0.12) !important;
+            border-radius: 4px !important;
+        }}
+        section[data-testid="stSidebar"] ::-webkit-scrollbar-thumb:hover {{
+            background: rgba(255, 255, 255, 0.22) !important;
         }}
 
-        [data-testid="stSidebarContent"],
-        [data-testid="stSidebarUserContent"] {{
-            height:
-                100vh !important;
-
-            min-height:
-                100vh !important;
-
-            max-height:
-                100vh !important;
-
-            width:
-                100% !important;
-
-            max-width:
-                100% !important;
-
-            box-sizing:
-                border-box !important;
-
-            padding:
-                1.35rem 1.05rem 1.35rem 1.05rem !important;
-
-            overflow-y:
-                auto !important;
-
-            overflow-x:
-                hidden !important;
-
-            background:
-                transparent !important;
-
-            scrollbar-width:
-                none !important;
-
-            -ms-overflow-style:
-                none !important;
+        section[data-testid="stSidebar"] > div:first-child {{
+            background: transparent !important;
+            padding-top: 0.85rem !important;
+            padding-left: 0.85rem !important;
+            padding-right: 0.85rem !important;
+            padding-bottom: 5.5rem !important;
         }}
 
-        [data-testid="stSidebar"] [data-testid="stVerticalBlock"]:first-child {{
-            height:
-                auto !important;
-
-            min-height:
-                100% !important;
-
-            width:
-                100% !important;
-
-            max-width:
-                100% !important;
-
-            display:
-                flex !important;
-
-            flex-direction:
-                column !important;
-
-            justify-content:
-                flex-start !important;
-
-            gap:
-                0.65rem !important;
-
-            box-sizing:
-                border-box !important;
+        section[data-testid="stSidebar"] * {{
+            color: #E8ECEA !important;
         }}
 
-        [data-testid="stSidebar"] [data-testid="element-container"],
-        [data-testid="stSidebar"] .stMarkdown {{
-            width:
-                100% !important;
-
-            max-width:
-                100% !important;
-
-            box-sizing:
-                border-box !important;
-
-            margin:
-                0 !important;
-
-            padding:
-                0 !important;
-
-            display:
-                block !important;
+        section[data-testid="stSidebar"] hr {{
+            border-color: rgba(255, 255, 255, 0.08) !important;
+            margin: 0.5rem 0 !important;
         }}
 
-        [data-testid="stSidebar"] [data-testid="element-container"]:last-child {{
-            margin-top:
-                auto !important;
-
-            padding-top:
-                1.5rem !important;
-        }}
-
-        [data-testid="stSidebar"] * {{
-            box-sizing:
-                border-box !important;
-
-            max-width:
-                100% !important;
-        }}
-
-
-        /* ==================================================================
-           CUSTOM SIDEBAR BRAND (FROSTED WHITE CARD ON SKY BLUE)
-           ================================================================== */
-
-        .custom-sidebar-brand {{
-            width:
-                100% !important;
-
-            max-width:
-                100% !important;
-
-            box-sizing:
-                border-box !important;
-
-            display:
-                flex;
-
-            align-items:
-                center;
-
-            gap:
-                0.85rem;
-
-            padding:
-                0.8rem 0.95rem;
-
-            margin-bottom:
-                0.45rem;
-
-            background:
-                rgba(255, 255, 255, 0.90);
-
-            backdrop-filter:
-                blur(16px);
-
-            -webkit-backdrop-filter:
-                blur(16px);
-
-            border:
-                1px solid rgba(255, 255, 255, 0.95);
-
-            border-radius:
-                12px;
-
-            box-shadow:
-                0 4px 16px rgba(14, 165, 233, 0.10),
-                0 1px 3px rgba(15, 23, 42, 0.04);
-        }}
-
-        .sidebar-brand-mark {{
-            width:
-                38px;
-
-            height:
-                38px;
-
-            flex-shrink:
-                0;
-
-            display:
-                flex;
-
-            align-items:
-                center;
-
-            justify-content:
-                center;
-
-            border-radius:
-                10px;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #0EA5E9 0%,
-                    #6366F1 100%
-                );
-
-            border:
-                1px solid rgba(255, 255, 255, 0.6);
-
-            color:
-                #FFFFFF;
-
-            font-size:
-                18px;
-
-            font-weight:
-                900;
-
-            box-shadow:
-                0 4px 12px rgba(14, 165, 233, 0.35);
-        }}
-
-        .sidebar-brand-text {{
-            min-width:
-                0;
-        }}
-
-        .sidebar-brand-title {{
-            color:
-                #0F172A !important;
-
-            font-size:
-                14.5px !important;
-
-            font-weight:
-                900 !important;
-
-            letter-spacing:
-                0.05em;
-
-            line-height:
-                1.2;
-        }}
-
-        .sidebar-brand-subtitle {{
-            margin-top:
-                2px;
-
-            color:
-                #0284C7 !important;
-
-            font-size:
-                9.5px !important;
-
-            font-weight:
-                750 !important;
-
-            letter-spacing:
-                0.03em;
-
-            line-height:
-                1.3;
-        }}
-
-
-        /* ==================================================================
-           SIDEBAR DIVIDER
-           ================================================================== */
-
-        .sidebar-divider {{
-            height:
-                1px;
-
-            margin:
-                0.45rem
-                0.35rem
-                0.85rem
-                0.35rem;
-
-            background:
-                linear-gradient(
-                    90deg,
-                    rgba(14, 165, 233, 0.35),
-                    rgba(99, 102, 241, 0.20),
-                    transparent
-                );
-        }}
-
-
-        /* ==================================================================
-           SIDEBAR SECTION LABELS (HIGH CONTRAST OCEAN BLUE)
-           ================================================================== */
-
-        .sidebar-section-label {{
-            margin-top:
-                1.35rem !important;
-
-            margin-bottom:
-                0.55rem !important;
-
-            margin-left:
-                0.5rem !important;
-
-            margin-right:
-                0.5rem !important;
-
-            padding:
-                0 !important;
-
-            color:
-                #0369A1 !important;
-
-            font-size:
-                10px !important;
-
-            font-weight:
-                850 !important;
-
-            letter-spacing:
-                0.09em !important;
-
-            line-height:
-                1.25 !important;
-
-            text-transform:
-                uppercase !important;
-
-            display:
-                flex !important;
-
-            align-items:
-                center !important;
-
-            gap:
-                6px !important;
-        }}
-
-        .sidebar-section-label::before {{
-            content:
-                "" !important;
-
-            display:
-                inline-block !important;
-
-            width:
-                5px !important;
-
-            height:
-                5px !important;
-
-            border-radius:
-                50% !important;
-
-            background:
-                #0284C7 !important;
-
-            box-shadow:
-                0 0 6px rgba(2, 132, 199, 0.5) !important;
-
-            flex-shrink:
-                0 !important;
-        }}
-
-        .sidebar-section-label:first-of-type {{
-            margin-top:
-                0.2rem !important;
-        }}
-
-
-        /* ==================================================================
-           CUSTOM PAGE-LINK NAVIGATION (FROSTED WHITE PAGE CONTAINERS)
-           ================================================================== */
-
+        /* Sidebar Navigation Items */
+        .sidebar-nav-item,
+        .sidebar-link-wrapper,
         [data-testid="stSidebar"] .stPageLink {{
-            width:
-                100% !important;
-
-            margin:
-                0 !important;
-
-            padding:
-                0 !important;
-
-            display:
-                block !important;
+            margin-bottom: 0.25rem !important;
+            display: block !important;
         }}
 
-        [data-testid="stSidebar"] .stPageLink > div {{
-            width:
-                100% !important;
-        }}
-
-        /* Page Container for Inside Navigation Pages */
+        .sidebar-nav-item a,
+        .sidebar-link-wrapper a,
         [data-testid="stSidebar"] .stPageLink a {{
-            display:
-                flex !important;
-
-            align-items:
-                center !important;
-
-            width:
-                100% !important;
-
-            min-height:
-                40px !important;
-
-            height:
-                40px !important;
-
-            margin:
-                5px 0 !important;
-
-            padding:
-                0.5rem 0.95rem !important;
-
-            border-radius:
-                10px !important;
-
-            background:
-                rgba(255, 255, 255, 0.84) !important;
-
-            backdrop-filter:
-                blur(12px) !important;
-
-            -webkit-backdrop-filter:
-                blur(12px) !important;
-
-            border:
-                1px solid rgba(255, 255, 255, 0.95) !important;
-
-            color:
-                #0F172A !important;
-
-            font-size:
-                12.5px !important;
-
-            font-weight:
-                750 !important;
-
-            letter-spacing:
-                -0.01em !important;
-
-            line-height:
-                1.3 !important;
-
-            text-decoration:
-                none !important;
-
-            box-shadow:
-                0 1px 4px rgba(14, 165, 233, 0.06) !important;
-
-            transition:
-                all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
-
-            position:
-                relative !important;
+            background: transparent !important;
+            color: #D2DFD8 !important;
+            border: 1px solid transparent !important;
+            border-left: 3px solid transparent !important;
+            border-radius: 8px !important;
+            padding: 0.55rem 0.8rem !important;
+            font-size: 13.5px !important;
+            font-weight: 500 !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.65rem !important;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            text-decoration: none !important;
+            box-shadow: none !important;
         }}
 
+        .sidebar-nav-item a span,
+        .sidebar-nav-item a p,
+        .sidebar-link-wrapper a span,
+        .sidebar-link-wrapper a p,
         [data-testid="stSidebar"] .stPageLink a span,
         [data-testid="stSidebar"] .stPageLink a p {{
-            color:
-                #0F172A !important;
-
-            font-weight:
-                750 !important;
-
-            font-size:
-                12.5px !important;
+            color: #D2DFD8 !important;
+            font-size: 13.5px !important;
+            font-weight: 500 !important;
+            letter-spacing: 0.01em !important;
+            transition: color 0.2s ease !important;
         }}
 
-        /* Navigation Container Hover State */
-        [data-testid="stSidebar"] .stPageLink a:hover {{
-            background:
-                #FFFFFF !important;
-
-            color:
-                #0284C7 !important;
-
-            padding-left:
-                1.1rem !important;
-
-            border-color:
-                rgba(14, 165, 233, 0.60) !important;
-
-            box-shadow:
-                0 4px 14px rgba(14, 165, 233, 0.18) !important;
-
-            transform:
-                translateX(2px) !important;
+        /* Tactile Floating Hover */
+        .sidebar-nav-item:not(.active) a:hover,
+        .sidebar-link-wrapper a:hover:not([aria-current="page"]):not([data-active="true"]),
+        [data-testid="stSidebar"] .stPageLink a:hover:not([aria-current="page"]):not([data-active="true"]) {{
+            background: rgba(255, 255, 255, 0.065) !important;
+            color: #FFFFFF !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-left: 3px solid rgba(244, 162, 97, 0.45) !important;
+            transform: translateX(2px) !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
         }}
 
-        [data-testid="stSidebar"] .stPageLink a:hover span,
-        [data-testid="stSidebar"] .stPageLink a:hover p {{
-            color:
-                #0284C7 !important;
-
-            font-weight:
-                800 !important;
+        .sidebar-nav-item:not(.active) a:hover span,
+        .sidebar-nav-item:not(.active) a:hover p,
+        .sidebar-link-wrapper a:hover:not([aria-current="page"]):not([data-active="true"]) span,
+        .sidebar-link-wrapper a:hover:not([aria-current="page"]):not([data-active="true"]) p,
+        [data-testid="stSidebar"] .stPageLink a:hover:not([aria-current="page"]):not([data-active="true"]) span,
+        [data-testid="stSidebar"] .stPageLink a:hover:not([aria-current="page"]):not([data-active="true"]) p {{
+            color: #FFFFFF !important;
         }}
 
-        /* Active Navigation Container (Ocean Blue Glowing Pill) */
-        [data-testid="stSidebar"] .stPageLink a[aria-current="page"] {{
-            background:
-                linear-gradient(
-                    135deg,
-                    #0284C7 0%,
-                    #0369A1 100%
-                ) !important;
-
-            color:
-                #FFFFFF !important;
-
-            font-weight:
-                850 !important;
-
-            border:
-                1px solid rgba(255, 255, 255, 0.45) !important;
-
-            box-shadow:
-                0 6px 18px rgba(2, 132, 199, 0.38) !important;
-
-            transform:
-                none !important;
+        /* Premium Active Navigation State (High Visual Distinction) */
+        .sidebar-nav-item[data-nav-active="true"],
+        .sidebar-nav-item.active,
+        .sidebar-active-link-wrapper {{
+            margin-bottom: 0.25rem !important;
+            display: block !important;
         }}
 
+        .sidebar-nav-item[data-nav-active="true"] a,
+        .sidebar-nav-item.active a,
+        .sidebar-active-link-wrapper a,
+        [data-testid="stSidebar"] a:has(strong),
+        [data-testid="stSidebar"] [data-testid="stPageLink-NavLink"] a:has(strong),
+        [data-testid="stSidebar"] a[aria-current="page"],
+        [data-testid="stSidebar"] [data-testid="stPageLink-NavLink"] a[aria-current="page"],
+        [data-testid="stSidebar"] .stPageLink a[aria-current="page"],
+        [data-testid="stSidebar"] .stPageLink a.active {{
+            background: linear-gradient(90deg, rgba(244, 162, 97, 0.26) 0%, rgba(244, 162, 97, 0.06) 100%) !important;
+            color: #FFFFFF !important;
+            border: 1px solid rgba(244, 162, 97, 0.42) !important;
+            border-left: 4.5px solid #F4A261 !important;
+            border-radius: 8px !important;
+            padding: 0.55rem 0.8rem !important;
+            font-weight: 700 !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
+            transform: translateX(3px) !important;
+        }}
+
+        .sidebar-nav-item[data-nav-active="true"] a span,
+        .sidebar-nav-item[data-nav-active="true"] a p,
+        .sidebar-nav-item[data-nav-active="true"] a strong,
+        .sidebar-nav-item.active a span,
+        .sidebar-nav-item.active a p,
+        .sidebar-nav-item.active a strong,
+        .sidebar-active-link-wrapper a span,
+        .sidebar-active-link-wrapper a p,
+        .sidebar-active-link-wrapper a strong,
+        [data-testid="stSidebar"] a:has(strong) span,
+        [data-testid="stSidebar"] a:has(strong) p,
+        [data-testid="stSidebar"] a:has(strong) strong,
+        [data-testid="stSidebar"] a[aria-current="page"] span,
+        [data-testid="stSidebar"] a[aria-current="page"] p,
+        [data-testid="stSidebar"] a[aria-current="page"] strong,
         [data-testid="stSidebar"] .stPageLink a[aria-current="page"] span,
-        [data-testid="stSidebar"] .stPageLink a[aria-current="page"] p {{
-            color:
-                #FFFFFF !important;
-
-            font-weight:
-                850 !important;
+        [data-testid="stSidebar"] .stPageLink a[aria-current="page"] p,
+        [data-testid="stSidebar"] .stPageLink a[aria-current="page"] strong {{
+            color: #FFFFFF !important;
+            font-weight: 700 !important;
+            font-size: 13.5px !important;
+            letter-spacing: 0.015em !important;
         }}
 
-        [data-testid="stSidebar"] .stPageLink a > span:first-child {{
-            width:
-                22px !important;
-
-            min-width:
-                22px !important;
-
-            display:
-                inline-flex !important;
-
-            align-items:
-                center !important;
-
-            justify-content:
-                center !important;
-
-            margin-right:
-                0.55rem !important;
-
-            font-size:
-                15px !important;
-
-            color:
-                #0284C7 !important;
+        .sidebar-nav-item[data-nav-active="true"] a [data-testid="stIconMaterial"],
+        .sidebar-nav-item.active a [data-testid="stIconMaterial"],
+        .sidebar-active-link-wrapper a [data-testid="stIconMaterial"],
+        [data-testid="stSidebar"] a:has(strong) [data-testid="stIconMaterial"],
+        [data-testid="stSidebar"] a[aria-current="page"] [data-testid="stIconMaterial"],
+        [data-testid="stSidebar"] .stPageLink a[aria-current="page"] [data-testid="stIconMaterial"] {{
+            color: #F4A261 !important;
+            font-size: 19px !important;
+            filter: drop-shadow(0 0 8px rgba(244, 162, 97, 0.75)) !important;
+            transform: scale(1.08) !important;
         }}
 
-        [data-testid="stSidebar"] .stPageLink a[aria-current="page"] > span:first-child {{
-            color:
-                #FFFFFF !important;
+        /* Accessible Keyboard Focus States */
+        .sidebar-nav-item a:focus-visible,
+        .sidebar-link-wrapper a:focus-visible,
+        [data-testid="stSidebar"] .stPageLink a:focus-visible {{
+            outline: 2px solid #F4A261 !important;
+            outline-offset: 2px !important;
         }}
 
-
-        /* ==================================================================
-           SIDEBAR FOOTER (FROSTED WHITE CARD PINNED AT BOTTOM)
-           ================================================================== */
-
-        .sidebar-footer {{
-            width:
-                100% !important;
-
-            max-width:
-                100% !important;
-
-            box-sizing:
-                border-box !important;
-
-            margin-top:
-                0 !important;
-
-            margin-bottom:
-                0 !important;
-
-            padding:
-                0.85rem 1rem !important;
-
-            border:
-                1px solid rgba(255, 255, 255, 0.95) !important;
-
-            border-radius:
-                12px !important;
-
-            background:
-                rgba(255, 255, 255, 0.92) !important;
-
-            backdrop-filter:
-                blur(16px) !important;
-
-            -webkit-backdrop-filter:
-                blur(16px) !important;
-
-            box-shadow:
-                0 4px 16px rgba(14, 165, 233, 0.10) !important;
+        /* Sidebar Collapsed State (Icon-Only Mode Hook) */
+        .sidebar-collapsed .sidebar-brand-text,
+        .sidebar-collapsed .sidebar-section-label,
+        .sidebar-collapsed .sidebar-footer-status > span:not(.sidebar-status-dot),
+        .sidebar-collapsed .sidebar-nav-item a span,
+        .sidebar-collapsed .sidebar-nav-item a p {{
+            display: none !important;
         }}
 
-        .sidebar-footer-status {{
-            display:
-                flex;
-
-            align-items:
-                center;
-
-            gap:
-                0.45rem;
-
-            color:
-                #0F172A;
-
-            font-size:
-                9.5px;
-
-            font-weight:
-                900;
-
-            letter-spacing:
-                0.08em;
+        .sidebar-collapsed .sidebar-nav-item a {{
+            justify-content: center !important;
+            padding: 0.5rem 0 !important;
         }}
 
-        .sidebar-status-dot {{
-            width:
-                7px;
-
-            height:
-                7px;
-
-            flex-shrink:
-                0;
-
-            border-radius:
-                50%;
-
-            background:
-                #10B981;
-
-            box-shadow:
-                0 0 0 3px rgba(16, 185, 129, 0.25),
-                0 0 8px rgba(16, 185, 129, 0.5);
-        }}
-
-        .sidebar-footer-text {{
-            margin-top:
-                0.25rem;
-
-            color:
-                #0284C7;
-
-            font-size:
-                8.5px;
-
-            font-weight:
-                700;
-
-            line-height:
-                1.35;
-
-            letter-spacing:
-                0.03em;
+        .sidebar-collapsed .custom-sidebar-brand {{
+            justify-content: center !important;
         }}
 
 
         /* ==================================================================
-           LEGACY STREAMLIT NAVIGATION
+           SOLID CARDS & CONTENT PANELS (PREMIUM ELEVATION)
            ================================================================== */
 
-        /*
-         * Kept for compatibility if another part of the application uses
-         * Streamlit's default navigation in the future.
-         */
-
-        [data-testid="stSidebarNav"] {{
-            padding-top:
-                0.25rem;
+        .dashboard-panel,
+        .chart-card,
+        .dashboard-content-container,
+        [data-testid="stVerticalBlockBorderWrapper"] {{
+            background: #FFFFFF !important;
+            border: 2.5px solid var(--border-color) !important;
+            border-radius: var(--radius-md) !important;
+            padding: 1.25rem 1.35rem !important;
+            margin-bottom: 1.25rem !important;
+            box-shadow: 0 2px 8px 0 rgba(17, 34, 17, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+            transition: var(--transition-smooth) !important;
+            overflow: hidden !important;
+            position: relative !important;
         }}
 
-        [data-testid="stSidebarNav"] ul {{
-            gap:
-                0.2rem;
+        .dashboard-panel:hover,
+        .chart-card:hover,
+        [data-testid="stVerticalBlockBorderWrapper"]:hover {{
+            box-shadow: var(--shadow-hover) !important;
+            border-color: var(--border-strong) !important;
+            transform: translateY(-2px);
         }}
 
-        [data-testid="stSidebarNav"] li {{
-            margin-bottom:
-                0.15rem;
+        .dashboard-panel-header,
+        .chart-card-header {{
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            margin-bottom: 0.95rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--border-light);
         }}
 
-        [data-testid="stSidebarNav"] a {{
-            border-radius:
-                9px;
-
-            color:
-                #94A3B8 !important;
-
-            font-size:
-                11px;
-
-            font-weight:
-                600;
-
-            transition:
-                background 0.15s ease,
-                color 0.15s ease,
-                transform 0.15s ease;
+        .dashboard-panel-title,
+        .chart-card-title {{
+            font-size: 14.5px !important;
+            font-weight: 750 !important;
+            color: var(--color-primary) !important;
+            letter-spacing: -0.015em;
+            margin: 0;
         }}
 
-        [data-testid="stSidebarNav"] a:hover {{
-            background:
-                rgba(255, 255, 255, 0.05) !important;
-
-            color:
-                #F8FAFC !important;
+        .dashboard-panel-badge {{
+            display: inline-flex;
+            align-items: center;
+            padding: 0.22rem 0.55rem;
+            border-radius: var(--radius-pill);
+            font-size: 9.5px;
+            font-weight: 750;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            background: var(--color-primary-soft);
+            color: var(--color-primary);
+            border: 2px solid var(--border-color);
         }}
 
-        [data-testid="stSidebarNav"] a[aria-current="page"] {{
-            background:
-                linear-gradient(
-                    90deg,
-                    rgba(37, 99, 235, 0.20),
-                    rgba(124, 58, 237, 0.12)
-                ) !important;
-
-            color:
-                #FFFFFF !important;
-
-            box-shadow:
-                inset 3px 0 0 {COLORS["primary"]};
+        .dashboard-panel-description {{
+            font-size: 12px;
+            color: var(--text-muted);
+            margin: 0;
+            line-height: 1.45;
         }}
 
-        [data-testid="stSidebarNav"] a[aria-current="page"] span {{
-            color:
-                #FFFFFF !important;
+        .dashboard-panel-footer {{
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.95rem;
+            border-top: 2px solid var(--border-light);
+            background: var(--bg-surface-alt);
+            margin-left: -1.35rem;
+            margin-right: -1.35rem;
+            margin-bottom: -1.25rem;
+            padding: 0.75rem 1.35rem;
+            font-size: 11.5px;
+            color: var(--text-secondary);
+        }}
+
+        .dashboard-panel-footer-icon {{
+            font-size: 14px;
+        }}
+
+        .dashboard-panel-footer-text {{
+            font-size: 11.5px;
+            font-weight: 550;
+            color: var(--text-secondary);
         }}
 
 
         /* ==================================================================
-           PAGE HEADER
+           KPI CARDS (EXECUTIVE METRIC SCORECARDS)
            ================================================================== */
 
-        .page-header {{
-            position:
-                relative;
-
-            display:
-                flex;
-
-            align-items:
-                flex-start;
-
-            justify-content:
-                space-between;
-
-            gap:
-                1.5rem;
-
-            margin-bottom:
-                2rem;
-
-            padding:
-                1.35rem 1.5rem;
-
-            background:
-                rgba(255, 255, 255, 0.88);
-
-            border:
-                1px solid {COLORS["border"]};
-
-            border-radius:
-                {RADIUS["lg"]};
-
-            box-shadow:
-                {SHADOWS["card"]};
-
-            overflow:
-                hidden;
+        .kpi-card,
+        .metric-card {{
+            background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%) !important;
+            border: 2.5px solid var(--border-color) !important;
+            border-radius: var(--radius-md) !important;
+            padding: 1.15rem 1.25rem !important;
+            box-shadow: 0 2px 8px 0 rgba(17, 34, 17, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+            transition: var(--transition-smooth) !important;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 110px;
         }}
 
-        .page-header::before {{
-            content:
-                "";
-
-            position:
-                absolute;
-
-            top:
-                0;
-
-            left:
-                0;
-
-            width:
-                100%;
-
-            height:
-                3px;
-
-            background:
-                linear-gradient(
-                    90deg,
-                    {COLORS["primary"]},
-                    {COLORS["secondary"]}
-                );
+        .kpi-card:hover,
+        .metric-card:hover {{
+            box-shadow: var(--shadow-hover) !important;
+            border-color: var(--border-strong) !important;
+            transform: translateY(-2px);
         }}
 
-        .page-header-content {{
-            min-width:
-                0;
-
-            flex:
-                1;
+        /* Subtle Accent Top Border Indicator */
+        .kpi-card::before {{
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
         }}
 
-        .page-header-title {{
-            color:
-                {COLORS["text"]};
+        .kpi-card.kpi-blue::before {{ background: linear-gradient(90deg, #1B4332, #2D6A4F); }}
+        .kpi-card.kpi-green::before {{ background: linear-gradient(90deg, #2D6A4F, #52B788); }}
+        .kpi-card.kpi-purple::before {{ background: linear-gradient(90deg, #457B9D, #A8DADC); }}
+        .kpi-card.kpi-amber::before {{ background: linear-gradient(90deg, #F4A261, #E76F51); }}
+        .kpi-card.kpi-red::before {{ background: linear-gradient(90deg, #E63946, #F4A261); }}
 
-            font-size:
-                25px;
-
-            font-weight:
-                800;
-
-            line-height:
-                1.2;
-
-            letter-spacing:
-                -0.025em;
+        .kpi-card-top {{
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 0.5rem;
+            width: 100%;
         }}
 
-        .page-header-description {{
-            max-width:
-                820px;
-
-            margin-top:
-                0.45rem;
-
-            color:
-                {COLORS["text_muted"]};
-
-            font-size:
-                12px;
-
-            line-height:
-                1.65;
+        .kpi-card-content {{
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            width: 100%;
         }}
 
-        .page-header-status {{
-            flex-shrink:
-                0;
-
-            padding-top:
-                0.1rem;
+        .kpi-label {{
+            font-size: 10.5px !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.08em !important;
+            text-transform: uppercase !important;
+            color: var(--text-muted) !important;
+            margin: 0 !important;
         }}
 
-        .status-badge {{
-            display:
-                inline-flex;
-
-            align-items:
-                center;
-
-            gap:
-                0.35rem;
-
-            padding:
-                0.38rem 0.7rem;
-
-            border-radius:
-                {RADIUS["pill"]};
-
-            font-size:
-                9px;
-
-            font-weight:
-                800;
-
-            letter-spacing:
-                0.05em;
-
-            white-space:
-                nowrap;
+        .kpi-value {{
+            font-size: 28px !important;
+            font-weight: 800 !important;
+            color: var(--text-primary) !important;
+            letter-spacing: -0.035em !important;
+            line-height: 1.15 !important;
+            margin: 0.2rem 0 !important;
+            font-variant-numeric: tabular-nums !important;
         }}
 
-        .status-live {{
-            color:
-                {COLORS["success_dark"]};
-
-            background:
-                {COLORS["success_soft"]};
-
-            border:
-                1px solid {COLORS["success_light"]};
+        .kpi-footer {{
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            margin-top: 0.3rem;
         }}
 
-        .status-warning {{
-            color:
-                {COLORS["warning_dark"]};
-
-            background:
-                {COLORS["warning_soft"]};
-
-            border:
-                1px solid {COLORS["warning_light"]};
+        .kpi-positive {{
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+            font-size: 11.5px;
+            font-weight: 650;
+            color: var(--color-success);
         }}
 
-        .status-danger {{
-            color:
-                {COLORS["danger_dark"]};
-
-            background:
-                {COLORS["danger_soft"]};
-
-            border:
-                1px solid {COLORS["danger_light"]};
+        .kpi-negative {{
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+            font-size: 11.5px;
+            font-weight: 650;
+            color: var(--color-danger);
         }}
 
-        .status-info {{
-            color:
-                {COLORS["info_dark"]};
+        .kpi-neutral {{
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+            font-size: 11.5px;
+            font-weight: 550;
+            color: var(--text-muted);
+        }}
 
-            background:
-                {COLORS["info_soft"]};
-
-            border:
-                1px solid {COLORS["info_light"]};
+        .kpi-icon {{
+            font-size: 14px;
+            color: var(--text-muted);
+            opacity: 0.7;
         }}
 
 
         /* ==================================================================
-           SECTION HEADERS
+           DECISION INTELLIGENCE COMPONENT (.decision-card)
            ================================================================== */
 
-        .section-header {{
-            position:
-                relative;
-
-            margin-top:
-                1.75rem;
-
-            margin-bottom:
-                1rem;
-
-            padding-left:
-                0.9rem;
+        .decision-card {{
+            background: var(--bg-surface);
+            border: 2.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.25rem 1.35rem;
+            box-shadow: var(--shadow-card);
+            margin-bottom: 1.15rem;
+            position: relative;
         }}
 
-        .section-header::before {{
-            content:
-                "";
-
-            position:
-                absolute;
-
-            top:
-                3px;
-
-            bottom:
-                3px;
-
-            left:
-                0;
-
-            width:
-                3px;
-
-            border-radius:
-                3px;
-
-            background:
-                linear-gradient(
-                    180deg,
-                    {COLORS["primary"]},
-                    {COLORS["secondary"]}
-                );
+        .decision-card-header {{
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
         }}
 
-        .section-title {{
-            color:
-                {COLORS["text"]};
-
-            font-size:
-                16px;
-
-            font-weight:
-                800;
-
-            line-height:
-                1.35;
-
-            letter-spacing:
-                -0.01em;
+        .decision-verdict {{
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }}
 
-        .section-description {{
-            margin-top:
-                0.25rem;
+        .decision-verdict.verdict-buy,
+        .decision-verdict.verdict-book,
+        .decision-verdict.verdict-low {{
+            color: var(--color-success);
+        }}
 
-            color:
-                {COLORS["text_muted"]};
+        .decision-verdict.verdict-wait,
+        .decision-verdict.verdict-monitor,
+        .decision-verdict.verdict-moderate {{
+            color: var(--color-warning);
+        }}
 
-            font-size:
-                10px;
+        .decision-verdict.verdict-avoid,
+        .decision-verdict.verdict-high,
+        .decision-verdict.verdict-critical {{
+            color: var(--color-danger);
+        }}
 
-            line-height:
-                1.55;
+        .decision-metrics-grid {{
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.65rem 1rem;
+            margin: 0.85rem 0;
+            padding: 0.75rem 0;
+            border-top: 2px solid var(--border-light);
+            border-bottom: 2px solid var(--border-light);
+        }}
+
+        .decision-metric-row {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }}
+
+        .decision-metric-label {{
+            color: var(--text-muted);
+        }}
+
+        .decision-metric-val {{
+            font-weight: 650;
+            color: var(--text-primary);
+            font-variant-numeric: tabular-nums;
+        }}
+
+        .decision-confidence-badge {{
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 0.25rem 0.6rem;
+            border-radius: var(--radius-pill);
+            background: var(--bg-surface-soft);
+            color: var(--text-secondary);
+            border: 2px solid var(--border-color);
         }}
 
 
         /* ==================================================================
-           SUBSECTION HEADERS
+           RISK VISUALIZATION HIERARCHY
            ================================================================== */
 
-        .subsection-header {{
-            margin-top:
-                1.25rem;
-
-            margin-bottom:
-                0.75rem;
+        .risk-badge-low {{
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.2rem 0.55rem;
+            border-radius: var(--radius-pill);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            background: var(--color-success-soft);
+            color: var(--color-success);
+            border: 2px solid var(--color-success-light);
         }}
 
-        .subsection-title {{
-            color:
-                {COLORS["text_secondary"]};
-
-            font-size:
-                12px;
-
-            font-weight:
-                750;
-
-            line-height:
-                1.4;
+        .risk-badge-moderate {{
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.2rem 0.55rem;
+            border-radius: var(--radius-pill);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            background: var(--color-warning-soft);
+            color: var(--color-warning);
+            border: 2px solid var(--color-warning-light);
         }}
 
-        .subsection-description {{
-            margin-top:
-                0.2rem;
+        .risk-badge-high {{
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.2rem 0.55rem;
+            border-radius: var(--radius-pill);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            background: var(--color-danger-soft);
+            color: var(--color-danger);
+            border: 2px solid var(--color-danger-light);
+        }}
 
-            color:
-                {COLORS["text_muted"]};
-
-            font-size:
-                9px;
-
-            line-height:
-                1.5;
+        .risk-badge-critical {{
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.2rem 0.55rem;
+            border-radius: var(--radius-pill);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            background: #450A0A;
+            color: #FEF2F2;
+            border: 2px solid #991B1B;
         }}
 
 
         /* ==================================================================
-           METRIC BADGES
+           INSIGHT & ALERT CARDS
            ================================================================== */
 
-        .metric-badge {{
-            display:
-                inline-flex;
-
-            align-items:
-                center;
-
-            padding:
-                0.22rem 0.6rem;
-
-            border-radius:
-                {RADIUS["pill"]};
-
-            font-size:
-                9px;
-
-            font-weight:
-                800;
-
-            letter-spacing:
-                0.05em;
-
-            line-height:
-                1.2;
-
-            text-transform:
-                uppercase;
-
-            white-space:
-                nowrap;
+        .insight-card {{
+            background: var(--bg-surface);
+            border: 2.5px solid var(--border-color);
+            border-left: 6px solid var(--color-primary);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.25rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-sm);
         }}
 
-        .metric-badge-positive {{
-            background:
-                #D1FAE5;
-
-            color:
-                #065F46;
-
-            border:
-                1px solid #A7F3D0;
+        .insight-label {{
+            font-size: 9.5px;
+            font-weight: 750;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+            color: var(--color-primary);
         }}
 
-        .metric-badge-negative {{
-            background:
-                #FEE2E2;
-
-            color:
-                #991B1B;
-
-            border:
-                1px solid #FECACA;
+        .insight-title {{
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
         }}
 
-        .metric-badge-neutral {{
-            background:
-                #F1F5F9;
-
-            color:
-                #475569;
-
-            border:
-                1px solid #E2E8F0;
+        .insight-description {{
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.45;
+            margin: 0;
         }}
 
-        .metric-badge-warning {{
-            background:
-                #FEF3C7;
+        .insight-card .insight-danger {{ color: var(--color-danger); }}
+        .insight-card:has(.insight-danger) {{ border-left-color: var(--color-danger); background: var(--color-danger-soft); }}
 
-            color:
-                #92400E;
+        .insight-card .insight-warning {{ color: var(--color-warning); }}
+        .insight-card:has(.insight-warning) {{ border-left-color: var(--color-warning); background: var(--color-warning-soft); }}
 
-            border:
-                1px solid #FDE68A;
-        }}
+        .insight-card .insight-success {{ color: var(--color-success); }}
+        .insight-card:has(.insight-success) {{ border-left-color: var(--color-success); background: var(--color-success-soft); }}
 
-        .metric-badge-info {{
-            background:
-                #E0F2FE;
-
-            color:
-                #075985;
-
-            border:
-                1px solid #BAE6FD;
-        }}
+        .insight-card .insight-info {{ color: var(--color-info); }}
+        .insight-card:has(.insight-info) {{ border-left-color: var(--color-info); background: var(--color-info-soft); }}
 
 
         /* ==================================================================
@@ -1572,1614 +980,1328 @@ def inject_global_styles() -> None:
            ================================================================== */
 
         .status-indicator {{
-            display:
-                inline-flex;
-
-            align-items:
-                center;
-
-            gap:
-                0.45rem;
-
-            padding:
-                0.3rem 0.7rem;
-
-            border-radius:
-                {RADIUS["pill"]};
-
-            font-size:
-                9px;
-
-            font-weight:
-                800;
-
-            letter-spacing:
-                0.06em;
-
-            text-transform:
-                uppercase;
-
-            background:
-                rgba(255, 255, 255, 0.85);
-
-            border:
-                1px solid rgba(226, 232, 240, 0.9);
-
-            box-shadow:
-                0 2px 6px rgba(15, 23, 42, 0.04);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.25rem 0.65rem;
+            border-radius: var(--radius-pill);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            background: var(--bg-surface);
+            border: 1.5px solid var(--border-color);
         }}
 
-        .status-indicator-dot {{
-            width:
-                7px;
-
-            height:
-                7px;
-
-            border-radius:
-                50%;
-
-            display:
-                inline-block;
-
-            flex-shrink:
-                0;
+        .status-dot {{
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
         }}
 
-        .status-live .status-indicator-dot {{
-            background:
-                #10B981;
-
-            box-shadow:
-                0 0 0 3px rgba(16, 185, 129, 0.25);
-        }}
-
-        .status-healthy .status-indicator-dot {{
-            background:
-                #10B981;
-        }}
-
-        .status-warning .status-indicator-dot {{
-            background:
-                #F59E0B;
-
-            box-shadow:
-                0 0 0 3px rgba(245, 158, 11, 0.25);
-        }}
-
-        .status-error .status-indicator-dot {{
-            background:
-                #EF4444;
-
-            box-shadow:
-                0 0 0 3px rgba(239, 68, 68, 0.25);
-        }}
-
-        .status-processing .status-indicator-dot {{
-            background:
-                #0EA5E9;
-
-            box-shadow:
-                0 0 0 3px rgba(14, 165, 233, 0.25);
-        }}
-
-        .status-inactive .status-indicator-dot {{
-            background:
-                #94A3B8;
-        }}
+        .status-live .status-dot {{ background: var(--color-primary); }}
+        .status-healthy .status-dot {{ background: var(--color-success); }}
+        .status-warning .status-dot {{ background: var(--color-warning); }}
+        .status-error .status-dot {{ background: var(--color-danger); }}
+        .status-processing .status-dot {{ background: #7C3AED; }}
+        .status-inactive .status-dot {{ background: var(--text-muted); }}
 
 
         /* ==================================================================
-           EMPTY STATES (GLASSMORPHISM)
+           STREAMLIT FORM CONTROLS, SELECTS, SLIDERS & BUTTONS
            ================================================================== */
 
-        .empty-state {{
-            padding:
-                2.5rem 1.5rem;
-
-            text-align:
-                center;
-
-            background:
-                rgba(255, 255, 255, 0.85);
-
-            backdrop-filter:
-                blur(14px) saturate(180%);
-
-            border:
-                1px solid rgba(226, 232, 240, 0.85);
-
-            border-radius:
-                {RADIUS["lg"]};
-
-            box-shadow:
-                0 6px 20px -2px rgba(14, 165, 233, 0.05);
-
-            margin:
-                1rem 0;
-        }}
-
-        .empty-state-icon {{
-            font-size:
-                28px;
-
-            margin-bottom:
-                0.75rem;
-
-            color:
-                #0EA5E9;
-        }}
-
-        .empty-state-title {{
-            color:
-                #0F172A;
-
-            font-size:
-                14px;
-
-            font-weight:
-                800;
-
-            margin-bottom:
-                0.35rem;
-        }}
-
-        .empty-state-description {{
-            color:
-                #64748B;
-
-            font-size:
-                11px;
-
-            max-width:
-                480px;
-
-            margin:
-                0 auto;
-
-            line-height:
-                1.5;
-        }}
-
-
-        /* ==================================================================
-           LOADING STATES & SKELETONS
-           ================================================================== */
-
-        @keyframes skeleton-shimmer {{
-            0% {{
-                background-position: -200% 0;
-            }}
-            100% {{
-                background-position: 200% 0;
-            }}
-        }}
-
-        .skeleton-card,
-        .skeleton-chart-wrapper {{
-            padding:
-                1.25rem;
-
-            background:
-                rgba(255, 255, 255, 0.85);
-
-            backdrop-filter:
-                blur(14px);
-
-            border:
-                1px solid rgba(226, 232, 240, 0.85);
-
-            border-radius:
-                {RADIUS["lg"]};
-
-            box-shadow:
-                0 4px 16px rgba(14, 165, 233, 0.05);
-
-            margin-bottom:
-                1rem;
-        }}
-
-        .skeleton-line {{
-            height:
-                14px;
-
-            border-radius:
-                6px;
-
-            margin-bottom:
-                0.6rem;
-
-            background:
-                linear-gradient(
-                    90deg,
-                    #F1F5F9 25%,
-                    #E2E8F0 50%,
-                    #F1F5F9 75%
-                );
-
-            background-size:
-                200% 100%;
-
-            animation:
-                skeleton-shimmer 1.8s infinite;
-        }}
-
-        .skeleton-value {{
-            height:
-                28px;
-        }}
-
-        .loading-state {{
-            padding:
-                2rem;
-
-            text-align:
-                center;
-
-            color:
-                #64748B;
-
-            font-size:
-                12px;
-
-            font-weight:
-                700;
-        }}
-
-
-        /* ==================================================================
-           KPI CARDS
-           ================================================================== */
-
-        .kpi-card {{
-            position:
-                relative;
-
-            min-height:
-                125px;
-
-            padding:
-                1rem 1.15rem;
-
-            background:
-                rgba(255, 255, 255, 0.85);
-
-            backdrop-filter:
-                blur(14px) saturate(180%);
-
-            -webkit-backdrop-filter:
-                blur(14px) saturate(180%);
-
-            border:
-                1px solid rgba(226, 232, 240, 0.85);
-
-            border-radius:
-                {RADIUS["lg"]};
-
-            box-shadow:
-                0 6px 20px -2px rgba(14, 165, 233, 0.05),
-                0 1px 3px 0 rgba(15, 23, 42, 0.03);
-
-            overflow:
-                hidden;
-
-            transition:
-                transform 0.22s cubic-bezier(0.4, 0, 0.2, 1),
-                box-shadow 0.22s cubic-bezier(0.4, 0, 0.2, 1),
-                border-color 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-        }}
-
-        .kpi-card:hover {{
-            transform:
-                translateY(-2px);
-
-            border-color:
-                rgba(14, 165, 233, 0.40);
-
-            box-shadow:
-                0 12px 28px -4px rgba(14, 165, 233, 0.12),
-                0 4px 8px -2px rgba(15, 23, 42, 0.04);
-        }}
-
-        .kpi-card::after {{
-            content:
-                "";
-
-            position:
-                absolute;
-
-            left:
-                0;
-
-            right:
-                0;
-
-            bottom:
-                0;
-
-            height:
-                3px;
-
-            background:
-                {COLORS["primary"]};
-        }}
-
-        .kpi-card.kpi-blue::after {{
-            background:
-                {COLORS["primary"]};
-        }}
-
-        .kpi-card.kpi-green::after {{
-            background:
-                {COLORS["success"]};
-        }}
-
-        .kpi-card.kpi-purple::after {{
-            background:
-                {COLORS["secondary"]};
-        }}
-
-        .kpi-card.kpi-amber::after {{
-            background:
-                {COLORS["warning"]};
-        }}
-
-        .kpi-card.kpi-red::after {{
-            background:
-                {COLORS["danger"]};
-        }}
-
-        .kpi-card-top {{
-            position:
-                relative;
-
-            z-index:
-                1;
-
-            display:
-                flex;
-
-            align-items:
-                flex-start;
-
-            justify-content:
-                space-between;
-
-            gap:
-                0.75rem;
-        }}
-
-        .kpi-card-content {{
-            min-width:
-                0;
-
-            flex:
-                1;
-        }}
-
-        .kpi-label {{
-            color:
-                {COLORS["text_muted"]};
-
-            font-size:
-                9px;
-
-            font-weight:
-                700;
-
-            letter-spacing:
-                0.055em;
-
-            text-transform:
-                uppercase;
-
-            line-height:
-                1.35;
-        }}
-
-        .kpi-value {{
-            margin-top:
-                0.35rem;
-
-            color:
-                {COLORS["text"]};
-
-            font-size:
-                25px;
-
-            font-weight:
-                800;
-
-            line-height:
-                1.15;
-
-            letter-spacing:
-                -0.03em;
-
-            word-break:
-                break-word;
-        }}
-
-        .kpi-footer {{
-            margin-top:
-                0.65rem;
-        }}
-
-        .kpi-positive,
-        .kpi-negative,
-        .kpi-neutral {{
-            display:
-                inline-flex;
-
-            align-items:
-                center;
-
-            padding:
-                0.25rem 0.5rem;
-
-            border-radius:
-                {RADIUS["pill"]};
-
-            font-size:
-                9px;
-
-            font-weight:
-                700;
-        }}
-
-        .kpi-positive {{
-            color:
-                {COLORS["success_dark"]};
-
-            background:
-                {COLORS["success_soft"]};
-        }}
-
-        .kpi-negative {{
-            color:
-                {COLORS["danger_dark"]};
-
-            background:
-                {COLORS["danger_soft"]};
-        }}
-
-        .kpi-neutral {{
-            color:
-                {COLORS["text_muted"]};
-
-            background:
-                {COLORS["surface_soft"]};
-        }}
-
-        .kpi-icon {{
-            width:
-                38px;
-
-            height:
-                38px;
-
-            display:
-                inline-flex;
-
-            align-items:
-                center;
-
-            justify-content:
-                center;
-
-            flex-shrink:
-                0;
-
-            border-radius:
-                11px;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    {COLORS["primary_soft"]},
-                    {COLORS["primary_light"]}
-                );
-
-            border:
-                1px solid {COLORS["primary_light"]};
-
-            color:
-                {COLORS["primary"]};
-
-            font-size:
-                14px;
-
-            font-weight:
-                800;
-
-            box-shadow:
-                0 4px 10px rgba(37, 99, 235, 0.10);
-        }}
-
-
-        /* ==================================================================
-        /* ==================================================================
-           CHART & CONTENT CONTAINERS (GLASSMORPHISM ENTERPRISE PANELS)
-           ================================================================== */
-
-        .dashboard-panel,
-        .chart-card,
-        .dashboard-content-container,
-        [data-testid="stVerticalBlockBorderWrapper"] {{
-            background:
-                rgba(255, 255, 255, 0.94) !important;
-
-            backdrop-filter:
-                blur(18px) saturate(180%) !important;
-
-            -webkit-backdrop-filter:
-                blur(18px) saturate(180%) !important;
-
-            border:
-                1px solid rgba(226, 232, 240, 0.95) !important;
-
-            border-radius:
-                14px !important;
-
-            padding:
-                1.15rem 1.25rem !important;
-
-            margin-bottom:
-                1.15rem !important;
-
-            box-shadow:
-                0 4px 20px -2px rgba(14, 165, 233, 0.06),
-                0 1px 3px 0 rgba(15, 23, 42, 0.03) !important;
-
-            overflow:
-                hidden !important;
-
-            transition:
-                all 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        }}
-
-        .dashboard-panel:hover,
-        .chart-card:hover,
-        [data-testid="stVerticalBlockBorderWrapper"]:hover {{
-            transform:
-                translateY(-2px);
-
-            border-color:
-                rgba(14, 165, 233, 0.40) !important;
-
-            box-shadow:
-                0 12px 32px -4px rgba(14, 165, 233, 0.12),
-                0 4px 10px -2px rgba(15, 23, 42, 0.04) !important;
-        }}
-
-        .dashboard-panel-header,
-        .chart-card-header {{
-            display:
-                flex;
-
-            flex-direction:
-                column;
-
-            gap:
-                0.25rem;
-
-            padding:
-                0.2rem
-                0.2rem
-                0.75rem
-                0.2rem;
-
-            margin-bottom:
-                0.85rem;
-
-            border-bottom:
-                1px solid rgba(226, 232, 240, 0.80);
-        }}
-
-        .dashboard-panel-title,
-        .chart-card-title {{
-            color:
-                #0F172A;
-
-            font-size:
-                14.5px;
-
-            font-weight:
-                850;
-
-            letter-spacing:
-                -0.015em;
-
-            line-height:
-                1.25;
-        }}
-
-        .dashboard-panel-badge {{
-            display:
-                inline-flex;
-
-            align-items:
-                center;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    rgba(14, 165, 233, 0.12) 0%,
-                    rgba(99, 102, 241, 0.08) 100%
-                );
-
-            color:
-                #0284C7;
-
-            border:
-                1px solid rgba(14, 165, 233, 0.28);
-
-            border-radius:
-                999px;
-
-            padding:
-                0.22rem 0.65rem;
-
-            font-size:
-                8px;
-
-            font-weight:
-                850;
-
-            text-transform:
-                uppercase;
-
-            letter-spacing:
-                0.08em;
-
-            white-space:
-                nowrap;
-        }}
-
-        .dashboard-panel-description,
-        .chart-card-description {{
-            color:
-                #64748B;
-
-            font-size:
-                10.5px;
-
-            line-height:
-                1.55;
-
-            margin-top:
-                0.15rem;
-        }}
-
-        .dashboard-panel-footer {{
-            margin-top:
-                1rem;
-
-            padding:
-                0.65rem 0.9rem;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    rgba(240, 249, 255, 0.95) 0%,
-                    rgba(245, 243, 255, 0.85) 100%
-                );
-
-            border:
-                1px solid rgba(186, 230, 253, 0.95);
-
-            border-radius:
-                11px;
-
-            display:
-                flex;
-
-            align-items:
-                center;
-
-            gap:
-                0.6rem;
-
-            box-shadow:
-                0 2px 8px rgba(14, 165, 233, 0.04);
-        }}
-
-        .dashboard-panel-footer-icon {{
-            font-size:
-                14px;
-
-            flex-shrink:
-                0;
-        }}
-
-        .dashboard-panel-footer-text {{
-            color:
-                #0369A1;
-
-            font-size:
-                10px;
-
-            font-weight:
-                750;
-
-            line-height:
-                1.45;
-        }}
-
-        /* ==================================================================
-           INSIGHT & ALERT CARDS (GLASS EFFECT)
-           ================================================================== */
-
-        .insight-card {{
-            position:
-                relative;
-
-            padding:
-                1.15rem 1.25rem;
-
-            background:
-                rgba(255, 255, 255, 0.94);
-
-            backdrop-filter:
-                blur(16px) saturate(180%);
-
-            -webkit-backdrop-filter:
-                blur(16px) saturate(180%);
-
-            border:
-                1px solid rgba(226, 232, 240, 0.95);
-
-            border-radius:
-                14px;
-
-            box-shadow:
-                0 4px 20px -2px rgba(14, 165, 233, 0.05),
-                0 1px 3px 0 rgba(15, 23, 42, 0.03);
-
-            transition:
-                transform 0.22s ease,
-                border-color 0.22s ease,
-                box-shadow 0.22s ease;
-        }}
-
-        .insight-card:hover {{
-            transform:
-                translateY(-2px);
-
-            border-color:
-                rgba(14, 165, 233, 0.35);
-
-            box-shadow:
-                0 12px 28px -4px rgba(14, 165, 233, 0.12);
-        }}
-
-        .insight-label {{
-            display:
-                inline-block;
-
-            padding:
-                0.22rem 0.65rem;
-
-            border-radius:
-                999px;
-
-            font-size:
-                8.5px;
-
-            font-weight:
-                850;
-
-            letter-spacing:
-                0.08em;
-
-            text-transform:
-                uppercase;
-
-            margin-bottom:
-                0.6rem;
-        }}
-
-        .insight-danger {{
-            background:
-                #FEE2E2;
-
-            color:
-                #DC2626;
-
-            border:
-                1px solid #FECACA;
-        }}
-
-        .insight-warning {{
-            background:
-                #FEF3C7;
-
-            color:
-                #D97706;
-
-            border:
-                1px solid #FDE68A;
-        }}
-
-        .insight-success {{
-            background:
-                #D1FAE5;
-
-            color:
-                #059669;
-
-            border:
-                1px solid #A7F3D0;
-        }}
-
-        .insight-info {{
-            background:
-                #E0F2FE;
-
-            color:
-                #0284C7;
-
-            border:
-                1px solid #BAE6FD;
-        }}
-
-        .insight-title {{
-            color:
-                #0F172A;
-
-            font-size:
-                13.5px;
-
-            font-weight:
-                850;
-
-            line-height:
-                1.35;
-
-            margin-bottom:
-                0.4rem;
-        }}
-
-        .insight-description {{
-            color:
-                #64748B;
-
-            font-size:
-                10.5px;
-
-            line-height:
-                1.55;
-        }}
-
-
-        /* ==================================================================
-           DATA TABLES
-           ================================================================== */
-
-        .data-table-wrapper {{
-            width:
-                100%;
-
-            overflow-x:
-                auto;
-
-            background:
-                {COLORS["surface"]};
-
-            border:
-                1px solid {COLORS["border"]};
-
-            border-radius:
-                {RADIUS["lg"]};
-
-            box-shadow:
-                {SHADOWS["card"]};
-        }}
-
-        .data-table {{
-            width:
-                100%;
-
-            border-collapse:
-                collapse;
-
-            font-size:
-                10px;
-        }}
-
-        .data-table thead {{
-            background:
-                {COLORS["surface_soft"]};
-        }}
-
-        .data-table th {{
-            padding:
-                0.8rem 0.75rem;
-
-            color:
-                {COLORS["text_muted"]};
-
-            font-size:
-                9px;
-
-            font-weight:
-                800;
-
-            letter-spacing:
-                0.04em;
-
-            text-align:
-                left;
-
-            text-transform:
-                uppercase;
-
-            border-bottom:
-                1px solid {COLORS["border"]};
-        }}
-
-        .data-table td {{
-            padding:
-                0.75rem;
-
-            color:
-                {COLORS["text_secondary"]};
-
-            border-bottom:
-                1px solid {COLORS["border_light"]};
-
-            vertical-align:
-                middle;
-        }}
-
-        .data-table tbody tr {{
-            transition:
-                background 0.15s ease;
-        }}
-
-        .data-table tbody tr:hover {{
-            background:
-                {COLORS["primary_soft"]};
-        }}
-
-        .data-table tbody tr:last-child td {{
-            border-bottom:
-                none;
-        }}
-
-        .segment-name {{
-            color:
-                {COLORS["text"]};
-
-            font-weight:
-                700;
-        }}
-
-        .table-number {{
-            color:
-                {COLORS["text_secondary"]};
-
-            font-variant-numeric:
-                tabular-nums;
-
-            text-align:
-                right;
-        }}
-
-        .total-value {{
-            color:
-                {COLORS["primary"]};
-
-            font-weight:
-                750;
-        }}
-
-        .monetary {{
-            font-variant-numeric:
-                tabular-nums;
-        }}
-
-
-        /* ==================================================================
-           BUTTONS
-           ================================================================== */
-
+        /* Buttons */
         .stButton > button {{
-            min-height:
-                38px;
-
-            padding:
-                0.5rem 1rem;
-
-            border:
-                1px solid {COLORS["border"]};
-
-            border-radius:
-                {RADIUS["md"]};
-
-            background:
-                {COLORS["surface"]};
-
-            color:
-                {COLORS["text_secondary"]};
-
-            font-size:
-                11px;
-
-            font-weight:
-                700;
-
-            box-shadow:
-                {SHADOWS["sm"]};
-
-            transition:
-                background 0.15s ease,
-                border-color 0.15s ease,
-                color 0.15s ease,
-                transform 0.15s ease;
+            background: var(--color-primary) !important;
+            color: #FFFFFF !important;
+            border: 2px solid var(--color-primary-dark) !important;
+            border-radius: var(--radius-md) !important;
+            padding: 0.5rem 1.15rem !important;
+            font-size: 12.5px !important;
+            font-weight: 600 !important;
+            letter-spacing: 0.01em !important;
+            box-shadow: var(--shadow-sm) !important;
+            transition: var(--transition-smooth) !important;
         }}
 
         .stButton > button:hover {{
-            border-color:
-                {COLORS["primary"]};
-
-            background:
-                {COLORS["primary_soft"]};
-
-            color:
-                {COLORS["primary_dark"]};
-
-            transform:
-                translateY(-1px);
+            background: var(--color-primary-dark) !important;
+            box-shadow: var(--shadow-card) !important;
+            transform: translateY(-1px);
         }}
 
-        .stButton > button:focus {{
-            box-shadow:
-                0 0 0 3px rgba(37, 99, 235, 0.14);
+        .stButton > button:active {{
+            transform: translateY(0);
         }}
 
-
-        /* ==================================================================
-           SELECTBOX
-           ================================================================== */
-
-        [data-baseweb="select"] > div {{
-            min-height:
-                38px;
-
-            background:
-                {COLORS["surface"]} !important;
-
-            border-color:
-                {COLORS["border"]} !important;
-
-            border-radius:
-                {RADIUS["md"]} !important;
-
-            color:
-                {COLORS["text_secondary"]} !important;
+        .stDownloadButton > button {{
+            background: var(--bg-surface) !important;
+            color: var(--text-primary) !important;
+            border: 2px solid var(--border-color) !important;
+            border-radius: var(--radius-md) !important;
+            padding: 0.45rem 0.95rem !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            box-shadow: var(--shadow-sm) !important;
+            transition: var(--transition-smooth) !important;
         }}
 
-        [data-baseweb="select"] span {{
-            color:
-                {COLORS["text_secondary"]} !important;
-
-            font-size:
-                11px;
+        .stDownloadButton > button:hover {{
+            background: var(--bg-surface-alt) !important;
+            border-color: var(--border-strong) !important;
+            color: var(--color-primary) !important;
         }}
 
-
-        /* ==================================================================
-           INPUTS
-           ================================================================== */
-
-        .stTextInput input,
-        .stNumberInput input,
-        .stDateInput input {{
-            background:
-                {COLORS["surface"]} !important;
-
-            border:
-                1px solid {COLORS["border"]} !important;
-
-            border-radius:
-                {RADIUS["md"]} !important;
-
-            color:
-                {COLORS["text"]} !important;
-
-            font-size:
-                11px;
+        /* Inputs & Selectboxes */
+        div[data-baseweb="select"] > div {{
+            background: var(--bg-surface) !important;
+            border: 2px solid var(--border-color) !important;
+            border-radius: var(--radius-md) !important;
+            color: var(--text-primary) !important;
+            font-size: 12.5px !important;
         }}
 
-        .stTextInput input:focus,
-        .stNumberInput input:focus,
-        .stDateInput input:focus {{
-            border-color:
-                {COLORS["primary"]} !important;
-
-            box-shadow:
-                0 0 0 3px rgba(37, 99, 235, 0.10) !important;
+        div[data-baseweb="select"] > div:hover {{
+            border-color: var(--border-strong) !important;
         }}
 
+        div[data-baseweb="select"] > div:focus-within {{
+            border-color: var(--color-primary) !important;
+            box-shadow: 0 0 0 2px var(--color-primary-light) !important;
+        }}
 
-        /* ==================================================================
-           TABS
-           ================================================================== */
+        input[type="text"],
+        input[type="number"],
+        div[data-baseweb="input"] input {{
+            background: var(--bg-surface) !important;
+            border: 2px solid var(--border-color) !important;
+            border-radius: var(--radius-md) !important;
+            color: var(--text-primary) !important;
+            font-size: 12.5px !important;
+        }}
 
+        /* Tabs */
         .stTabs [data-baseweb="tab-list"] {{
-            gap:
-                0.25rem;
-
-            border-bottom:
-                1px solid {COLORS["border"]};
+            gap: 1rem !important;
+            background: transparent !important;
+            border-bottom: 2px solid var(--border-color) !important;
+            padding-bottom: 0 !important;
         }}
 
         .stTabs [data-baseweb="tab"] {{
-            padding:
-                0.65rem 0.85rem;
-
-            color:
-                {COLORS["text_muted"]};
-
-            font-size:
-                10px;
-
-            font-weight:
-                700;
+            padding: 0.65rem 0.85rem !important;
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            color: var(--text-muted) !important;
+            border: none !important;
+            background: transparent !important;
         }}
 
         .stTabs [aria-selected="true"] {{
-            color:
-                {COLORS["primary"]} !important;
-        }}
-
-        .stTabs [data-baseweb="tab-highlight"] {{
-            background:
-                {COLORS["primary"]} !important;
+            color: var(--color-primary) !important;
+            border-bottom: 3px solid var(--color-primary) !important;
         }}
 
 
         /* ==================================================================
-           ALERTS
+           DATA TABLES & DATAFRAMES (FOREST SIGNAL THEMED)
            ================================================================== */
 
-        [data-testid="stAlert"] {{
-            border-radius:
-                {RADIUS["md"]};
+        .stDataFrame,
+        [data-testid="stDataFrame"],
+        [data-testid="stDataFrameResizable"],
+        [data-testid="stTable"],
+        .dataframe {{
+            --gdg-accent-color: #1B4332 !important;
+            --gdg-accent-fg: #FFFFFF !important;
+            --gdg-accent-light: rgba(27, 67, 50, 0.12) !important;
+            --gdg-text-dark: #112211 !important;
+            --gdg-text-medium: #2D4A3E !important;
+            --gdg-text-light: #52796F !important;
+            --gdg-text-bubble: #FFFFFF !important;
+            --gdg-bg-icon-header: #D8F3DC !important;
+            --gdg-fg-icon-header: #1B4332 !important;
+            --gdg-text-header: #F1FAEE !important;
+            --gdg-text-header-selected: #FFFFFF !important;
+            --gdg-bg-cell: #FFFFFF !important;
+            --gdg-bg-cell-medium: #F8FCF9 !important;
+            --gdg-bg-header: #1B4332 !important;
+            --gdg-bg-header-has-focus: #143628 !important;
+            --gdg-bg-header-hovered: #2D6A4F !important;
+            --gdg-bg-bubble: #1B4332 !important;
+            --gdg-bg-bubble-selected: #143628 !important;
+            --gdg-bg-search-result: #FFE5D0 !important;
+            --gdg-border-color: #C3DFC9 !important;
+            --gdg-drilldown-border: #95BE9E !important;
+            --gdg-link-color: #1B4332 !important;
+            border: 2px solid var(--border-color) !important;
+            border-radius: var(--radius-md) !important;
+            overflow: hidden !important;
+            background: #FFFFFF !important;
+            box-shadow: 0 1px 3px 0 rgba(17, 34, 17, 0.05) !important;
+        }}
 
-            border-width:
-                1px;
+        [data-testid="stDataFrame"] > div,
+        [data-testid="stDataFrameResizable"] > div,
+        [data-testid="stTable"] > div {{
+            background: #FFFFFF !important;
+        }}
 
-            font-size:
-                11px;
+        /* Streamlit Dataframe Canvas & Scroller */
+        [data-testid="stDataFrame"] canvas,
+        [data-testid="stDataFrameResizable"] canvas {{
+            border-radius: calc(var(--radius-md) - 2px) !important;
+        }}
+
+        /* Dataframe Floating Action Toolbar */
+        [data-testid="stDataFrameToolbar"],
+        [data-testid="stDataFrame"] [data-testid="stElementToolbar"],
+        [data-testid="stDataFrameResizable"] [data-testid="stElementToolbar"] {{
+            background: #FFFFFF !important;
+            border: 1.5px solid var(--border-color) !important;
+            border-radius: 8px !important;
+            box-shadow: 0 2px 8px rgba(17, 34, 17, 0.08) !important;
+            padding: 2px !important;
+        }}
+
+        [data-testid="stDataFrameToolbar"] button,
+        [data-testid="stElementToolbar"] button {{
+            color: var(--color-primary) !important;
+            background: transparent !important;
+            border: none !important;
+            border-radius: 6px !important;
+            transition: var(--transition-smooth) !important;
+        }}
+
+        [data-testid="stDataFrameToolbar"] button:hover,
+        [data-testid="stElementToolbar"] button:hover {{
+            background: var(--bg-surface-alt) !important;
+            color: var(--color-primary-dark) !important;
+        }}
+
+        [data-testid="stDataFrameToolbar"] svg,
+        [data-testid="stElementToolbar"] svg {{
+            fill: var(--color-primary) !important;
+            stroke: var(--color-primary) !important;
+        }}
+
+        /* Standard HTML Tables, Markdown Tables & Streamlit st.table */
+        [data-testid="stTable"] table,
+        table.dataframe,
+        .stMarkdown table,
+        div[data-testid="stMarkdownContainer"] table {{
+            width: 100% !important;
+            border-collapse: collapse !important;
+            background: #FFFFFF !important;
+            border-radius: var(--radius-md) !important;
+            overflow: hidden !important;
+            border: 1.5px solid var(--border-color) !important;
+            margin: 0.5rem 0 !important;
+        }}
+
+        [data-testid="stTable"] th,
+        .stDataFrame th,
+        table.dataframe th,
+        .dataframe th,
+        .stMarkdown table th,
+        div[data-testid="stMarkdownContainer"] table th,
+        th.col_heading,
+        th.row_heading,
+        th.index_name {{
+            background-color: #1B4332 !important;
+            color: #F1FAEE !important;
+            font-weight: 700 !important;
+            font-size: 12px !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.04em !important;
+            padding: 0.65rem 0.85rem !important;
+            border: none !important;
+            border-bottom: 2px solid #143628 !important;
+            text-align: left !important;
+        }}
+
+        [data-testid="stTable"] td,
+        .stDataFrame td,
+        table.dataframe td,
+        .dataframe td,
+        .stMarkdown table td,
+        div[data-testid="stMarkdownContainer"] table td,
+        td.data {{
+            color: #112211 !important;
+            font-size: 12.5px !important;
+            padding: 0.6rem 0.85rem !important;
+            border-bottom: 1px solid var(--border-light) !important;
+            border-top: none !important;
+            border-left: none !important;
+            border-right: none !important;
+            background-color: #FFFFFF !important;
+        }}
+
+        [data-testid="stTable"] tr:nth-child(even) td,
+        table.dataframe tr:nth-child(even) td,
+        .dataframe tr:nth-child(even) td,
+        .stMarkdown table tr:nth-child(even) td,
+        div[data-testid="stMarkdownContainer"] table tr:nth-child(even) td {{
+            background-color: #F8FCF9 !important;
+        }}
+
+        [data-testid="stTable"] tr:hover td,
+        table.dataframe tr:hover td,
+        .dataframe tr:hover td,
+        .stMarkdown table tr:hover td,
+        div[data-testid="stMarkdownContainer"] table tr:hover td {{
+            background-color: #E8F3E8 !important;
+        }}
+
+        /* Glide Data Grid Cells & Numbers */
+        .stDataFrame [data-testid="glide-cell"] {{
+            font-variant-numeric: tabular-nums !important;
+            font-size: 12px !important;
+            color: #112211 !important;
+        }}
+
+        /* Progress Bar & Highlight Accents */
+        .stDataFrame [role="progressbar"],
+        [data-testid="stDataFrame"] progress,
+        [data-testid="stDataFrameResizable"] progress,
+        progress {{
+            accent-color: #F4A261 !important;
+        }}
+
+        progress::-webkit-progress-value {{
+            background-color: #F4A261 !important;
+            border-radius: 4px !important;
+        }}
+
+        progress::-webkit-progress-bar {{
+            background-color: #DEEFE2 !important;
+            border-radius: 4px !important;
+        }}
+
+        progress::-moz-progress-bar {{
+            background-color: #F4A261 !important;
+            border-radius: 4px !important;
         }}
 
 
         /* ==================================================================
-           STREAMLIT METRICS
+           FINANCIAL SCENARIO PLANNING GUIDANCE CARD (EXECUTIVE MATRIX)
            ================================================================== */
 
-        [data-testid="stMetric"],
-        [data-testid="stExpander"] {{
-            padding:
-                1rem 1.15rem;
-
-            background:
-                rgba(255, 255, 255, 0.94) !important;
-
-            backdrop-filter:
-                blur(16px) saturate(180%) !important;
-
-            -webkit-backdrop-filter:
-                blur(16px) saturate(180%) !important;
-
-            border:
-                1px solid rgba(226, 232, 240, 0.95) !important;
-
-            border-radius:
-                14px !important;
-
-            box-shadow:
-                0 4px 18px -2px rgba(14, 165, 233, 0.05) !important;
+        .scenario-planning-card {{
+            background: #FFFFFF !important;
+            border: 1.5px solid #C3DFC9 !important;
+            border-radius: 10px !important;
+            padding: 0.95rem 1rem !important;
+            margin-top: 0.75rem !important;
+            box-shadow: 0 2px 8px rgba(17, 34, 17, 0.05) !important;
         }}
 
-        [data-testid="stMetricLabel"] {{
-            color:
-                {COLORS["text_muted"]} !important;
-
-            font-size:
-                9px !important;
+        .scenario-planning-header {{
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            gap: 0.5rem !important;
+            padding-bottom: 0.6rem !important;
+            margin-bottom: 0.75rem !important;
+            border-bottom: 1px solid #E8F3E8 !important;
         }}
 
-        [data-testid="stMetricValue"] {{
-            color:
-                {COLORS["text"]} !important;
+        .scenario-planning-title {{
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.45rem !important;
+            font-size: 13px !important;
+            font-weight: 700 !important;
+            color: #1B4332 !important;
+            letter-spacing: 0.02em !important;
+        }}
 
-            font-size:
-                21px !important;
+        .scenario-header-icon {{
+            font-size: 14px !important;
+        }}
 
-            font-weight:
-                800 !important;
+        .scenario-segment-pill {{
+            background: #E8F5E9 !important;
+            color: #1B4332 !important;
+            border: 1px solid #C3DFC9 !important;
+            border-radius: 4px !important;
+            padding: 2px 8px !important;
+            font-size: 11px !important;
+            font-weight: 600 !important;
+            text-transform: capitalize !important;
+        }}
+
+        .scenario-grid {{
+            display: grid !important;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)) !important;
+            gap: 0.65rem !important;
+        }}
+
+        .scenario-item {{
+            border-radius: 8px !important;
+            padding: 0.65rem 0.75rem !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 0.25rem !important;
+            transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+        }}
+
+        .scenario-item:hover {{
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06) !important;
+        }}
+
+        .scenario-bear {{
+            background: #FFF5F5 !important;
+            border: 1px solid #FFD6D6 !important;
+        }}
+
+        .scenario-base {{
+            background: #F4FAF6 !important;
+            border: 1.5px solid #A3D9B1 !important;
+        }}
+
+        .scenario-bull {{
+            background: #F0F7FA !important;
+            border: 1px solid #D0E4F0 !important;
+        }}
+
+        .scenario-label {{
+            font-size: 10px !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.05em !important;
+            text-transform: uppercase !important;
+        }}
+
+        .scenario-bear .scenario-label {{ color: #BA181B !important; }}
+        .scenario-base .scenario-label {{ color: #1B4332 !important; }}
+        .scenario-bull .scenario-label {{ color: #1D3557 !important; }}
+
+        .scenario-value {{
+            font-size: 15px !important;
+            font-weight: 700 !important;
+            font-feature-settings: "tnum" !important;
+            line-height: 1.2 !important;
+        }}
+
+        .scenario-bear .scenario-value {{ color: #BA181B !important; }}
+        .scenario-base .scenario-value {{ color: #1B4332 !important; }}
+        .scenario-bull .scenario-value {{ color: #1D3557 !important; }}
+
+        .scenario-badge {{
+            display: inline-block !important;
+            font-size: 10px !important;
+            font-weight: 600 !important;
+            border-radius: 4px !important;
+            padding: 1px 6px !important;
+            width: fit-content !important;
+        }}
+
+        .bear-badge {{
+            background: #FFE3E3 !important;
+            color: #BA181B !important;
+        }}
+
+        .base-badge {{
+            background: #D8F3DC !important;
+            color: #1B4332 !important;
+        }}
+
+        .bull-badge {{
+            background: #D9E8F5 !important;
+            color: #1D3557 !important;
         }}
 
 
         /* ==================================================================
-           DIVIDERS
+           SIDEBAR BRAND & NAVIGATION CHROME (PREMIUM EXECUTIVE)
            ================================================================== */
 
-        hr {{
-            margin:
-                1.5rem 0;
-
-            border:
-                none;
-
-            border-top:
-                1px solid {COLORS["border"]};
+        .custom-sidebar-brand {{
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.7rem 0.8rem;
+            margin-bottom: 0.35rem;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(0, 0, 0, 0.22) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
         }}
 
-
-        /* ==================================================================
-           GLOBAL SCROLLBAR (MAIN CONTENT)
-           ================================================================== */
-
-        body::-webkit-scrollbar,
-        [data-testid="stMain"]::-webkit-scrollbar,
-        [data-testid="block-container"]::-webkit-scrollbar,
-        ::-webkit-scrollbar {{
-            width:
-                7px;
-
-            height:
-                7px;
+        .sidebar-brand-mark {{
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, rgba(244, 162, 97, 0.25) 0%, rgba(45, 106, 79, 0.6) 100%);
+            border: 1px solid rgba(244, 162, 97, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #F4A261;
+            font-size: 16px;
+            font-weight: 600;
+            flex-shrink: 0;
+            box-shadow: 0 0 12px rgba(244, 162, 97, 0.25);
         }}
 
-        ::-webkit-scrollbar-track {{
-            background:
-                {COLORS["surface_soft"]};
+        .sidebar-brand-text {{
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+            flex-grow: 1;
+            min-width: 0;
         }}
 
-        ::-webkit-scrollbar-thumb {{
-            background:
-                #CBD5E1;
-
-            border-radius:
-                999px;
+        .sidebar-brand-header-row {{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.4rem;
         }}
 
-        ::-webkit-scrollbar-thumb:hover {{
-            background:
-                #94A3B8;
+        .sidebar-brand-title {{
+            font-size: 13.5px !important;
+            font-weight: 700 !important;
+            color: #FFFFFF !important;
+            letter-spacing: 0.07em !important;
+            line-height: 1.2;
+            text-transform: uppercase;
         }}
 
-        /* Completely suppress all scrollbars and sliders across sidebar elements */
-        section[data-testid="stSidebar"]::-webkit-scrollbar,
-        [data-testid="stSidebarContent"]::-webkit-scrollbar,
-        [data-testid="stSidebarUserContent"]::-webkit-scrollbar,
-        [data-testid="stSidebar"]::-webkit-scrollbar,
-        [data-testid="stSidebar"] *::-webkit-scrollbar,
-        .sidebar-header-region::-webkit-scrollbar,
-        .sidebar-footer-region::-webkit-scrollbar {{
-            display:
-                none !important;
-
-            width:
-                0px !important;
-
-            height:
-                0px !important;
-
-            background:
-                transparent !important;
+        .sidebar-brand-badge {{
+            font-size: 9px !important;
+            font-weight: 700 !important;
+            background: rgba(244, 162, 97, 0.15) !important;
+            color: #F4A261 !important;
+            border: 1px solid rgba(244, 162, 97, 0.35) !important;
+            border-radius: 4px !important;
+            padding: 1px 5px !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.05em !important;
+            line-height: 1.2;
         }}
 
-        section[data-testid="stSidebar"],
-        [data-testid="stSidebar"],
-        [data-testid="stSidebarContent"],
-        [data-testid="stSidebarUserContent"],
-        [data-testid="stSidebar"] * {{
-            scrollbar-width:
-                none !important;
-
-            -ms-overflow-style:
-                none !important;
+        .sidebar-brand-subtitle {{
+            font-size: 10.5px !important;
+            font-weight: 500 !important;
+            color: #95BE9E !important;
+            letter-spacing: 0.02em !important;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }}
 
-
-        /* ==================================================================
-           EXPANDER
-           ================================================================== */
-
-        [data-testid="stExpander"] {{
-            background:
-                {COLORS["surface"]};
-
-            border:
-                1px solid {COLORS["border"]};
-
-            border-radius:
-                {RADIUS["lg"]};
-
-            box-shadow:
-                {SHADOWS["sm"]};
-
-            overflow:
-                hidden;
+        /* Prominent Active Module Status Banner */
+        .sidebar-current-view-card {{
+            background: linear-gradient(135deg, rgba(244, 162, 97, 0.16) 0%, rgba(45, 106, 79, 0.32) 100%);
+            border: 1px solid rgba(244, 162, 97, 0.38);
+            border-radius: 8px;
+            padding: 0.55rem 0.75rem;
+            margin: 0.35rem 0 0.55rem;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
         }}
 
-        [data-testid="stExpander"] summary {{
-            color:
-                {COLORS["text"]};
-
-            font-size:
-                11px;
-
-            font-weight:
-                700;
+        .sidebar-current-view-tag {{
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 9.5px !important;
+            font-weight: 700 !important;
+            color: #F4A261 !important;
+            letter-spacing: 0.08em !important;
+            text-transform: uppercase !important;
         }}
 
-
-        /* ==================================================================
-           DATAFRAME
-           ================================================================== */
-
-        [data-testid="stDataFrame"] {{
-            border:
-                1px solid {COLORS["border"]};
-
-            border-radius:
-                {RADIUS["lg"]};
-
-            overflow:
-                hidden;
-
-            box-shadow:
-                {SHADOWS["card"]};
+        .sidebar-current-view-dot {{
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #52B788;
+            box-shadow: 0 0 6px #52B788;
+            animation: beaconPulse 2s infinite;
         }}
 
-
-        /* ==================================================================
-           PLOTLY
-           ================================================================== */
-
-        .js-plotly-plot,
-        .plot-container {{
-            font-family:
-                {FONT_FAMILY} !important;
+        .sidebar-current-view-title {{
+            font-size: 13px !important;
+            font-weight: 700 !important;
+            color: #FFFFFF !important;
+            letter-spacing: 0.02em !important;
+            margin-top: 2px;
+            line-height: 1.25;
         }}
 
-
-        /* ==================================================================
-           FILE UPLOADER
-           ================================================================== */
-
-        [data-testid="stFileUploader"] {{
-            background:
-                {COLORS["surface"]};
-
-            border:
-                1px dashed {COLORS["border_strong"]};
-
-            border-radius:
-                {RADIUS["lg"]};
-
-            padding:
-                0.5rem;
+        .sidebar-divider {{
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
+            margin: 0.5rem 0.2rem;
         }}
 
-
-        /* ==================================================================
-           CHECKBOX
-           ================================================================== */
-
-        [data-testid="stCheckbox"] label {{
-            color:
-                {COLORS["text_secondary"]};
-
-            font-size:
-                11px;
+        .sidebar-section-label {{
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.45rem !important;
+            font-size: 10.5px !important;
+            font-weight: 700 !important;
+            color: #7EA28B !important;
+            letter-spacing: 0.09em !important;
+            text-transform: uppercase !important;
+            padding: 0.85rem 0.55rem 0.3rem !important;
+            margin: 0 !important;
         }}
 
-
-        /* ==================================================================
-           SLIDER
-           ================================================================== */
-
-        [data-testid="stSlider"] {{
-            padding-top:
-                0.25rem;
+        .sidebar-section-indicator {{
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #52B788;
+            opacity: 0.85;
+            flex-shrink: 0;
         }}
 
-
-        /* ==================================================================
-           CAPTION
-           ================================================================== */
-
-        .stCaption {{
-            color:
-                {COLORS["text_muted"]} !important;
-
-            font-size:
-                9px !important;
+        /* Executive Telemetry Status Footer */
+        .sidebar-footer {{
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: var(--sidebar-width, 250px);
+            padding: 0.65rem 0.75rem;
+            background: linear-gradient(180deg, rgba(15, 37, 28, 0.96) 0%, #0C1E16 100%);
+            border-top: 1px solid rgba(255, 255, 255, 0.09);
+            backdrop-filter: blur(8px);
+            z-index: 99;
         }}
 
-
-        /* ==================================================================
-           LINK BUTTONS
-           ================================================================== */
-
-        .stLinkButton > a {{
-            border:
-                1px solid {COLORS["border"]};
-
-            border-radius:
-                {RADIUS["md"]};
-
-            background:
-                {COLORS["surface"]};
-
-            color:
-                {COLORS["primary"]};
-
-            font-size:
-                10px;
-
-            font-weight:
-                700;
+        .sidebar-footer-card {{
+            background: rgba(0, 0, 0, 0.26);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 8px;
+            padding: 0.5rem 0.65rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
         }}
 
-        .stLinkButton > a:hover {{
-            border-color:
-                {COLORS["primary"]};
-
-            background:
-                {COLORS["primary_soft"]};
+        .sidebar-footer-status {{
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
         }}
 
+        .sidebar-status-text {{
+            font-size: 11px !important;
+            font-weight: 600 !important;
+            color: #FFFFFF !important;
+            letter-spacing: 0.02em;
+        }}
 
-        /* ==================================================================
-           RESPONSIVE DESIGN
-           ================================================================== */
+        .sidebar-telemetry-meta {{
+            font-size: 9.5px !important;
+            font-weight: 500 !important;
+            color: #7EA28B !important;
+            letter-spacing: 0.03em;
+            padding-left: 0.95rem;
+        }}
 
-        @media (max-width: 1100px) {{
-
-            [data-testid="block-container"] {{
-                padding-left:
-                    1.25rem;
-
-                padding-right:
-                    1.25rem;
+        @keyframes beaconPulse {{
+            0% {{
+                box-shadow: 0 0 0 0 rgba(82, 183, 136, 0.8);
             }}
-
-            .page-header-title {{
-                font-size:
-                    22px;
+            70% {{
+                box-shadow: 0 0 0 6px rgba(82, 183, 136, 0);
             }}
-
-            .kpi-value {{
-                font-size:
-                    22px;
+            100% {{
+                box-shadow: 0 0 0 0 rgba(82, 183, 136, 0);
             }}
         }}
 
-
-        @media (max-width: 768px) {{
-
-            [data-testid="stSidebar"] {{
-                min-width:
-                    250px !important;
-
-                max-width:
-                    250px !important;
-            }}
-
-            [data-testid="block-container"] {{
-                padding:
-                    1rem
-                    0.85rem
-                    2rem;
-            }}
-
-            .page-header {{
-                flex-direction:
-                    column;
-
-                padding:
-                    1rem;
-            }}
-
-            .page-header-status {{
-                padding-top:
-                    0;
-            }}
-
-            .page-header-title {{
-                font-size:
-                    20px;
-            }}
-
-            .section-title {{
-                font-size:
-                    14px;
-            }}
-
-            .kpi-card {{
-                min-height:
-                    115px;
-
-                padding:
-                    0.85rem;
-            }}
-
-            .kpi-value {{
-                font-size:
-                    20px;
-            }}
+        .sidebar-status-dot {{
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #52B788;
+            animation: beaconPulse 2.2s infinite;
+            flex-shrink: 0;
         }}
 
-
-        @media (max-width: 480px) {{
-
-            .page-header-title {{
-                font-size:
-                    18px;
-            }}
-
-            .page-header-description {{
-                font-size:
-                    10px;
-            }}
-
-            .kpi-label {{
-                font-size:
-                    8px;
-            }}
-
-            .kpi-value {{
-                font-size:
-                    18px;
-            }}
-
-            .kpi-icon {{
-                width:
-                    32px;
-
-                height:
-                    32px;
-
-                border-radius:
-                    9px;
+        /* Respect accessibility preferences for reduced motion */
+        @media (prefers-reduced-motion: reduce) {{
+            *, *::before, *::after {{
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
             }}
         }}
 
 
         /* ==================================================================
-           ACCESSIBILITY
+           GLOBAL APPLICATION HEADER BAR
            ================================================================== */
 
-        :focus-visible {{
-            outline:
-                2px solid {COLORS["primary"]};
-
-            outline-offset:
-                2px;
+        .app-global-header {{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.85rem 1.35rem;
+            background: #FFFFFF;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.02), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            margin-bottom: 1.35rem;
+            flex-wrap: wrap;
         }}
+
+        .badge-micro-label {{
+            font-size: 9.5px;
+            font-weight: 750;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            line-height: 1.3;
+        }}
+
+        .badge-micro-value {{
+            font-size: 13px;
+            font-weight: 750;
+            color: var(--text-primary);
+            letter-spacing: -0.015em;
+        }}
+
+
+        /* ==================================================================
+           PAGE HEADER COMPONENT
+           ================================================================== */
+
+        .page-header {{
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1.25rem;
+            padding-bottom: 1.15rem;
+            margin-bottom: 1.35rem;
+            border-bottom: 1px solid var(--border-color);
+        }}
+
+        .page-header-content {{
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            flex: 1;
+        }}
+
+        .page-header-title {{
+            font-size: 26px !important;
+            font-weight: 850 !important;
+            color: var(--color-primary) !important;
+            letter-spacing: -0.03em;
+            margin: 0;
+            line-height: 1.2;
+        }}
+
+        .page-header-description {{
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.55;
+            margin: 0;
+            max-width: 750px;
+        }}
+
+        .page-header-status {{
+            flex-shrink: 0;
+        }}
+
+        .status-badge {{
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.35rem 0.85rem;
+            border-radius: var(--radius-pill);
+            font-size: 10px;
+            font-weight: 750;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            background: #FFFFFF;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+            white-space: nowrap;
+        }}
+
+        .status-badge.status-live {{
+            color: var(--color-primary);
+            border-color: rgba(37, 99, 235, 0.25);
+            background: var(--color-primary-soft);
+        }}
+
+        .status-badge.status-warning {{
+            color: var(--color-warning);
+            border-color: rgba(245, 158, 11, 0.25);
+            background: var(--color-warning-soft);
+        }}
+
+        .status-badge.status-danger {{
+            color: var(--color-danger);
+            border-color: rgba(244, 63, 94, 0.25);
+            background: var(--color-danger-soft);
+        }}
+
+        .status-badge.status-info {{
+            color: var(--color-info);
+            border-color: rgba(99, 102, 241, 0.25);
+            background: var(--color-info-soft);
+        }}
+
+
+        /* ==================================================================
+           SECTION & SUBSECTION HEADERS
+           ================================================================== */
+
+        .section-header {{
+            margin-top: 2.25rem;
+            margin-bottom: 1.15rem;
+            position: relative;
+        }}
+
+        .section-header-top {{
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            margin-bottom: 0.35rem;
+        }}
+
+        .section-header-indicator {{
+            width: 5px;
+            height: 20px;
+            border-radius: 4px;
+            background: linear-gradient(180deg, var(--color-primary) 0%, var(--color-accent) 100%);
+            box-shadow: 0 0 10px rgba(244, 162, 97, 0.45);
+            flex-shrink: 0;
+        }}
+
+        .section-title {{
+            font-size: 17.5px !important;
+            font-weight: 850 !important;
+            color: var(--color-primary) !important;
+            letter-spacing: -0.02em;
+            margin: 0;
+            line-height: 1.25;
+        }}
+
+        .section-description {{
+            font-size: 12.5px;
+            color: var(--text-muted);
+            margin: 0 0 0.65rem 0.9rem;
+            line-height: 1.5;
+            max-width: 820px;
+        }}
+
+        .section-header-underline {{
+            height: 3px;
+            border-radius: 2px;
+            background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-accent) 80px, rgba(149, 190, 158, 0.8) 80px, rgba(149, 190, 158, 0.8) 100%);
+            width: 100%;
+        }}
+
+        .subsection-header {{
+            margin-top: 1.35rem;
+            margin-bottom: 0.75rem;
+            padding-left: 0.5rem;
+            border-left: 3px solid var(--color-primary-light);
+        }}
+
+        .subsection-title {{
+            font-size: 14.5px !important;
+            font-weight: 750 !important;
+            color: var(--color-primary) !important;
+            letter-spacing: -0.01em;
+            margin: 0;
+        }}
+
+        .subsection-description {{
+            font-size: 12px;
+            color: var(--text-muted);
+            margin: 0.15rem 0 0 0;
+            line-height: 1.45;
+        }}
+
+
+        /* ==================================================================
+           DASHBOARD DIVIDERS
+           ================================================================== */
+
+        .dashboard-divider {{
+            height: 2px;
+            background: var(--border-color);
+            margin: 1.25rem 0;
+        }}
+
+        .dashboard-divider-compact {{
+            height: 2px;
+            background: var(--border-color);
+            margin: 0.65rem 0;
+        }}
+
+        .dashboard-divider-spacious {{
+            height: 2px;
+            background: var(--border-color);
+            margin: 2rem 0;
+        }}
+
+
+        /* ==================================================================
+           LOADING STATES & SKELETON SCREENS
+           ================================================================== */
+
+        .loading-state {{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 1.5rem;
+            gap: 1rem;
+            text-align: center;
+        }}
+
+        .loading-state-spinner {{
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--border-light);
+            border-top-color: var(--color-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }}
+
+        @keyframes spin {{
+            to {{ transform: rotate(360deg); }}
+        }}
+
+        .loading-state-message {{
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }}
+
+        .loading-state-description {{
+            font-size: 12px;
+            color: var(--text-muted);
+            max-width: 320px;
+        }}
+
+        .skeleton-card {{
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+        }}
+
+        .skeleton-line {{
+            background: linear-gradient(90deg, var(--bg-surface-soft) 25%, var(--bg-surface-alt) 50%, var(--bg-surface-soft) 75%);
+            background-size: 200% 100%;
+            animation: skeleton-shimmer 1.5s ease-in-out infinite;
+            border-radius: var(--radius-sm);
+        }}
+
+        @keyframes skeleton-shimmer {{
+            0% {{ background-position: 200% 0; }}
+            100% {{ background-position: -200% 0; }}
+        }}
+
+        .skeleton-label {{
+            width: 45%;
+            height: 10px;
+        }}
+
+        .skeleton-value {{
+            width: 65%;
+            height: 22px;
+        }}
+
+        .skeleton-footer {{
+            width: 55%;
+            height: 9px;
+        }}
+
+        .skeleton-chart-wrapper {{
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+        }}
+
+        .skeleton-chart-title {{
+            width: 40%;
+            height: 14px;
+            background: var(--bg-surface-soft);
+            border-radius: var(--radius-sm);
+            margin-bottom: 1rem;
+        }}
+
+        .skeleton-chart {{
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+        }}
+
+        .skeleton-chart-grid {{
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(to right, var(--border-light) 1px, transparent 1px),
+                linear-gradient(to bottom, var(--border-light) 1px, transparent 1px);
+            background-size: 20% 25%;
+        }}
+
+        .skeleton-chart-line {{
+            position: absolute;
+            bottom: 30%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--bg-surface-soft);
+            border-radius: 1px;
+        }}
+
+
+        /* ==================================================================
+           EMPTY STATES
+           ================================================================== */
+
+        .empty-state {{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 3rem 2rem;
+            gap: 0.65rem;
+            background: var(--bg-surface);
+            border: 1px dashed var(--border-color);
+            border-radius: var(--radius-md);
+        }}
+
+        .empty-state-icon {{
+            font-size: 32px;
+            opacity: 0.6;
+        }}
+
+        .empty-state-title {{
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }}
+
+        .empty-state-description {{
+            font-size: 12px;
+            color: var(--text-muted);
+            max-width: 360px;
+            line-height: 1.45;
+        }}
+
+        .empty-state-info {{ border-color: var(--color-info); }}
+        .empty-state-info .empty-state-icon {{ color: var(--color-info); }}
+
+        .empty-state-warning {{ border-color: var(--color-warning); }}
+        .empty-state-warning .empty-state-icon {{ color: var(--color-warning); }}
+
+        .empty-state-error {{ border-color: var(--color-danger); }}
+        .empty-state-error .empty-state-icon {{ color: var(--color-danger); }}
+
+        .empty-state-success {{ border-color: var(--color-success); }}
+        .empty-state-success .empty-state-icon {{ color: var(--color-success); }}
+
+
+        /* ==================================================================
+           METRIC BADGES
+           ================================================================== */
+
+        .metric-badge {{
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.2rem 0.55rem;
+            border-radius: var(--radius-pill);
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            background: var(--bg-surface);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }}
+
+        .metric-badge-positive {{
+            background: var(--color-success-soft);
+            color: var(--color-success);
+            border-color: var(--color-success-light);
+        }}
+
+        .metric-badge-negative {{
+            background: var(--color-danger-soft);
+            color: var(--color-danger);
+            border-color: var(--color-danger-light);
+        }}
+
+        .metric-badge-neutral {{
+            background: var(--bg-surface-soft);
+            color: var(--text-muted);
+            border-color: var(--border-color);
+        }}
+
+        .metric-badge-warning {{
+            background: var(--color-warning-soft);
+            color: var(--color-warning);
+            border-color: var(--color-warning-light);
+        }}
+
+        .metric-badge-info {{
+            background: var(--color-info-soft);
+            color: var(--color-info);
+            border-color: var(--color-info-light);
+        }}
+
+
+        /* ==================================================================
+           STATUS INDICATOR SUBCLASSES
+           ================================================================== */
+
+        .status-indicator-dot {{
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }}
+
+        .status-indicator-label {{
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }}
+
+        .status-live .status-indicator-dot {{ background: var(--color-primary); box-shadow: 0 0 6px var(--color-primary); }}
+        .status-healthy .status-indicator-dot {{ background: var(--color-success); box-shadow: 0 0 6px var(--color-success); }}
+        .status-warning .status-indicator-dot {{ background: var(--color-warning); box-shadow: 0 0 6px var(--color-warning); }}
+        .status-error .status-indicator-dot {{ background: var(--color-danger); box-shadow: 0 0 6px var(--color-danger); }}
+        .status-processing .status-indicator-dot {{ background: #7C3AED; box-shadow: 0 0 6px #7C3AED; }}
+        .status-inactive .status-indicator-dot {{ background: var(--text-light); }}
+
+
+        /* ==================================================================
+           STREAMLIT EXPANDER POLISH
+           ================================================================== */
+
+        .streamlit-expanderHeader {{
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            color: var(--text-primary) !important;
+            border-radius: var(--radius-md) !important;
+            background: var(--bg-surface) !important;
+            border: 2px solid var(--border-color) !important;
+        }}
+
+        details[data-testid="stExpander"] {{
+            border: 2px solid var(--border-color) !important;
+            border-radius: var(--radius-md) !important;
+            background: var(--bg-surface) !important;
+            box-shadow: var(--shadow-sm) !important;
+        }}
+
+        details[data-testid="stExpander"] summary {{
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            color: var(--text-primary) !important;
+        }}
+
+
+        /* ==================================================================
+           STREAMLIT MULTISELECT TAGS
+           ================================================================== */
+
+        span[data-baseweb="tag"] {{
+            background: var(--color-primary-soft) !important;
+            color: var(--color-primary) !important;
+            border: 1.5px solid var(--color-primary-light) !important;
+            border-radius: var(--radius-sm) !important;
+            font-size: 11px !important;
+            font-weight: 600 !important;
+        }}
+
+
+        /* ==================================================================
+           STREAMLIT METRIC OVERRIDE
+           ================================================================== */
+
+        [data-testid="stMetric"] {{
+            background: var(--bg-surface) !important;
+            border: 2px solid var(--border-color) !important;
+            border-radius: var(--radius-md) !important;
+            padding: 0.85rem 1rem !important;
+            box-shadow: var(--shadow-card) !important;
+        }}
+
+        [data-testid="stMetric"] label {{
+            font-size: 10px !important;
+            font-weight: 650 !important;
+            letter-spacing: 0.05em !important;
+            text-transform: uppercase !important;
+            color: var(--text-muted) !important;
+        }}
+
+        [data-testid="stMetric"] [data-testid="stMetricValue"] {{
+            font-size: 22px !important;
+            font-weight: 750 !important;
+            color: var(--text-primary) !important;
+            font-variant-numeric: tabular-nums !important;
+        }}
+
+
+        /* ==================================================================
+           STREAMLIT TABS (LUXURY FINTECH STYLE)
+           ================================================================== */
+
+        [data-testid="stTabs"] [data-baseweb="tab-list"] {{
+            gap: 0.5rem !important;
+            background: transparent !important;
+            border-bottom: 2px solid var(--border-color) !important;
+            padding-bottom: 0px !important;
+            margin-bottom: 1rem !important;
+        }}
+
+        [data-testid="stTabs"] [data-baseweb="tab"] {{
+            padding: 0.65rem 1.15rem !important;
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            color: var(--text-muted) !important;
+            border-radius: 8px 8px 0 0 !important;
+            background: transparent !important;
+            border-bottom: 2px solid transparent !important;
+            transition: var(--transition-smooth) !important;
+        }}
+
+        [data-testid="stTabs"] [data-baseweb="tab"]:hover {{
+            color: var(--text-primary) !important;
+            background: rgba(15, 23, 42, 0.02) !important;
+        }}
+
+        [data-testid="stTabs"] [data-baseweb="tab"][aria-selected="true"] {{
+            color: var(--color-primary) !important;
+            font-weight: 750 !important;
+            border-bottom: 3px solid var(--color-primary) !important;
+            background: transparent !important;
+        }}
+
+        [data-testid="stTabs"] [data-baseweb="tab-highlight"] {{
+            background-color: var(--color-primary) !important;
+        }}
+
+
+        /* ==================================================================
+           STREAMLIT BUTTONS & ACTIONS
+           ================================================================== */
+
+        [data-testid="stBaseButton-secondary"],
+        .stButton > button {{
+            background: #FFFFFF !important;
+            color: var(--text-primary) !important;
+            border: 2px solid var(--border-color) !important;
+            border-radius: var(--radius-md) !important;
+            font-size: 12.5px !important;
+            font-weight: 650 !important;
+            padding: 0.5rem 1rem !important;
+            box-shadow: var(--shadow-sm) !important;
+            transition: var(--transition-smooth) !important;
+        }}
+
+        [data-testid="stBaseButton-secondary"]:hover,
+        .stButton > button:hover {{
+            border-color: var(--border-strong) !important;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08) !important;
+            transform: translateY(-1px) !important;
+            color: var(--color-primary) !important;
+        }}
+
+        [data-testid="stBaseButton-primary"] {{
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%) !important;
+            color: #FFFFFF !important;
+            border: 2px solid var(--color-primary-dark) !important;
+            border-radius: var(--radius-md) !important;
+            font-size: 12.5px !important;
+            font-weight: 700 !important;
+            padding: 0.5rem 1.15rem !important;
+            box-shadow: 0 4px 14px rgba(27, 67, 50, 0.35) !important;
+            transition: var(--transition-smooth) !important;
+        }}
+
+        [data-testid="stBaseButton-primary"]:hover {{
+            box-shadow: 0 6px 20px rgba(27, 67, 50, 0.45) !important;
+            transform: translateY(-1px) !important;
+        }}
+
+
+        /* ==================================================================
+           STREAMLIT FORM INPUTS & SELECTBOXES
+           ================================================================== */
+
+        [data-baseweb="select"] > div {{
+            background-color: #FFFFFF !important;
+            border: 2px solid var(--border-color) !important;
+            border-radius: var(--radius-md) !important;
+            box-shadow: var(--shadow-sm) !important;
+            font-size: 13px !important;
+            transition: var(--transition-smooth) !important;
+        }}
+
+        [data-baseweb="select"] > div:hover {{
+            border-color: var(--border-strong) !important;
+        }}
+
+        [data-baseweb="select"] > div:focus-within {{
+            border-color: var(--color-primary) !important;
+            box-shadow: 0 0 0 3px rgba(27, 67, 50, 0.15) !important;
+        }}
+
+        [data-baseweb="input"] input {{
+            background-color: #FFFFFF !important;
+            border: 2px solid var(--border-color) !important;
+            border-radius: var(--radius-md) !important;
+            font-size: 13px !important;
+        }}
+
+
+
+
+        /* ==================================================================
+           INTER WEB FONT IMPORT
+           ================================================================== */
+
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+
+        /* ==================================================================
+           ACCESSIBILITY & REDUCED MOTION
+           ================================================================== */
 
         @media (prefers-reduced-motion: reduce) {{
-
             *,
             *::before,
             *::after {{
-                scroll-behavior:
-                    auto !important;
-
-                transition:
-                    none !important;
-
-                animation:
-                    none !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
             }}
+        }}
+
+        :focus-visible {{
+            outline: 2px solid var(--color-primary) !important;
+            outline-offset: 2px !important;
         }}
 
         </style>
@@ -3189,7 +2311,7 @@ def inject_global_styles() -> None:
 
 
 # ============================================================================
-# PUBLIC API
+# 6. PUBLIC API EXPORT
 # ============================================================================
 
 __all__ = [

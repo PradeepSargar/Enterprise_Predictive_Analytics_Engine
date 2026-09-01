@@ -70,6 +70,15 @@ ehthumbs.db
 Thumbs.db
 
 # Large archives and temporary dumps
-data.zip
+*.zip
 *.tar.gz
 *.rar
+*.7z
+
+# Local Database files (regenerable via scripts/run_sql_pipeline.py)
+*.duckdb
+*.duckdb.wal
+*.sqlite
+*.sqlite3
+*.db
+

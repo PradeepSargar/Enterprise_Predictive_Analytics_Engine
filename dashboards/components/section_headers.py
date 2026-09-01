@@ -233,19 +233,18 @@ def section_header(
 
 
     # ------------------------------------------------------------------------
-    # Build section header
+    # Build section header with standout visual indicator & underline
     # ------------------------------------------------------------------------
 
     html = (
         '<div class="section-header">'
-
-        '<div class="section-title">'
-        f"{safe_title}"
-        "</div>"
-
+        '<div class="section-header-top">'
+        '<div class="section-header-indicator"></div>'
+        f'<div class="section-title">{safe_title}</div>'
+        '</div>'
         f"{description_html}"
-
-        "</div>"
+        '<div class="section-header-underline"></div>'
+        '</div>'
     )
 
 

@@ -27,6 +27,7 @@ from dashboards.components.containers import panel
 from dashboards.components.exports import csv_download, excel_download
 from dashboards.components.kpi_cards import kpi_card
 from dashboards.components.section_headers import page_header, section_header
+from dashboards.components.tables import render_styled_table
 from dashboards.data.loader import load_master_data, predict_dissatisfaction_risk
 from dashboards.utils.constants import (
     CHART_PALETTE,
@@ -65,33 +66,58 @@ render_html(
     <div style="
         position: relative;
         overflow: hidden;
-        background: linear-gradient(135deg, #0284C7 0%, #0EA5E9 40%, #8B5CF6 100%);
+        background: linear-gradient(135deg, #1B4332 0%, #143628 50%, #0F281E 100%);
         border-radius: 16px;
         padding: 1.5rem 1.8rem;
         margin-bottom: 1.5rem;
-        box-shadow: 0 8px 24px -4px rgba(14, 165, 233, 0.25);
+        box-shadow: 0 10px 25px rgba(15, 40, 30, 0.20);
         color: #FFFFFF;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.10);
     ">
+        <div style="
+            position: absolute;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(244, 162, 97, 0.22) 0%, rgba(244, 162, 97, 0) 70%);
+            top: -70px;
+            right: 50px;
+            pointer-events: none;
+        "></div>
+        <div style="
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(82, 183, 136, 0.18) 0%, rgba(82, 183, 136, 0) 70%);
+            bottom: -50px;
+            right: -20px;
+            pointer-events: none;
+        "></div>
+
         <div style="position: relative; z-index: 2; max-width: 820px;">
             <div style="
-                display: inline-block;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
                 padding: 0.25rem 0.6rem;
                 border-radius: 999px;
-                background: rgba(255, 255, 255, 0.2);
-                border: 1px solid rgba(255, 255, 255, 0.3);
+                background: rgba(244, 162, 97, 0.18);
+                border: 1px solid rgba(244, 162, 97, 0.35);
+                color: #F4A261;
                 font-size: 8.5px;
                 font-weight: 800;
                 letter-spacing: 0.08em;
                 text-transform: uppercase;
                 margin-bottom: 0.5rem;
             ">
+                <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#F4A261;"></span>
                 DISSATISFACTION & CHURN INTELLIGENCE
             </div>
             <div style="font-size: 17px; font-weight: 900; line-height: 1.3; margin-bottom: 0.35rem; color: #FFFFFF;">
                 Operational Risk Drivers & Proactive SLA Monitoring
             </div>
-            <div style="font-size: 11px; opacity: 0.95; line-height: 1.5; color: #F0F9FF;">
+            <div style="font-size: 11px; opacity: 0.95; line-height: 1.5; color: #F1FAEE;">
                 Differentiate observed low-review dissatisfaction (Scores 1–2) from real-time
                 machine-learning dissatisfaction predictions. Identify shipping delays and regional bottlenecks.
             </div>
@@ -173,30 +199,35 @@ section_header(
     description="Filter the observed customer-experience risk population before reviewing operational drivers.",
 )
 
-filter_columns = st.columns(3, gap="medium")
+with panel(
+    title="Risk Cohort & Threshold Controls",
+    description="Filter orders by risk tier, customer region, and custom low-review cutoff.",
+    badge="FILTERS",
+):
+    filter_columns = st.columns(3, gap="medium")
 
-with filter_columns[0]:
-    selected_risk = st.multiselect(
-        "Risk Tier",
-        options=["High Risk", "Medium Risk", "Low Risk"],
-        default=["High Risk", "Medium Risk", "Low Risk"],
-    )
+    with filter_columns[0]:
+        selected_risk = st.multiselect(
+            "Risk Tier",
+            options=["High Risk", "Medium Risk", "Low Risk"],
+            default=["High Risk", "Medium Risk", "Low Risk"],
+        )
 
-with filter_columns[1]:
-    filter_col_name = region_column if region_column is not None else state_column
-    if filter_col_name is not None:
-        region_values = valid_review_df[filter_col_name].dropna().astype(str).sort_values().unique().tolist()
-        selected_region = st.multiselect("Region / State", options=region_values, default=region_values[:8] if len(region_values) > 8 else region_values)
-    else:
-        selected_region = None
+    with filter_columns[1]:
+        filter_col_name = region_column if region_column is not None else state_column
+        if filter_col_name is not None:
+            region_values = valid_review_df[filter_col_name].dropna().astype(str).sort_values().unique().tolist()
+            selected_region = st.multiselect("Region / State", options=region_values, default=region_values[:8] if len(region_values) > 8 else region_values)
+        else:
+            selected_region = None
 
-with filter_columns[2]:
-    review_threshold = st.select_slider(
-        "Low-Review Threshold",
-        options=[1, 2, 3],
-        value=2,
-        help="Orders with reviews ≤ this score are classified as dissatisfaction exposure.",
-    )
+    with filter_columns[2]:
+        review_threshold = st.select_slider(
+            "Low-Review Threshold",
+            options=[1, 2, 3],
+            value=2,
+            help="Orders with reviews ≤ this score are classified as dissatisfaction exposure.",
+        )
 
 # ============================================================================
 # APPLY FILTERS
@@ -309,7 +340,7 @@ with dist_col1:
             dataframe=distribution_df,
             names="Risk Tier",
             values="Orders",
-            title="Orders by Risk Tier",
+            title=None,
             height=360,
         )
 
@@ -333,7 +364,7 @@ with dist_col2:
             dataframe=review_dist,
             category="Score",
             value="Count",
-            title="Review Score Counts",
+            title=None,
             category_title="Rating",
             value_title="Orders",
             height=360,
@@ -379,7 +410,7 @@ if delivery_delay_column is not None and delivery_delay_column in filtered_df.co
                 dataframe=delay_summary,
                 category="Delivery Status",
                 value="Low_Review_Rate",
-                title="Low-Review Rate by Delivery SLA",
+                title=None,
                 category_title="Logistics SLA",
                 value_title="Dissatisfaction Rate",
                 height=350,
@@ -398,14 +429,13 @@ if delivery_delay_column is not None and delivery_delay_column in filtered_df.co
                 high_risk_delays,
                 x=delivery_delay_column,
                 nbins=30,
-                title="Shipping Delay (Days) for Dissatisfied Customers",
                 color_discrete_sequence=[DANGER_COLOR],
             )
             delay_fig.update_layout(
                 paper_bgcolor="rgba(0,0,0,0)",
                 plot_bgcolor="rgba(0,0,0,0)",
                 font=dict(family="Inter, sans-serif", color=TEXT_COLOR, size=11),
-                margin=dict(l=40, r=20, t=40, b=40),
+                margin=dict(l=40, r=20, t=20, b=40),
                 height=350,
             )
             st.plotly_chart(delay_fig, width="stretch")
@@ -572,24 +602,14 @@ with panel(
     if "Review Score" in table_view.columns:
         table_view = table_view.sort_values("Review Score", ascending=True)
 
-    st.dataframe(
-        table_view.head(200),
-        width="stretch",
-        hide_index=True,
-        column_config={
-            "Order Value (R$)": st.column_config.NumberColumn(
-                "Order Value",
-                format="R$ %.2f",
-            ),
-            "Delay (Days)": st.column_config.NumberColumn(
-                "Delay Days",
-                format="%.1f days",
-            ),
-            "Review Score": st.column_config.NumberColumn(
-                "Review Score",
-                format="%d ⭐",
-            ),
+    render_styled_table(
+        table_view.head(50),
+        column_formats={
+            "Order Value (R$)": "R$ {:,.2f}",
+            "Delay (Days)": "{:.1f} days",
+            "Review Score": "{:.0f} ⭐",
         },
+        max_height=320,
     )
 
     col_exp1, col_exp2, col_sp = st.columns([1, 1, 2], gap="small")
